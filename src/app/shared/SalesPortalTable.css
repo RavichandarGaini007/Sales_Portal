@@ -1,0 +1,29 @@
+.sticky-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f2f2f2; /* or any background color */
+  z-index: 1; /* Ensure header stays above table body */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow to header */
+}
+
+/* Allow the table to scroll vertically */
+.table-container {
+  max-height: 500px; /* Adjust this value to control the scrollable height */
+  overflow-y: auto;
+}
+
+/* Style the table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
