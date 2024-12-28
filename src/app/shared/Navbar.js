@@ -45,13 +45,13 @@ const Navbar = () => {
       <nav className="navbar top-navbar col-lg-12 col-12 p-0">
         <div className="container">
           <div className="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-            <a className="navbar-brand brand-logo" href="index.html" style={{width:"50px"}}>
+            <a className="navbar-brand brand-logo" href="/dashboard" style={{width:"50px"}}>
               <img src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png" alt="logo"  />
              
             </a>
             <span className="font-12 d-block font-weight-light" style={{fontWeight:"bold",fontSize:"20px",color:"#0e4194",paddingLeft:"10px"}}>Sales Portal</span>
-            <a className="navbar-brand brand-logo-mini" href="/admin/dashboard">
-              <img src={logomini} alt="logo" />
+            <a className="navbar-brand brand-logo-mini" href="/dashboard">
+            <img src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png" alt="logo"  />
             </a>
           </div>
           <div className="navbar-menu-wrapper d-flex align-items-center justify-content-end">

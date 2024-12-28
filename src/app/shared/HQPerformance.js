@@ -98,7 +98,7 @@ const HQPerformance = () => {
 
     // Avoid calling API if data is already present and not loading
     if (!tabData[activeTab - 1].data && !tabData[activeTab - 1].loading) {
-      fetchData(activeTab - 1, currentFlag);
+      fetchData(activeTab - 1);
     }
   }, []);
 
@@ -157,7 +157,7 @@ const HQPerformance = () => {
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="1">
-            <CardBody>
+            <CardBody style={{ maxHeight: "300px", overflowY: "auto" }}>
               <Row>
                 <Col>
                   <table className="table table-bordered">
@@ -208,7 +208,7 @@ const HQPerformance = () => {
         </TabContent>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="2">
-            <CardBody>
+            <CardBody style={{ maxHeight: "300px", overflowY: "auto" }}>
               <Row>
                 <Col>
                   <table className="table table-bordered">
@@ -259,7 +259,7 @@ const HQPerformance = () => {
         </TabContent>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="3">
-            <CardBody>
+            <CardBody style={{ maxHeight: "300px", overflowY: "auto" }}>
               <Row>
                 <Col>
                   <table className="table table-bordered">

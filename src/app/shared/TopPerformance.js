@@ -30,8 +30,6 @@ const TopPerformance = () => {
 
   const fetchData = async (tabIndex, flag) => {
     try {
-      console.log("tb Index = " + tabIndex + " flag = " + flag);
-
       setTabData((prevData) => ({
         ...prevData,
         [tabIndex]: { ...prevData[tabIndex], loading: true },
@@ -118,7 +116,7 @@ const TopPerformance = () => {
       case "2":
         return tabData[1]?.data;
       case "3":
-        return tabData[2]?.data;
+        return tabData[2]?.data.data;
       default:
         return [];
     }
@@ -165,7 +163,7 @@ const TopPerformance = () => {
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="1">
-            <CardBody>
+            <CardBody style={{ maxHeight: "300px", overflowY: "auto" }}>
               <Row>
                 <Col>
                   <table className="table table-bordered">
@@ -283,9 +281,9 @@ const TopPerformance = () => {
                     </thead>
                     <tbody>
                       {getTabData() &&
-                        Array.isArray(getTabData().data) &&
-                        getTabData().data.length > 0 ? (
-                          getTabData().data.map((item, index) => (
+                        Array.isArray(getTabData()) &&
+                        getTabData().length > 0 ? (
+                          getTabData().map((item, index) => (
                             <tr key={index}>
                               <td>{item.name}</td>
                               <td>{item.gross_sale}</td>

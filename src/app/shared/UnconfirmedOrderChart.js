@@ -6,21 +6,21 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const UnconfirmedOrderChart = () => {
+const UnconfirmedOrderChart = (props) => {
   // Data for the chart
   const data = {
     labels: ["Unconfirmed Orders"],  // Label for the bar chart
     datasets: [
       {
         label: "Unconfirmed Due to OS",  // Label for first bar
-        data: [30],  // Example value for "Unconfirmed Due to OS"
+        data: [props.tableData[0].unconf_ostd_ord], //props.data.unconf_ostd_ord  // Example value for "Unconfirmed Due to OS"
         backgroundColor: "#5e6eed",  // Bar color for "OS"
         borderColor: "rgba(255, 99, 132, 1)",  // Border color for "OS"
         borderWidth: 1,
       },
       {
         label: "Unconfirmed Due to Stock",  // Label for second bar
-        data: [20],  // Example value for "Unconfirmed Due to Stock"
+        data: [props.tableData[0].unconf_stock], //props.data.unconf_stock  // Example value for "Unconfirmed Due to Stock"
         backgroundColor: "#ff0d59",  // Bar color for "Stock"
         borderColor: "rgba(54, 162, 235, 1)",  // Border color for "Stock"
         borderWidth: 1,

@@ -114,7 +114,7 @@ const salableNonSaleReq = {
       }) // Replace with your API endpoint
       .then((response) => {
         const data = response.data.data;
-        setSalableData(data);
+        setSalableData(data.filter((item) => item.division === "Grand Total"));
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -385,7 +385,7 @@ const salableNonSaleReq = {
           </Row>
           <Row className="mt-performace">
             <BrandPerformance></BrandPerformance>
-            <UnconfirmedOrderChart></UnconfirmedOrderChart>
+            <UnconfirmedOrderChart tableData={salableData}></UnconfirmedOrderChart>
           </Row>
           <Row className="mt-performace">
             <HierarchicalPerformanceTabs></HierarchicalPerformanceTabs>
