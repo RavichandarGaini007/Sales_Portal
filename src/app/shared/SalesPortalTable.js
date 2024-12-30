@@ -23,7 +23,6 @@ import HierarchicalPerformanceModal from "./HierarchicalPerformanceModal";
 import "./SalesPortalTable.css";
 import MultiSelectDropdown from "./MultiSelectDropdown";
 
-
 const columns = [
   { accessorKey: "division", header: "DIV" },
   { accessorKey: "name", header: "DIV NAME" },
@@ -70,9 +69,6 @@ const SalesPortalTable = () => {
     }, {})
   );
 
-  const options = ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape"];
-
-
   const toggleColumnVisibility = (columnKey) => {
     setVisibleColumns((prevState) => ({
       ...prevState,
@@ -100,7 +96,7 @@ const SalesPortalTable = () => {
       .get("https://sales.alkemcrm.com/NETCOREAPP/api/Sales/salesdata") // Replace with your API endpoint
       .then((response) => {
         setData(response.data.data); // Set the fetched data
-        console.log(response.data.data);
+        //console.log(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -112,17 +108,16 @@ const SalesPortalTable = () => {
 
   // Handle when a division name is clicked
   const handleDivNameClick = (row) => {
-    debugger;
     setSelectedDivName(row.name); // Store the clicked Div Name
     toggleDropdown(); // Open modal
   };
 
-  const [tblColsTgl, setTblColumns] = useState([])
+  const [tblColsTgl, setTblColumns] = useState([]);
 
   const handleTableColToggle = (selectedColumns) => {
     //console.log(selectedColumns)
-    setTblColumns(selectedColumns)
-  } 
+    setTblColumns(selectedColumns);
+  };
 
   return (
     <>
@@ -148,14 +143,17 @@ const SalesPortalTable = () => {
                 </FormGroup>
               </Col>
               <Col md="6" sm="12">
-              <MultiSelectDropdown options={columns.map((col) => ({
+                <FormGroup>
+                  <MultiSelectDropdown
+                    options={columns.map((col) => ({
                       name: col.header,
                       id: col.accessorKey,
                     }))}
                     displayValue="name"
-                    onSelect={handleTableColToggle} />
+                    onSelect={handleTableColToggle}
+                  />
+                </FormGroup>
               </Col>
-              
             </Row>
 
             <Row className="">
@@ -173,21 +171,20 @@ const SalesPortalTable = () => {
                         {columns.map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
                         ))}
-                         {/* {columns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
+                        {/* {columns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
                         ))}  */}
                       </tr>
                     </thead>
                     <tbody>
-                      {
-                      data.map((row, index) => (
+                      {data.map((row, index) => (
                         <tr key={row.id}>
                           <td>{row.division}</td>
                           <td
                             style={{ textAlign: "left", cursor: "pointer" }}
                             onClick={() => handleDivNameClick(row)}
                           >
-                              {row.name}
+                            {row.name}
                           </td>
                           <td>{row.sale}</td>
                           <td>{row.saleable}</td>
@@ -255,7 +252,6 @@ const SalesPortalTable = () => {
       <Modal
         isOpen={showModal && dropdownSelection === "hqwise"}
         toggle={toggleDropdown} // This handles modal visibility toggle
-       
       >
         {/* <Modal.Header closeButton>
           <Modal.Title>HQ Wise Data</Modal.Title>
@@ -271,7 +267,6 @@ const SalesPortalTable = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
     </>
   );
 };

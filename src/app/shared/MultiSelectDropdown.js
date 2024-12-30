@@ -60,7 +60,7 @@ const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
             filteredOptions.map((option) => (
               <label key={option[displayValue]} className="msd-dropdown-item">
                 <input
-                  type="checkbox"
+                  type="checkbox" className="mx-3"
                   checked={selectedOptions.some(s => s[displayValue] == option[displayValue]) }
                   onChange={() => toggleOption(option)}
                 />

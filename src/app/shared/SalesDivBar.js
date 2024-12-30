@@ -6,29 +6,27 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const UnconfirmedOrderChart = (props) => {
+const SalesDivBar = (props) => {
+    const tableData = props.tableData;
+    const arrLbl = tableData?.map(item => item.div);
+    const arrData = tableData?.map(item => item.net_amt);
   // Data for the chart
-  const data = {
-    labels: ["Unconfirmed Orders"],  // Label for the bar chart
+  const dataB = {
+    labels: [arrLbl],  // Label for the bar chart
     datasets: [
       {
-        label: "Unconfirmed Due to OS",  // Label for first bar
-        data: [props.tableData[0]?.unconf_ostd_ord], //  // Example value for "Unconfirmed Due to OS"
+        label: "Div Sale",  // Label for first bar
+        data: [arrData], //  // Example value for "Unconfirmed Due to OS"
         backgroundColor: "#5e6eed",  // Bar color for "OS"
         borderColor: "rgba(255, 99, 132, 1)",  // Border color for "OS"
         borderWidth: 1,
-      },
-      {
-        label: "Unconfirmed Due to Stock",  // Label for second bar
-        data: [props.tableData[0]?.unconf_stock], // //props.data.unconf_stock  // Example value for "Unconfirmed Due to Stock"
-        backgroundColor: "#ff0d59",  // Bar color for "Stock"
-        borderColor: "rgba(54, 162, 235, 1)",  // Border color for "Stock"
-        borderWidth: 1,
+        barThickness: 20,
       },
     ],
   };
 
   // Options for the chart
+  
   const options = {
     responsive: true,
     plugins: {
@@ -40,15 +38,10 @@ const UnconfirmedOrderChart = (props) => {
       },
       title: {
         display: true,
-        text: "Unconfirmed Orders = " + (
-          ((props.tableData[0]?.unconf_ostd_ord || 0) + (props.tableData[0]?.unconf_stock || 0))
-        ),  // Total unconfirmed orders
-      }
-      ,
+      },
     },
     scales: {
       x: {
-        barThickness: 3,  // Set the bar thickness to make the bars thinner
         categoryPercentage: 0.5,  // Adjust width within category
         barPercentage: 0.7,  // Adjust the overall width of the bar in the chart area
         ticks: {
@@ -62,20 +55,20 @@ const UnconfirmedOrderChart = (props) => {
   };
 
   return (
-    <Col lg="5" md="12" sm="12">
+    <Col lg="12" md="12" sm="12">
       <Card className="card-stats" style={{ height: "318px", width: "100%" }}>
         <CardHeader>
           <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-line menu-icon" /> Unconfirmed Order Chart
+            <i className="mdi mdi-chart-line menu-icon" /> Div Wise Sale Chart
           </div>
         </CardHeader>
         <CardBody>
           {/* Here we define width and height for the chart  mdi mdi-clipboard-text menu-icon*/}
-          <Bar data={data} options={options} width={300} height={190} />
+          <Bar data={dataB} options={options} width={300} height={190} />
         </CardBody>
       </Card>
     </Col>
   );
 };
 
-export default UnconfirmedOrderChart;
+export default SalesDivBar;

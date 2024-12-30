@@ -33,15 +33,17 @@ import TopPerformance from "./TopPerformance";
 import NewsAndInformation from "./NewsAndInformation";
 import AwardsDetailsCard from "./AwardsDetailsCard";
 import { useNavigate } from "react-router-dom";
+import SalesDivBar from "./SalesDivBar";
 
 const Dashboard = () => {
   const [scData, setScData] = useState([]);
   const [scoracrdPercentage, setScPerce] = useState("0");
   const [salableData, setSalableData] = useState([]);
+  const [salesDivData, setSalesDivData] = useState([]);
   const navigate = useNavigate(); // Hook to navigate programmatically
   const [activeTab, setActiveTab] = useState("1");
   const [salesPercentage, setSalesPercentage] = useState(20); // Initial sales value
-  
+
   const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
@@ -65,38 +67,42 @@ const Dashboard = () => {
   //   navigate('/dashboard');
   // };
 
-const scoreCardReq = {
-  "tbl_name": "FTP_MAT_VAL_11_2024",
-  "empcode": "041406",
-  "div": "23",
-  "month":"11",
-  "year":"2024"
-}
+  const scoreCardReq = {
+    tbl_name: "FTP_MAT_VAL_11_2024",
+    empcode: "041406",
+    div: "23",
+    month: "11",
+    year: "2024",
+  };
 
-const salableNonSaleReq = {
-  "tbl_name": "FTP_11_2024",
-  "empcode": "041406",
-  "div": "23",
-  "month":"11",
-  "year":"2024",
-  "flag": "monthly"
-}
+  const salableNonSaleReq = {
+    tbl_name: "FTP_11_2024",
+    empcode: "041406",
+    div: "23",
+    month: "11",
+    year: "2024",
+    flag: "monthly",
+  };
 
   useEffect(() => {
     // Fetch data from API
     axios
-      .post("http://192.168.120.64/React_Login_api/api/Sales/SalesScData", scoreCardReq, {
-        headers: {
-          "Content-Type": "application/json", // Required for JSON requests
+      .post(
+        "http://192.168.120.64/React_Login_api/api/Sales/SalesScData",
+        scoreCardReq,
+        {
+          headers: {
+            "Content-Type": "application/json", // Required for JSON requests
+          },
         }
-      }) // Replace with your API endpoint
+      ) // Replace with your API endpoint
       .then((response) => {
         const data = response.data.data;
         setScData(data);
-        
-        let percAbove100 = data.filter(item => item.ach > 100).length;
+
+        let percAbove100 = data.filter((item) => item.ach > 100).length;
         let totRows = data.length;
-        let perc = (percAbove100/totRows)*100;
+        let perc = (percAbove100 / totRows) * 100;
         setScPerce(perc);
       })
       .catch((error) => {
@@ -107,14 +113,19 @@ const salableNonSaleReq = {
   useEffect(() => {
     // Fetch data from API
     axios
-      .post("http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata", salableNonSaleReq, {
-        headers: {
-          "Content-Type": "application/json", // Required for JSON requests
+      .post(
+        "http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata",
+        salableNonSaleReq,
+        {
+          headers: {
+            "Content-Type": "application/json", // Required for JSON requests
+          },
         }
-      }) // Replace with your API endpoint
+      ) // Replace with your API endpoint
       .then((response) => {
         const data = response.data.data;
         setSalableData(data.filter((item) => item.division === "Grand Total"));
+        setSalesDivData(data.filter((item) => item.division != "Grand Total"));
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -153,7 +164,7 @@ const salableNonSaleReq = {
             </div>
           </div>
           <Row className="">
-            <Col lg="7" md="6" sm="6">
+            <Col lg="7" md="7" sm="7">
               <Card className="card-stats">
                 <CardHeader>
                   <div className="stats card-title mb-0">
@@ -231,23 +242,19 @@ const salableNonSaleReq = {
                                   <CardText tag="h6" className="fw-bold">
                                     NET AMOUNT (E+H+K):
                                   </CardText>
-                                  <CardText>
-                                   "7,004.7"
-                                  </CardText>
+                                  <CardText>"7,004.7"</CardText>
                                 </Col>
                                 <Col>
                                   <CardText tag="h6" className="fw-bold">
                                     TARGET:
                                   </CardText>
-                                  <CardText>
-                                    "10,319.86"
-                                  </CardText>
+                                  <CardText>"10,319.86"</CardText>
                                 </Col>
                                 <Col>
                                   <CardText tag="h6" className="fw-bold">
-                                  ACH (%):
+                                    ACH (%):
                                   </CardText>
-                                  <CardText>  "67.88%"</CardText>
+                                  <CardText> "67.88%"</CardText>
                                 </Col>
                               </Row>
                               <div style={{ color: "rgb(13 59 135)" }}>
@@ -361,23 +368,26 @@ const salableNonSaleReq = {
                 </CardFooter> */}
               </Card>
             </Col>
-            <Col lg="5" md="6" sm="6">
-              <Card className="card-stats">
-                <CardHeader>
-                  <div className="stats card-title mb-0">
-                    <i className="mdi mdi-chart-bar menu-icon" /> Scorecard
-                  </div>
-                </CardHeader>
-                <CardBody>
-                  <Row>
-                    <ScoreCard
-                      percentage={scoracrdPercentage}
-                      tableData={scData}
-                    />
-                  </Row>
-                </CardBody>
-              </Card>
+            <Col lg="5" md="5" sm="5">
+              <SalesDivBar tableData = {salesDivData}></SalesDivBar>
             </Col>
+          </Row>
+          <Row>
+            <Card className="card-stats">
+              <CardHeader>
+                <div className="stats card-title mb-0">
+                  <i className="mdi mdi-chart-bar menu-icon" /> Scorecard
+                </div>
+              </CardHeader>
+              <CardBody>
+                <Row>
+                  <ScoreCard
+                    percentage={scoracrdPercentage}
+                    tableData={scData}
+                  />
+                </Row>
+              </CardBody>
+            </Card>
           </Row>
           <Row className="mt-performace">
             <HQPerformance></HQPerformance>
@@ -385,7 +395,9 @@ const salableNonSaleReq = {
           </Row>
           <Row className="mt-performace">
             <BrandPerformance></BrandPerformance>
-            <UnconfirmedOrderChart tableData={salableData}></UnconfirmedOrderChart>
+            <UnconfirmedOrderChart
+              tableData={salableData}
+            ></UnconfirmedOrderChart>
           </Row>
           <Row className="mt-performace">
             <HierarchicalPerformanceTabs></HierarchicalPerformanceTabs>
