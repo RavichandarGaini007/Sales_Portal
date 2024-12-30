@@ -10,15 +10,24 @@ const SalesDivBar = (props) => {
     const tableData = props.tableData;
     const arrLbl = tableData?.map(item => item.div);
     const arrData = tableData?.map(item => item.net_amt);
+    const arrTgt = tableData?.map(item => item.target);
   // Data for the chart
   const dataB = {
     labels: [arrLbl],  // Label for the bar chart
     datasets: [
       {
         label: "Div Sale",  // Label for first bar
-        data: [arrData], //  // Example value for "Unconfirmed Due to OS"
-        backgroundColor: "#5e6eed",  // Bar color for "OS"
-        borderColor: "rgba(255, 99, 132, 1)",  // Border color for "OS"
+        data: [arrData], // value in array format
+        backgroundColor: "#5e6eed",  // Bar color 
+        borderColor: "rgba(255, 99, 132, 1)",  // Border color of bar
+        borderWidth: 1,
+        barThickness: 20,
+      },
+      {
+        label: "Div Tgt",  // Label for Second bar
+        data: [arrTgt], // value in array format
+        backgroundColor: "#5e6eed",  // Bar color 
+        borderColor: "rgba(54, 162, 235, 1)",  // Border color of bar
         borderWidth: 1,
         barThickness: 20,
       },
