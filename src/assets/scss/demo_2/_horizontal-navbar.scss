@@ -165,12 +165,12 @@
               .form-control {
                 max-height: 39px;
                 padding: 12px 534px 12px 0;
-                @media (max-width:1198px) {
+                @media (max-width: 1198px) {
                   padding: 12px 0 12px 359px;
                 }
                 .rtl & {
                   padding: 12px 0 12px 534px;
-                  @media (max-width:1198px) {
+                  @media (max-width: 1198px) {
                     padding: 12px 0 12px 359px;
                   }
                 }
@@ -254,7 +254,7 @@
               @extend .dropdownAnimation;
               &:before {
                 @media (min-width: 992px) {
-                  content: "";
+                  content: '';
                   border: 10px solid transparent;
                   height: 0;
                   width: 0;
@@ -356,7 +356,7 @@
 
         > .nav-link {
           color: $horizontal-bottom-menu-item-color;
-          padding: 22px 12px 22px 7px ;
+          padding: 22px 12px 22px 7px;
           line-height: 1;
           font-weight: 400;
           @extend .d-flex;
@@ -379,7 +379,7 @@
           .dropdown-menu-right {
             &:before {
               @media (min-width: 992px) {
-                content: "";
+                content: '';
                 border: 10px solid transparent;
                 height: 0;
                 width: 0;
@@ -404,8 +404,8 @@
             }
 
             &:before {
-              content: "\f140";
-              font-family: "Material Design Icons";
+              content: '\f140';
+              font-family: 'Material Design Icons';
               font-style: normal;
               display: block;
               font-size: 18px;
@@ -431,7 +431,7 @@
             position: relative;
             &:before {
               position: absolute;
-              content: "";
+              content: '';
               left: 0;
               bottom: -2px;
               width: 100%;

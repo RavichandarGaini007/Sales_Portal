@@ -7,7 +7,7 @@
   @include flex-direction(row);
   padding-left: 0;
   padding-right: 0;
-  @media (min-width: 992px){
+  @media (min-width: 992px) {
     width: calc(100% - #{$sidebar-width-lg});
   }
 
@@ -18,7 +18,9 @@
 }
 
 .main-panel {
-  transition: width $action-transition-duration $action-transition-timing-function, margin $action-transition-duration $action-transition-timing-function;
+  transition:
+    width $action-transition-duration $action-transition-timing-function,
+    margin $action-transition-duration $action-transition-timing-function;
   width: 100%;
   min-height: calc(100vh - #{$navbar-height});
   padding-top: $navbar-height;

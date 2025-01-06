@@ -4,10 +4,14 @@
   font-family: $type-1;
   font-weight: $font-weight-light;
   left: $sidebar-width-lg;
-  transition: left $action-transition-duration $action-transition-timing-function;
-  -webkit-transition: left $action-transition-duration $action-transition-timing-function;
-  -moz-transition: left $action-transition-duration $action-transition-timing-function;
-  -ms-transition: left $action-transition-duration $action-transition-timing-function;
+  transition: left $action-transition-duration
+    $action-transition-timing-function;
+  -webkit-transition: left $action-transition-duration
+    $action-transition-timing-function;
+  -moz-transition: left $action-transition-duration
+    $action-transition-timing-function;
+  -ms-transition: left $action-transition-duration
+    $action-transition-timing-function;
 
   .navbar-brand {
     width: 110px;
@@ -24,10 +28,14 @@
     }
   }
   .navbar-menu-wrapper {
-    transition: width $action-transition-duration $action-transition-timing-function;
-    -webkit-transition: width $action-transition-duration $action-transition-timing-function;
-    -moz-transition: width $action-transition-duration $action-transition-timing-function;
-    -ms-transition: width $action-transition-duration $action-transition-timing-function;
+    transition: width $action-transition-duration
+      $action-transition-timing-function;
+    -webkit-transition: width $action-transition-duration
+      $action-transition-timing-function;
+    -moz-transition: width $action-transition-duration
+      $action-transition-timing-function;
+    -ms-transition: width $action-transition-duration
+      $action-transition-timing-function;
     color: $navbar-menu-color;
     padding-left: 24px;
     padding-right: 16px;
@@ -158,7 +166,7 @@
             }
             &:before {
               @media (min-width: 992px) {
-                content: "";
+                content: '';
                 border: 10px solid transparent;
                 height: 0;
                 width: 0;

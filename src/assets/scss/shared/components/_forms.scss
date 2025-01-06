@@ -11,14 +11,14 @@
 
   .input-group-text {
     border-color: $border-color;
-    padding: $input-padding-y .75rem;
+    padding: $input-padding-y 0.75rem;
     color: $input-placeholder-color;
   }
 }
 .form-control {
   border: 1px solid $border-color;
   font-family: $type-1;
-	font-weight: $font-weight-regular;
+  font-weight: $font-weight-regular;
   font-size: $input-font-size;
   &:focus {
     background-color: $form-focus-bg;
@@ -29,7 +29,7 @@
 
 select {
   &.form-control {
-    padding: .4375rem .75rem;
+    padding: 0.4375rem 0.75rem;
     border: 0;
     outline: 1px solid $border-color;
     color: $input-placeholder-color;
@@ -51,7 +51,7 @@ select {
     font-size: $default-font-size;
     line-height: 1;
     vertical-align: top;
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
   }
   &.has-danger {
     .form-control {

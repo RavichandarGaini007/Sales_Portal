@@ -77,7 +77,7 @@ $social-colors: (
 
 ////////// FONTS//
 
-$type-1: "Open Sans", sans-serif;
+$type-1: 'Open Sans', sans-serif;
 
 $font-weight-light: 300;
 $font-weight-regular: 400;
@@ -250,7 +250,7 @@ $breadcrumb-bg: transparent;
 $breadcrumb-border-color: $border-color;
 $breadcrumb-divider-color: $gray-600;
 $breadcrumb-active-color: $gray-700;
-$breadcrumb-divider: "/";
+$breadcrumb-divider: '/';
 
 // custom styles
 $breadcrumb-custom-padding-y: 0;
@@ -262,7 +262,7 @@ $breadcrumb-item-bg: #dbe3e6;
 ////////// BREAD CRUMBS VARIABLES //////////
 
 ////////// MODALS VARIABLES //////////
-$modal-inner-padding: .9375rem;
+$modal-inner-padding: 0.9375rem;
 $modal-dialog-margin: 10px;
 $modal-dialog-margin-y-sm-up: 30px;
 $modal-title-line-height: $line-height-base;

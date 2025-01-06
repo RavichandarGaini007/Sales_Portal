@@ -59,14 +59,14 @@
                 right: 10px;
                 @include transform(translateY(-50%));
                 &:before {
-                  content: "\F140";
+                  content: '\F140';
                 }
               }
             }
-            &[aria-expanded="true"] {
+            &[aria-expanded='true'] {
               .menu-arrow {
                 &:before {
-                  content: "\f143";
+                  content: '\f143';
                 }
               }
             }
@@ -126,7 +126,7 @@
         .navbar-toggler {
           span {
             &:before {
-             transform: rotate(180deg); 
+              transform: rotate(180deg);
             }
           }
         }
@@ -135,7 +135,7 @@
     .sidebar {
       width: $sidebar-width-icon;
       padding-top: 55px;
-        .nav {
+      .nav {
         overflow: visible;
         .nav-item-head {
           display: none;
@@ -312,14 +312,18 @@
       left: 0;
       .navbar-menu-wrapper {
         width: 100%;
-        margin-left: 48px; 
+        margin-left: 48px;
       }
     }
     .sidebar {
-      transition: width $action-transition-duration $action-transition-timing-function;
-      -webkit-transition: width $action-transition-duration $action-transition-timing-function;
-      -moz-transition: width $action-transition-duration $action-transition-timing-function;
-      -ms-transition: width $action-transition-duration $action-transition-timing-function;
+      transition: width $action-transition-duration
+        $action-transition-timing-function;
+      -webkit-transition: width $action-transition-duration
+        $action-transition-timing-function;
+      -moz-transition: width $action-transition-duration
+        $action-transition-timing-function;
+      -ms-transition: width $action-transition-duration
+        $action-transition-timing-function;
       width: 0;
     }
     .main-panel {
@@ -416,25 +420,33 @@
     }
   }
   .page-body-wrapper {
-    transition: all $action-transition-duration $action-transition-timing-function;
-    -webkit-transition: all $action-transition-duration $action-transition-timing-function;
-    -moz-transition: all $action-transition-duration $action-transition-timing-function;
-    -ms-transition: all $action-transition-duration $action-transition-timing-function;
+    transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -webkit-transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -moz-transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -ms-transition: all $action-transition-duration
+      $action-transition-timing-function;
   }
   .navbar {
-    transition: all $action-transition-duration $action-transition-timing-function;
-    -webkit-transition: all $action-transition-duration $action-transition-timing-function;
-    -moz-transition: all $action-transition-duration $action-transition-timing-function;
-    -ms-transition: all $action-transition-duration $action-transition-timing-function;
+    transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -webkit-transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -moz-transition: all $action-transition-duration
+      $action-transition-timing-function;
+    -ms-transition: all $action-transition-duration
+      $action-transition-timing-function;
     right: $sidebar-width-lg;
-    @media (max-width:900px) {
+    @media (max-width: 900px) {
       right: 0;
     }
   }
   &.sidebar-icon-only {
     .navbar {
-    right: 0;
-    left: 0;
+      right: 0;
+      left: 0;
     }
   }
 

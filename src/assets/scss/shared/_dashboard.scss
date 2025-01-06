@@ -82,7 +82,7 @@
       }
     }
     .card-img {
-      background-image: url("../../images/bg_card.jpg");
+      background-image: url('../../images/bg_card.jpg');
       background-size: cover;
     }
     .star-color {
@@ -91,7 +91,7 @@
     .br-theme-css-stars {
       .br-widget {
         a:after {
-          content: "\2605";
+          content: '\2605';
           font-size: 15px;
           color: #d2d2d2;
         }
@@ -106,7 +106,7 @@
       }
     }
     .card-stat {
-      background-image: url("../../images/dashboard/img_4.jpg");
+      background-image: url('../../images/dashboard/img_4.jpg');
       background-size: cover;
     }
     .flot-bar-wrapper {
@@ -206,7 +206,7 @@
     text-align: center;
     &:before,
     &:after {
-      content: "";
+      content: '';
       height: 0px;
       width: 0px;
       position: absolute;
@@ -264,7 +264,7 @@
   min-width: 124px;
   margin-left: 20px;
   height: 30px;
-  background: url("../../images/dashboard/hospital/arrow-down.svg") no-repeat
+  background: url('../../images/dashboard/hospital/arrow-down.svg') no-repeat
     95% 50%;
   background-size: 13px 15px;
   -moz-appearance: none;
@@ -303,7 +303,7 @@
 }
 .card {
   &.chat-with-doctor {
-    background: url("../../images/dashboard/hospital/img_call.png") #c9cef6
+    background: url('../../images/dashboard/hospital/img_call.png') #c9cef6
       no-repeat 90% 100%;
   }
 }
@@ -337,7 +337,9 @@
     height: 35px;
     padding: 0 0 0 20px;
     position: relative;
-    transition: width 400ms ease, background 400ms ease;
+    transition:
+      width 400ms ease,
+      background 400ms ease;
 
     &:focus {
       background-color: transparent;
@@ -382,7 +384,7 @@
 }
 .filter-banner {
   width: 100%;
-  background: url("../../images/dashboard/ecommerce/filterbg.jpg") no-repeat;
+  background: url('../../images/dashboard/ecommerce/filterbg.jpg') no-repeat;
   background-size: 100%;
   padding: 30px 50px;
   @media (max-width: 576px) {

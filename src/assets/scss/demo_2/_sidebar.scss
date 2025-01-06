@@ -9,13 +9,17 @@
   width: $sidebar-width-lg;
   z-index: 11;
   border-right: 1px solid $border-color;
-  transition: width $action-transition-duration $action-transition-timing-function,
+  transition:
+    width $action-transition-duration $action-transition-timing-function,
     background $action-transition-duration $action-transition-timing-function;
-  -webkit-transition: width $action-transition-duration $action-transition-timing-function,
+  -webkit-transition:
+    width $action-transition-duration $action-transition-timing-function,
     background $action-transition-duration $action-transition-timing-function;
-  -moz-transition: width $action-transition-duration $action-transition-timing-function,
+  -moz-transition:
+    width $action-transition-duration $action-transition-timing-function,
     background $action-transition-duration $action-transition-timing-function;
-  -ms-transition: width $action-transition-duration $action-transition-timing-function,
+  -ms-transition:
+    width $action-transition-duration $action-transition-timing-function,
     background $action-transition-duration $action-transition-timing-function;
 
   .nav {
@@ -69,7 +73,7 @@
           }
 
           &.menu-arrow {
-            font: normal normal normal 24px/1 "Material Design Icons";
+            font: normal normal normal 24px/1 'Material Design Icons';
             line-height: 1;
             font-size: 16px;
             margin-left: auto;
@@ -80,11 +84,11 @@
               margin-right: auto;
             }
             &:before {
-              content: "\f142";
+              content: '\f142';
               font-size: inherit;
               color: inherit;
               .rtl & {
-                content: "\f141";
+                content: '\f141';
               }
             }
             + .menu-icon {
@@ -119,10 +123,10 @@
           display: none;
         }
 
-        &[aria-expanded="true"] {
+        &[aria-expanded='true'] {
           .menu-arrow {
             &:before {
-              content: "\f140";
+              content: '\f140';
             }
           }
         }

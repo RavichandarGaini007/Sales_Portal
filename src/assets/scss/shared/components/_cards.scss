@@ -32,16 +32,16 @@
     font-weight: $font-weight-regular;
   }
   &.card-outline-success {
-    border: 1px solid theme-color("success");
+    border: 1px solid theme-color('success');
   }
   &.card-outline-primary {
-    border: 1px solid theme-color("primary");
+    border: 1px solid theme-color('primary');
   }
   &.card-outline-warning {
-    border: 1px solid theme-color("warning");
+    border: 1px solid theme-color('warning');
   }
   &.card-outline-danger {
-    border: 1px solid theme-color("danger");
+    border: 1px solid theme-color('danger');
   }
   &.card-rounded {
     @include border-radius(5px);

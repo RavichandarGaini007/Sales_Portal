@@ -1,0 +1,1 @@
+**Header, Footer, Navbar and Layout related files

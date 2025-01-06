@@ -43,7 +43,7 @@
   @include display-flex;
   @include align-items(stretch);
   @include justify-content(stretch);
-  >.card{
+  > .card {
     width: 100%;
     min-width: 100%;
   }
@@ -147,7 +147,7 @@
     transform: scale(1);
     transition-duration: 0.3s;
     transition-timing-function: ease;
-    transition-property: "box-shadow", "z-index", "transform", "border-width";
+    transition-property: 'box-shadow', 'z-index', 'transform', 'border-width';
 
     &:first-child {
       margin-left: 0;
@@ -158,7 +158,6 @@
       box-shadow: 0 0 5px -2px rgba(0, 0, 0, 0.5);
       transform: scale(1.05);
       border-width: 0;
-
     }
   }
 

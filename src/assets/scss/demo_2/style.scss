@@ -104,75 +104,75 @@
 /*-------------------------------------------------------------------*/
 /* === Import Bootstrap functions and variables === */
 
-@import "../../../../node_modules/bootstrap/scss/functions";
-@import "../../../../node_modules/bootstrap/scss/variables";
+@import '../../../../node_modules/bootstrap/scss/functions';
+@import '../../../../node_modules/bootstrap/scss/variables';
 
 /*-------------------------------------------------------------------*/
 /* === Import template variables === */
-@import "variables";
+@import 'variables';
 
 /*-------------------------------------------------------------------*/
 /* === SCSS Compass Functions === */
-@import "../../../../node_modules/compass-mixins/lib/compass";
-@import "../../../../node_modules/compass-mixins/lib/animate";
+@import '../../../../node_modules/compass-mixins/lib/compass';
+@import '../../../../node_modules/compass-mixins/lib/animate';
 
 /*-------------------------------------------------------------------*/
 /* === Boostrap Main SCSS === */
-@import "../../../../node_modules/bootstrap/scss/bootstrap";
+@import '../../../../node_modules/bootstrap/scss/bootstrap';
 
 /*-------------------------------------------------------------------*/
 /* === Template mixins === */
-@import "../shared/components/mixins/misc";
-@import "../shared/components/mixins/animation";
-@import "../shared/components/mixins/background";
-@import "../shared/components/mixins/badges";
-@import "../shared/components/mixins/blockqoute";
-@import "../shared/components/mixins/buttons";
-@import "../shared/components/mixins/breadcrumbs";
-@import "../shared/components/mixins/cards";
-@import "../shared/components/mixins/text";
+@import '../shared/components/mixins/misc';
+@import '../shared/components/mixins/animation';
+@import '../shared/components/mixins/background';
+@import '../shared/components/mixins/badges';
+@import '../shared/components/mixins/blockqoute';
+@import '../shared/components/mixins/buttons';
+@import '../shared/components/mixins/breadcrumbs';
+@import '../shared/components/mixins/cards';
+@import '../shared/components/mixins/text';
 
-@import "mixins/menu";
+@import 'mixins/menu';
 
 /*-------------------------------------------------------------------*/
 /* === Core Styles === */
-@import "../shared/reset";
-@import "../shared/fonts";
-@import "../shared/functions";
-@import "../shared/typography";
-@import "../shared/misc";
-@import "../shared/footer";
-@import "../shared/utilities";
-@import "../shared/demo";
-@import "../shared/dashboard";
+@import '../shared/reset';
+@import '../shared/fonts';
+@import '../shared/functions';
+@import '../shared/typography';
+@import '../shared/misc';
+@import '../shared/footer';
+@import '../shared/utilities';
+@import '../shared/demo';
+@import '../shared/dashboard';
 
 /*-------------------------------------------------------------------*/
 /* === Components === */
-@import "../shared/components/badges";
-@import "../shared/components/buttons";
-@import "../shared/components/breadcrumbs";
-@import "../shared/components/cards";
-@import "../shared/components/checkbox-radio";
-@import "../shared/components/dropdown";
-@import "../shared/components/forms";
-@import "../shared/components/icons";
-@import "../shared/components/loaders/loaders";
-@import "../shared/components/lists";
-@import "../shared/components/preview";
-@import "../shared/components/tables";
+@import '../shared/components/badges';
+@import '../shared/components/buttons';
+@import '../shared/components/breadcrumbs';
+@import '../shared/components/cards';
+@import '../shared/components/checkbox-radio';
+@import '../shared/components/dropdown';
+@import '../shared/components/forms';
+@import '../shared/components/icons';
+@import '../shared/components/loaders/loaders';
+@import '../shared/components/lists';
+@import '../shared/components/preview';
+@import '../shared/components/tables';
 
 /*-------------------------------------------------------------------*/
 
 /*-------------------------------------------------------------------*/
 /* === Plugin overrides === */
-@import "../shared/components/plugin-overrides/flot-chart";
-@import "../shared/components/plugin-overrides/jquery-file-upload";
-@import "../shared/components/plugin-overrides/pws-tabs";
-@import "../shared/components/plugin-overrides/select2";
-@import "../shared/components/plugin-overrides/typeahead";
+@import '../shared/components/plugin-overrides/flot-chart';
+@import '../shared/components/plugin-overrides/jquery-file-upload';
+@import '../shared/components/plugin-overrides/pws-tabs';
+@import '../shared/components/plugin-overrides/select2';
+@import '../shared/components/plugin-overrides/typeahead';
 
 /*-------------------------------------------------------------------*/
 /* === Landing screens === */
-@import "horizontal-wrapper";
-@import "settings-panel";
-@import "horizontal-navbar";
+@import 'horizontal-wrapper';
+@import 'settings-panel';
+@import 'horizontal-navbar';
