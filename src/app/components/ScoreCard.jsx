@@ -2,10 +2,6 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ScoreCard = ({ percentage, tableData }) => {
-  // Calculate the color for the progress bar based on the percentage
-  // const [achvProd, setAchvProd] = useState(0);
-  // const [totProd, setTotProd] = useState(0);
-
   let achvProd = 0;
   let totProd = 0;
 
@@ -22,7 +18,6 @@ const ScoreCard = ({ percentage, tableData }) => {
 
   return (
     <div className="card p-3">
-      {/* Progress Bar Section */}
       <div className="progress mb-4">
         <div
           className="progress-bar"
@@ -36,8 +31,6 @@ const ScoreCard = ({ percentage, tableData }) => {
           {achvProd}/{totProd}
         </div>
       </div>
-
-      {/* Table Section */}
       <table className="table">
         <thead className="custom-gray-header">
           <tr>
@@ -50,7 +43,9 @@ const ScoreCard = ({ percentage, tableData }) => {
         <tbody>
           {tableData?.map((item, index) => (
             <tr key={index}>
-              <td className="tblTextLeft">{item.brand_Name}</td>
+              <td className="tblTextLeft" style={{ textAlign: 'left' }}>
+                {item.brand_Name}
+              </td>
               <td>{item.sale}</td>
               <td>{item.target}</td>
               <td

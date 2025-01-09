@@ -23,17 +23,17 @@ ChartJS.register(
 
 const SalesDivBar = (props) => {
   const tableData = props.tableData;
-  const arrLbl = tableData?.map((item) => item.div);
+  const arrLbl = tableData?.map((item) => item.division);
   const arrData = tableData?.map((item) => item.net_amt);
   const arrTgt = tableData?.map((item) => item.target);
   // Data for the chart
   const dataB = {
-    labels: [arrLbl], // Label for the bar chart
+    labels: arrLbl, // Label for the bar chart
     datasets: [
       {
         label: 'Div Sale', // Label for first bar
         data: [arrData], // value in array format
-        backgroundColor: '#5e6eed', // Bar color
+        backgroundColor: 'rgba(54, 162, 235, 1)', // Bar color
         borderColor: 'rgba(255, 99, 132, 1)', // Border color of bar
         borderWidth: 1,
         barThickness: 20,
@@ -41,15 +41,13 @@ const SalesDivBar = (props) => {
       {
         label: 'Div Tgt', // Label for Second bar
         data: [arrTgt], // value in array format
-        backgroundColor: '#5e6eed', // Bar color
+        backgroundColor: 'rgba(255, 99, 132, 1)', // Bar color
         borderColor: 'rgba(54, 162, 235, 1)', // Border color of bar
         borderWidth: 1,
         barThickness: 20,
       },
     ],
   };
-
-  // Options for the chart
 
   const options = {
     responsive: true,
@@ -66,21 +64,21 @@ const SalesDivBar = (props) => {
     },
     scales: {
       x: {
-        categoryPercentage: 0.5, // Adjust width within category
-        barPercentage: 0.7, // Adjust the overall width of the bar in the chart area
-        ticks: {
-          display: true, // Show x-axis ticks
-        },
+        categoryPercentage: 0.6, // Adjust width within category
+        barPercentage: 0.8, // Adjust the overall width of the bar in the chart area
+        // ticks: {
+        //   display: true, // Show x-axis ticks
+        // },
       },
-      y: {
-        beginAtZero: true, // Start y-axis from zero
-      },
+      // y: {
+      //   beginAtZero: true, // Start y-axis from zero
+      // },
     },
   };
 
   return (
     <Col lg="12" md="12" sm="12">
-      <Card className="card-stats" style={{ height: '318px', width: '100%' }}>
+      <Card className="card-stats">
         <CardHeader>
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-line menu-icon" /> Div Wise Sale Chart

@@ -14,8 +14,8 @@ import { Modal } from 'react-bootstrap'; // Import Bootstrap components
 import HQModal from './HQModal';
 // import BrandModal from './BrandModal';
 // import HierarchicalPerformanceModal from './HierarchicalPerformanceModal';
-import './SalesPortalTable.css';
-import MultiSelectDropdown from './MultiSelectDropdown';
+import '../css/SalesPortalTable.css';
+import MultiSelectDropdown from '../common/MultiSelectDropdown';
 //import PopupTableModal from './app/common/PopupTableModal';
 
 const columns = [

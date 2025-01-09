@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactSpeedometer from 'react-d3-speedometer';
-import { useFetch } from '../hooks/useFetch';
+//import { useFetch } from '../hooks/useFetch';
 import {
   Card,
   CardHeader,
@@ -14,37 +14,68 @@ import {
   TabPane,
   CardText,
 } from 'reactstrap';
-import { apiUrls } from '../lib/fetchApi';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
 
 function SalesAchvTabs(props) {
-  const {
-    data: monthlyData,
-    // monthlyloading = false,
-    // monthlyerror = null,
-  } = useFetch(apiUrls.salesAchvdata, { ...props.request, flag: 'monthly' });
+  const flags = ['monthly', 'quaterly', 'yearly'];
+  const [activeTab, setActiveTab] = useState('0');
 
-  // const monthlyData = [];
-  // const yearlyData = [];
-  //const qtrlyData = [];
-  const {
-    data: qtrlyData,
-    // qtrlyloading = false,
-    // qtrlyerror = null,
-  } = useFetch(apiUrls.salesAchvdata, { ...props.request, flag: 'quaterly' });
+  const [tabData, setTabData] = useState({
+    monthly: { data: null, loading: false, error: null },
+    quaterly: { data: null, loading: false, error: null },
+    yearly: { data: null, loading: false, error: null },
+  });
 
-  const {
-    data: yearlyData,
-    // yearlyloading = false,
-    // yearlyerror = null,
-  } = useFetch(apiUrls.salesAchvdata, { ...props.request, flag: 'yearly' });
+  useEffect(() => {
+    const currentFlag = flags[activeTab];
 
-  //const salesPercentage = '0';
-  const [activeTab, setActiveTab] = useState('1');
+    if (tabData[currentFlag]?.data || tabData[currentFlag]?.loading) {
+      return; // If data is available or loading, do nothing
+    }
+
+    (async () => {
+      try {
+        setTabData((prevData) => ({
+          ...prevData,
+          [currentFlag]: {
+            ...prevData[currentFlag],
+            loading: true,
+          },
+        }));
+
+        const opData = await fetchApi(apiUrls.salesAchvdata, {
+          ...props.request,
+          flag: currentFlag,
+        });
+        if (!tabData[currentFlag].data && !tabData[currentFlag].loading) {
+          setTabData((prevData) => ({
+            ...prevData,
+            [currentFlag]: {
+              data: opData.data.filter(
+                (items) => items.division === 'Grand Total'
+              ),
+              loading: false,
+              error: null,
+            },
+          }));
+        }
+      } catch (error) {
+        // Handle error
+        setTabData((prevData) => ({
+          ...prevData,
+          [currentFlag]: {
+            ...prevData[currentFlag],
+            loading: false,
+            error: error.message || 'An error occurred',
+          },
+        }));
+      }
+    })();
+  }, [activeTab]);
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
-      //setSalesPercentage(80);
     }
   };
 
@@ -63,10 +94,19 @@ function SalesAchvTabs(props) {
               style={{
                 cursor: 'pointer',
               }}
+              className={activeTab === '0' ? 'active' : ''}
+              onClick={() => toggleTab('0')}
+            >
+              Monthly
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              style={{ cursor: 'pointer' }}
               className={activeTab === '1' ? 'active' : ''}
               onClick={() => toggleTab('1')}
             >
-              Monthly
+              Quarterly
             </NavLink>
           </NavItem>
           <NavItem>
@@ -75,33 +115,24 @@ function SalesAchvTabs(props) {
               className={activeTab === '2' ? 'active' : ''}
               onClick={() => toggleTab('2')}
             >
-              Quarterly
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '3' ? 'active' : ''}
-              onClick={() => toggleTab('3')}
-            >
               Yearly
             </NavLink>
           </NavItem>
         </Nav>
         <TabContent activeTab={activeTab}>
-          <TabPane tabId="1">
+          <TabPane tabId="0">
             <CardBody>
               <Row>
                 <div className="speedometer-wrapper">
                   <ReactSpeedometer
-                    value={monthlyData?.achv}
+                    value={tabData['monthly'].data?.[0]?.achv ?? 0}
                     minValue={0}
                     maxValue={100}
                     needleColor="blue"
                     startColor="blue"
                     endColor="yellow"
                     textColor="#000000"
-                    currentValueText={`${monthlyData?.achv}%`}
+                    currentValueText={`${tabData['monthly'].data?.[0]?.achv ?? '0'}%`}
                     forceRender={true}
                     needleTransitionDuration={4000}
                     needleTransition="easeQuadInOut"
@@ -124,29 +155,81 @@ function SalesAchvTabs(props) {
                           <CardText tag="h6" className="fw-bold">
                             NET AMOUNT (E+H+K):
                           </CardText>
-                          <CardText>{monthlyData?.net_amt}</CardText>
+                          <CardText>
+                            {tabData['monthly'].data?.[0]?.net_amt ?? '0'}
+                          </CardText>
                         </Col>
                         <Col>
                           <CardText tag="h6" className="fw-bold">
                             TARGET:
                           </CardText>
-                          <CardText>{monthlyData?.target}</CardText>
+                          <CardText>
+                            {tabData['monthly'].data?.[0]?.target ?? '0'}
+                          </CardText>
                         </Col>
                         <Col>
                           <CardText tag="h6" className="fw-bold">
                             ACH (%):
                           </CardText>
-                          <CardText>{monthlyData?.achv}</CardText>
+                          <CardText>
+                            {tabData['monthly'].data?.[0]?.achv ?? '0'}
+                          </CardText>
                         </Col>
                       </Row>
                       <div style={{ color: 'rgb(13 59 135)' }}>
                         <p>
                           <strong>Last Year Growth:</strong>
-                          {monthlyData?.growth_ly}
+                          {tabData['monthly'].data?.[0]?.growth_ly ?? '0'}
                         </p>
                         <p>
                           <strong>Upto Date Growth:</strong>
-                          {monthlyData?.growth_lm}
+                          {tabData['monthly'].data?.[0]?.growth_lm ?? '0'}
+                        </p>
+                      </div>
+                    </Card>
+                  </Col>
+                </div>
+              </Row>
+            </CardBody>
+          </TabPane>
+          <TabPane tabId="1">
+            <CardBody>
+              <Row>
+                <div className="speedometer-wrapper">
+                  <ReactSpeedometer
+                    value={tabData['quaterly'].data?.[0]?.achv ?? 0} // Example value for Achievement
+                    minValue={0}
+                    maxValue={100}
+                    needleColor="blue"
+                    startColor="blue"
+                    endColor="yellow"
+                    textColor="#000000"
+                    currentValueText={`${tabData['quaterly'].data?.[0]?.achv ?? '0'}%`}
+                    forceRender={true}
+                    needleTransitionDuration={4000}
+                    needleTransition="easeQuadInOut"
+                    height={200}
+                    width={310}
+                    ringWidth={40}
+                  />
+                  <Col className="" style={{ paddingLeft: '20px' }}>
+                    <Card
+                      className="shadow"
+                      style={{
+                        width: '200px',
+                        padding: '10px',
+                        textAlign: 'center',
+                      }}
+                      id="growthCard" // Set ID for the tooltip to reference
+                    >
+                      <div style={{ color: 'rgb(13 59 135)' }}>
+                        <p>
+                          <strong>Last Year Growth:</strong>
+                          {tabData['quaterly'].data?.[0]?.growth_ly ?? '0'}
+                        </p>
+                        <p>
+                          <strong>Upto Date Growth:</strong>
+                          {tabData['quaterly'].data?.[0]?.growth_lm ?? '0'}
                         </p>
                       </div>
                     </Card>
@@ -160,14 +243,14 @@ function SalesAchvTabs(props) {
               <Row>
                 <div className="speedometer-wrapper">
                   <ReactSpeedometer
-                    value={qtrlyData?.achv} // Example value for Achievement
+                    value={tabData['yearly'].data?.[0]?.achv ?? 0} // Example value for Target
                     minValue={0}
                     maxValue={100}
                     needleColor="blue"
                     startColor="blue"
                     endColor="yellow"
                     textColor="#000000"
-                    currentValueText={`${qtrlyData?.achv}%`}
+                    currentValueText={`${tabData['yearly'].data?.[0]?.achv ?? '0'}%`}
                     forceRender={true}
                     needleTransitionDuration={4000}
                     needleTransition="easeQuadInOut"
@@ -188,57 +271,11 @@ function SalesAchvTabs(props) {
                       <div style={{ color: 'rgb(13 59 135)' }}>
                         <p>
                           <strong>Last Year Growth:</strong>
-                          {qtrlyData?.growth_ly}
+                          {tabData['yearly'].data?.[0]?.growth_ly ?? 0}
                         </p>
                         <p>
                           <strong>Upto Date Growth:</strong>
-                          {qtrlyData?.growth_lm}
-                        </p>
-                      </div>
-                    </Card>
-                  </Col>
-                </div>
-              </Row>
-            </CardBody>
-          </TabPane>
-          <TabPane tabId="3">
-            <CardBody>
-              <Row>
-                <div className="speedometer-wrapper">
-                  <ReactSpeedometer
-                    value={yearlyData?.achv} // Example value for Target
-                    minValue={0}
-                    maxValue={100}
-                    needleColor="blue"
-                    startColor="blue"
-                    endColor="yellow"
-                    textColor="#000000"
-                    currentValueText={`${yearlyData?.achv}%`}
-                    forceRender={true}
-                    needleTransitionDuration={4000}
-                    needleTransition="easeQuadInOut"
-                    height={200}
-                    width={310}
-                    ringWidth={40}
-                  />
-                  <Col className="" style={{ paddingLeft: '20px' }}>
-                    <Card
-                      className="shadow"
-                      style={{
-                        width: '200px',
-                        padding: '10px',
-                        textAlign: 'center',
-                      }}
-                      id="growthCard" // Set ID for the tooltip to reference
-                    >
-                      <div style={{ color: 'rgb(13 59 135)' }}>
-                        <p>
-                          <strong>Last Year Growth:</strong>
-                          {yearlyData?.growth_ly}
-                        </p>
-                        <p>
-                          <strong>Upto Date Growth:</strong>
-                          {yearlyData?.growth_lm}
+                          {tabData['yearly'].data?.[0]?.growth_lm ?? 0}
                         </p>
                       </div>
                     </Card>

@@ -16,8 +16,8 @@ import {
 const PopupTableModal = (props) => {
   const {
     data,
-    loading = false,
-    error = null,
+    // loading = false,
+    // error = null,
   } = useFetch(props.url, props.request);
   const flags = ['Achieve', 'Not Achieve', 'All'];
 

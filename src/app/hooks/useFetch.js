@@ -6,6 +6,9 @@ export const useFetch = (url, payload, config) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // const memoizedPayload = useMemo(() => payload, [JSON.stringify(payload)]);
+  // const memoizedConfig = useMemo(() => config, [JSON.stringify(config)]);
+
   useEffect(() => {
     (async () => {
       try {

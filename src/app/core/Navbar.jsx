@@ -3,7 +3,7 @@ import axios from 'axios';
 import facejpg from '../../assets/images/faces/face1.jpg';
 //import '@mdi/font/css/materialdesignicons.min.css';
 import { Link } from 'react-router-dom';
-import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import MultiSelectDropdown from '../common/MultiSelectDropdown';
 
 const Navbar = () => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });

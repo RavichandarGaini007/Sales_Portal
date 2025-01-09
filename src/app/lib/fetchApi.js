@@ -14,4 +14,11 @@ export const apiUrls = {
   salesAchvdata:
     'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
   SalesScData: 'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
+  SalesTopPerformance:
+    'http://192.168.120.64/React_Login_api/api/Sales/SalesTopPerformance',
+  SalesHierarchyDesg:
+    'http://192.168.120.64/React_Login_api/api/Sales/SalesHierarchyDesg',
+  SalesDivHQ: 'http://192.168.120.64/React_Login_api/api/Sales/SalesDivHQ',
+  BrandPerfmnceData:
+    'http://192.168.120.64/React_Login_api/api/Sales/BrandPerfmnceData',
 };

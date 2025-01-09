@@ -11,108 +11,68 @@ import {
   Row,
   Col,
 } from 'reactstrap';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
+import '../css/commonCss.css';
+
+const req = {
+  tbl_name: 'FTP_11_2024',
+  empcode: '041406',
+  div: '23',
+};
 
 const HQPerformance = () => {
-  const [activeTab, setActiveTab] = useState('3');
-
-  const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
-  };
+  const flags = ['Achieve', 'Not Achieve', 'All'];
+  const [activeTab, setActiveTab] = useState(2);
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
     1: { data: null, loading: false, error: null },
     2: { data: null, loading: false, error: null },
   });
-  // Sample data for each tab
-  // const data = {
-  //   monthly: [
-  //     { name: "RAJKOT PL", msr: "2",grosssale:"77.53", netamount: 5000, achievement: 110, target: 4500 },
-  //     { name: "BHUJ", msr: "1",grosssale:"77.53", netamount: 15000, achievement: 120, target: 12500 },
-  //     { name: "SURENDRANAGAR", msr: "3",grosssale:"77.53", netamount: 60000, achievement: 115, target: 52000 },
-  //     { name: "AHMEDABAD PL - A", msr: "2",grosssale:"77.53", netamount: 55000, achievement: 110, target: 50000 },
-  //   ],
-  //   quarterly: [
-  //     { name: "JAMNAGAR", msr: "1",grosssale:"77.53", netamount: 10000, achievement: 90, target: 11000 },
-  //     { name: "HIMATNAGAR", msr: "1",grosssale:"77.53", netamount: 3000, achievement: 75, target: 4000 },
-  //   ],
-  //   yearly: [
-  //       { name: "RAJKOT PL", msr: "2",grosssale:"77.53", netamount: 5000, achievement: 110, target: 4500 },
-  //       { name: "BHUJ", msr: "1",grosssale:"77.53", netamount: 15000, achievement: 120, target: 12500 },
-  //       { name: "SURENDRANAGAR", msr: "3", grosssale:"77.53",netamount: 60000, achievement: 115, target: 52000 },
-  //       { name: "AHMEDABAD PL - A", msr: "2",grosssale:"77.53", netamount: 55000, achievement: 110, target: 50000 },
-  //       { name: "JAMNAGAR", msr: "1",grosssale:"77.53", netamount: 10000, achievement: 90, target: 11000 },
-  //       { name: "HIMATNAGAR", msr: "1", grosssale:"77.53",netamount: 3000, achievement: 75, target: 4000 },
-  //   ],
-  // };
+  const activeTabData = tabData[activeTab].data;
 
   const fetchData = async (tabIndex) => {
     try {
-      setTabData((prevData) => ({
-        ...prevData,
-        [tabIndex]: { ...prevData[tabIndex], loading: true },
+      const opData = await fetchApi(apiUrls.SalesDivHQ, req);
+      const allData = opData.data;
+      const achvGreaterThan100 = opData.data.filter((item) => item.ach >= 100);
+      const achvLessThan100 = opData.data.filter((item) => item.ach < 100);
+
+      setTabData((prevState) => ({
+        ...prevState,
+        [tabIndex]: { data: allData, loading: false, error: null },
       }));
 
-      const response = await fetch(
-        'http://192.168.120.64/React_Login_api/api/Sales/SalesDivHQ',
-        {
-          method: 'POST', // Specify the HTTP method as POST
-          headers: {
-            'Content-Type': 'application/json', // Set the content type to JSON
-          },
-          body: JSON.stringify({
-            tbl_name: 'FTP_11_2024',
-            empcode: '041406',
-            div: '23',
-          }), // Convert the body object to JSON
-        }
-      );
-      const data = await response.json();
-      const achvGreaterThan100 = data.data.filter((item) => item.ach >= 100);
-      const achvLessThan100 = data.data.filter((item) => item.ach < 100);
-
-      setTabData((prevData) => ({
-        ...prevData,
-        [tabIndex]: { data, loading: false, error: null },
-      }));
-
-      setTabData((prevData) => ({
-        ...prevData,
+      setTabData((prevState) => ({
+        ...prevState,
         [0]: { data: achvGreaterThan100, loading: false, error: null },
       }));
 
-      setTabData((prevData) => ({
-        ...prevData,
+      setTabData((prevState) => ({
+        ...prevState,
         [1]: { data: achvLessThan100, loading: false, error: null },
       }));
     } catch (error) {
-      setTabData((prevData) => ({
-        ...prevData,
-        [tabIndex]: { ...prevData[tabIndex], loading: false, error },
+      setTabData((prevState) => ({
+        ...prevState,
+        [tabIndex]: { ...prevState[tabIndex], loading: false, error },
       }));
     }
   };
 
   useEffect(() => {
-    // Avoid calling API if data is already present and not loading
-    if (!tabData[activeTab - 1].data && !tabData[activeTab - 1].loading) {
-      fetchData(activeTab - 1);
+    if (tabData[activeTab]?.data || tabData[activeTab]?.loading) {
+      return; // If data is available or loading, do nothing
+    }
+
+    if (!tabData[activeTab].data && !tabData[activeTab].loading) {
+      fetchData(activeTab);
     }
   }, []);
 
-  // Helper to fetch data based on activeTab
-  const getTabData = () => {
-    switch (activeTab) {
-      case '1':
-        return tabData[0]?.data;
-      case '2':
-        return tabData[1]?.data;
-      case '3':
-        return tabData[2]?.data;
-      default:
-        return [];
+  const toggleTab = (tab) => {
+    if (activeTab !== tab) {
+      setActiveTab(tab);
     }
   };
 
@@ -130,8 +90,8 @@ const HQPerformance = () => {
               style={{
                 cursor: 'pointer',
               }}
-              className={activeTab === '1' ? 'active' : ''}
-              onClick={() => toggleTab('1')}
+              className={activeTab === 0 ? 'active' : ''}
+              onClick={() => toggleTab(0)}
             >
               Achieve
             </NavLink>
@@ -139,8 +99,8 @@ const HQPerformance = () => {
           <NavItem>
             <NavLink
               style={{ cursor: 'pointer' }}
-              className={activeTab === '2' ? 'active' : ''}
-              onClick={() => toggleTab('2')}
+              className={activeTab === 1 ? 'active' : ''}
+              onClick={() => toggleTab(1)}
             >
               Not Achieve
             </NavLink>
@@ -148,166 +108,67 @@ const HQPerformance = () => {
           <NavItem>
             <NavLink
               style={{ cursor: 'pointer' }}
-              className={activeTab === '3' ? 'active' : ''}
-              onClick={() => toggleTab('3')}
+              className={activeTab === 2 ? 'active' : ''}
+              onClick={() => toggleTab(2)}
             >
               All
             </NavLink>
           </NavItem>
         </Nav>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="1">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>HQ Name</th>
-                        <th>MSR</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData()) &&
-                      getTabData().length > 0 ? (
-                        getTabData().map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.bezei}</td>
-                            <td>{item.msr}</td>
-                            <td>{item.gross_sale}</td>
-                            <td>{item.net_amt1}</td>
-                            <td>{item.target1}</td>
-                            <td
-                              style={{
-                                color: item.ach >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.ach}%
+        {flags.map((tab, id) => (
+          <TabContent key={id} activeTab={activeTab}>
+            <TabPane tabId={id}>
+              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <Row>
+                  <Col>
+                    <table className="table table-bordered">
+                      <thead className="thead-light">
+                        <tr>
+                          <th className="textLeft">HQ Name</th>
+                          <th>MSR</th>
+                          <th>Gross Sale</th>
+                          <th>Net Amount</th>
+                          <th>Target</th>
+                          <th>Ach(%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeTabData &&
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
+                          activeTabData.map((item, index) => (
+                            <tr key={index}>
+                              <td style={{ textAlign: 'left' }}>
+                                {item.bezei}
+                              </td>
+                              <td>{item.msr}</td>
+                              <td>{item.gross_sale}</td>
+                              <td>{item.net_amt1}</td>
+                              <td>{item.target1}</td>
+                              <td
+                                style={{
+                                  color: item.ach >= 100 ? '#00d284' : 'red',
+                                }}
+                              >
+                                {item.ach}%
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: 'center' }}>
+                              No data available
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="2">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>HQ Name</th>
-                        <th>MSR</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData()) &&
-                      getTabData().length > 0 ? (
-                        getTabData().map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.bezei}</td>
-                            <td>{item.msr}</td>
-                            <td>{item.gross_sale}</td>
-                            <td>{item.net_amt1}</td>
-                            <td>{item.target1}</td>
-                            <td
-                              style={{
-                                color: item.ach >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.ach}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="3">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>HQ Name</th>
-                        <th>MSR</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData().data) &&
-                      getTabData().data.length > 0 ? (
-                        getTabData().data.map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.bezei}</td>
-                            <td>{item.msr}</td>
-                            <td>{item.gross_sale}</td>
-                            <td>{item.net_amt1}</td>
-                            <td>{item.target1}</td>
-                            <td
-                              style={{
-                                color: item.ach >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.ach}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
+                        )}
+                      </tbody>
+                    </table>
+                  </Col>
+                </Row>
+              </CardBody>
+            </TabPane>
+          </TabContent>
+        ))}
       </Card>
     </Col>
   );

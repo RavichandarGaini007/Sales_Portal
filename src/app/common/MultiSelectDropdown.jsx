@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './MultiSelectDropdown.css';
+import '../css/MultiSelectDropdown.css';
 
 const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
   const [search, setSearch] = useState('');

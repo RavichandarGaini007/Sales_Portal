@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardHeader,
@@ -11,121 +11,49 @@ import {
   Row,
   Col,
 } from 'reactstrap';
+import { apiUrls } from '../lib/fetchApi';
+import { useFetch } from '../hooks/useFetch';
 
+const brandReq = {
+  tbl_name: 'FTP_MAT_VAL_11_2024',
+  empcode: '041406',
+  div: '23',
+};
 const BrandPerformance = () => {
-  const [activeTab, setActiveTab] = useState('1');
+  const flags = ['Achieve', 'Not Achieve', 'All'];
+  const { data: brandData } = useFetch(apiUrls.BrandPerfmnceData, brandReq);
+  const [activeTab, setActiveTab] = useState(2);
+
+  const [tabData, setTabData] = useState({
+    0: { data: null, loading: false, error: null },
+    1: { data: null, loading: false, error: null },
+    2: { data: null, loading: false, error: null },
+  });
+
+  const funFillData = () => {
+    if (brandData) {
+      const achvGreaterThan100 = brandData?.data.filter(
+        (item) => item.achv >= 100
+      );
+      const achvLessThan100 = brandData?.data.filter((item) => item.achv < 100);
+
+      setTabData({
+        0: { data: achvGreaterThan100, loading: false, error: null },
+        1: { data: achvLessThan100, loading: false, error: null },
+        2: { data: brandData?.data, loading: false, error: null },
+      });
+    }
+  };
+
+  const activeTabData = tabData[activeTab].data;
+
+  useEffect(() => {
+    funFillData();
+  }, [brandData]);
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
-    }
-  };
-
-  // Sample data for each tab
-  const data = {
-    monthly: [
-      {
-        name: 'PAN SOLIDS',
-        grosssale: '99.91',
-        netamount: 106.87,
-        achievement: 110,
-        target: 100,
-      },
-      {
-        name: 'PAN - D',
-        grosssale: '1771.35',
-        netamount: 2013.31,
-        achievement: 120,
-        target: 2000,
-      },
-      {
-        name: 'PAN MPS',
-        grosssale: '84.61',
-        netamount: 91.47,
-        achievement: 115,
-        target: 50,
-      },
-      {
-        name: 'PAN L',
-        grosssale: '107.97',
-        netamount: 70.71,
-        achievement: 110,
-        target: 60,
-      },
-    ],
-    quarterly: [
-      {
-        name: 'PAN IT',
-        grosssale: '30.80',
-        netamount: 115.7,
-        achievement: 46.12,
-        target: 250.87,
-      },
-      {
-        name: 'EMTY',
-        grosssale: '38.98',
-        netamount: 33.44,
-        achievement: 36.91,
-        target: 90.59,
-      },
-    ],
-    yearly: [
-      {
-        name: 'PAN SOLIDS',
-        grosssale: '99.91',
-        netamount: 106.87,
-        achievement: 110,
-        target: 100,
-      },
-      {
-        name: 'PAN - D',
-        grosssale: '1771.35',
-        netamount: 2013.31,
-        achievement: 120,
-        target: 2000,
-      },
-      {
-        name: 'PAN MPS',
-        grosssale: '84.61',
-        netamount: 91.47,
-        achievement: 115,
-        target: 50,
-      },
-      {
-        name: 'PAN L',
-        grosssale: '107.97',
-        netamount: 70.71,
-        achievement: 110,
-        target: 60,
-      },
-      {
-        name: 'PAN IT',
-        grosssale: '30.80',
-        netamount: 115.7,
-        achievement: 46.12,
-        target: 250.87,
-      },
-      {
-        name: 'EMTY',
-        grosssale: '38.98',
-        netamount: 33.44,
-        achievement: 36.91,
-        target: 90.59,
-      },
-    ],
-  };
-
-  // Helper to fetch data based on activeTab
-  const getTabData = () => {
-    switch (activeTab) {
-      case '1':
-        return data.monthly;
-      case '2':
-        return data.quarterly;
-      case '3':
-        return data.yearly;
-      default:
-        return [];
     }
   };
 
@@ -138,153 +66,69 @@ const BrandPerformance = () => {
           </div>
         </CardHeader>
         <Nav tabs>
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === '1' ? 'active' : ''}
-              onClick={() => toggleTab('1')}
-            >
-              Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '2' ? 'active' : ''}
-              onClick={() => toggleTab('2')}
-            >
-              Not Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '3' ? 'active' : ''}
-              onClick={() => toggleTab('3')}
-            >
-              All
-            </NavLink>
-          </NavItem>
+          {flags.map((flag, index) => (
+            <NavItem key={index}>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                className={activeTab === index ? 'active' : ''}
+                onClick={() => toggleTab(index)}
+              >
+                {flag}
+              </NavLink>
+            </NavItem>
+          ))}
         </Nav>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="1">
-            <CardBody>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Brand Name</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData().map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.name}</td>
-                          <td>{item.grosssale}</td>
-                          <td>{item.netamount}</td>
-                          <td>{item.target}</td>
-                          <td
-                            style={{
-                              color:
-                                item.achievement >= 100 ? '#00d284' : 'red',
-                            }}
-                          >
-                            {item.achievement}%
-                          </td>
+
+        {flags.map((tab, id) => (
+          <TabContent key={id} activeTab={activeTab}>
+            <TabPane tabId={id}>
+              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <Row>
+                  <Col>
+                    <table className="table table-bordered">
+                      <thead className="thead-light">
+                        <tr>
+                          <th>Brand Name</th>
+                          <th>Gross Sale</th>
+                          <th>Net Amount</th>
+                          <th>Target</th>
+                          <th>Ach(%)</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="2">
-            <CardBody>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Brand Name</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData().map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.name}</td>
-                          <td>{item.grosssale}</td>
-                          <td>{item.netamount}</td>
-                          <td>{item.target}</td>
-                          <td
-                            style={{
-                              color:
-                                item.achievement >= 100 ? '#00d284' : 'red',
-                            }}
-                          >
-                            {item.achievement}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="3">
-            <CardBody>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Brand Name</th>
-                        <th>Gross Sale</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData().map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.name}</td>
-                          <td>{item.grosssale}</td>
-                          <td>{item.netamount}</td>
-                          <td>{item.target}</td>
-                          <td
-                            style={{
-                              color:
-                                item.achievement >= 100 ? '#00d284' : 'red',
-                            }}
-                          >
-                            {item.achievement}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
+                      </thead>
+                      <tbody>
+                        {activeTabData &&
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
+                          activeTabData.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.brand}</td>
+                              <td>{item.gross_sale}</td>
+                              <td>{item.net_amt}</td>
+                              <td>{item.target}</td>
+                              <td
+                                style={{
+                                  color: item.achv >= 100 ? '#00d284' : 'red',
+                                }}
+                              >
+                                {item.achv}%
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: 'center' }}>
+                              No data available
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </Col>
+                </Row>
+              </CardBody>
+            </TabPane>
+          </TabContent>
+        ))}
       </Card>
     </Col>
   );

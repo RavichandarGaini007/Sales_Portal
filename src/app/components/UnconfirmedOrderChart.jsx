@@ -55,24 +55,20 @@ const UnconfirmedOrderChart = (props) => {
       },
       title: {
         display: true,
-        text:
-          'Unconfirmed Orders = ' +
-          ((props.tableData?.[0]?.unconf_ostd_ord || 0) +
-            (props.tableData?.[0]?.unconf_stock || 0)), // Total unconfirmed orders
       },
     },
     scales: {
       x: {
-        barThickness: 3, // Set the bar thickness to make the bars thinner
-        categoryPercentage: 0.5, // Adjust width within category
-        barPercentage: 0.7, // Adjust the overall width of the bar in the chart area
-        ticks: {
-          display: true, // Show x-axis ticks
-        },
+        //barThickness: 3, // Set the bar thickness to make the bars thinner
+        categoryPercentage: 0.6, // Adjust width within category
+        barPercentage: 0.8, // Adjust the overall width of the bar in the chart area
+        // ticks: {
+        //   display: true, // Show x-axis ticks
+        // },
       },
-      y: {
-        beginAtZero: true, // Start y-axis from zero
-      },
+      // y: {
+      //   beginAtZero: true, // Start y-axis from zero
+      // },
     },
   };
 

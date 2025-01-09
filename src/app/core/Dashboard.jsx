@@ -1,13 +1,8 @@
 import React from 'react';
-
-// reactstrap components
 import { Card, CardHeader, CardBody, Row, Col } from 'reactstrap';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { useNavigate } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
-
 import ScoreCard from '../components/ScoreCard';
 import HQPerformance from '../components/HQPerformance';
 import SaleablePieChart from '../components/SaleablePieChart';
@@ -20,6 +15,7 @@ import NewsAndInformation from '../components/NewsAndInformation';
 import AwardsDetailsCard from '../components/AwardsDetailsCard';
 import SalesDivBar from '../components/SalesDivBar';
 import SalesAchvTabs from '../components/SalesAchvTabs';
+import '../css/commonCss.css';
 
 //@TODO : move this request code out of component
 const scoreCardReq = {
@@ -42,16 +38,9 @@ const salableNonSaleReq = {
 const Dashboard = () => {
   let scoracrdPercentage = '0';
   let salesDivData = [];
-  //let totSaleData = [];
+  let salableGrndTotl;
 
   const navigate = useNavigate(); // Hook to navigate programmatically
-
-  // const [scData, setScData] = useState([]);
-  // const [scoracrdPercentage, setScPerce] = useState('0');
-  //const [salableData, setSalableData] = useState([]);
-  //const [salesDivData, setSalesDivData] = useState([]);
-  //const [salesPercentage, setSalesPercentage] = useState(20); // Initial sales value
-  //const [tooltipOpen, setTooltipOpen] = useState(false);
 
   const { data: scData } = useFetch(
     'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
@@ -62,19 +51,6 @@ const Dashboard = () => {
     salableNonSaleReq
   );
 
-  //@TODO : remove unuse code
-  //const toggleTooltip = () => setTooltipOpen(!tooltipOpen);
-
-  // const handleTabClick = (percentage) => {
-  //   setSalesPercentage(percentage);
-  // };
-  // const newportal_Click = () => {
-  //   navigate('/dashboard');
-  // };
-  // const tableformate_Click = () => {
-  //   navigate('/SalesPortal');
-  // };
-
   const navComps = (flag) => {
     if (flag === 'dashboard') {
       navigate('/dashboard');
@@ -83,55 +59,21 @@ const Dashboard = () => {
     }
   };
 
-  // const oldportal_Click = () => {
-  //   navigate('/dashboard');
-  // };
+  if (salableData && salableData.data) {
+    salesDivData = salableData.data.filter(
+      (items) => items.division != 'Grand Total'
+    );
 
-  // const funScData = () => {
-  //   const { scfdata, loading, error } = useFetch("http://192.168.120.64/React_Login_api/api/Sales/SalesScData", scoreCardReq);
-  //   setScData(scfdata);
+    salableGrndTotl = salableData.data.filter(
+      (items) => items.division === 'Grand Total'
+    );
+  }
 
-  //   let percAbove100 = data.filter((item) => item.ach > 100).length;
-  //   let totRows = data.length;
-  //   let perc = (percAbove100 / totRows) * 100;
-  //   setScPerce(perc);
-  // }
-  // funScData();
-
-  if (scData.data) {
+  if (scData && scData.data) {
     const percAbove100 = scData.data.filter((item) => item.ach > 100).length;
     const totRows = scData.data.length;
     scoracrdPercentage = (percAbove100 / totRows) * 100;
   }
-
-  // if (salableData) {
-  //   //totSaleData = salableData.filter((item) => item.division === 'Grand Total');
-  //   salesDivData = salableData.filter((item) => item.division != 'Grand Total');
-  // }
-
-  //     setSalableData(data.filter((item) => item.division === 'Grand Total'));
-  //     setSalesDivData(data.filter((item) => item.division != 'Grand Total'));
-
-  // useEffect(() => {
-  //   axios
-  //   .post(
-  //     'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
-  //     salableNonSaleReq,
-  //     {
-  //       headers: {
-  //         'Content-Type': 'application/json', // Required for JSON requests
-  //       },
-  //     }
-  //   ) // Replace with your API endpoint
-  //   .then((response) => {
-  //     const data = response.data.data;
-  //     setSalableData(data.filter((item) => item.division === 'Grand Total'));
-  //     setSalesDivData(data.filter((item) => item.division != 'Grand Total'));
-  //   })
-  //   .catch((error) => {
-  //     console.error('Error fetching data:', error);
-  //   });
-  // })
 
   return (
     <div className="container-fluid page-body-wrapper">
@@ -165,7 +107,7 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
-          <Row className="">
+          <Row my="8">
             <Col lg="7" md="7" sm="7">
               <SalesAchvTabs request={salableNonSaleReq} />
             </Col>
@@ -184,7 +126,7 @@ const Dashboard = () => {
                 <Row>
                   <ScoreCard
                     percentage={scoracrdPercentage}
-                    tableData={scData}
+                    tableData={scData?.data}
                   />
                 </Row>
               </CardBody>
@@ -196,7 +138,7 @@ const Dashboard = () => {
           </Row>
           <Row className="mt-performace">
             <BrandPerformance />
-            <UnconfirmedOrderChart tableData={salableData} />
+            <UnconfirmedOrderChart tableData={salableGrndTotl} />
           </Row>
           <Row className="mt-performace">
             <HierarchicalPerformanceTabs />
