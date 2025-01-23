@@ -43,31 +43,20 @@ const HierarchicalPerformanceTabs = () => {
 
   const funFillData = () => {
     if (herarData) {
-      const achvGreaterThan100 = herarData?.data.filter(
-        (item) => item.achv >= 100
-      );
-      const achvLessThan100 = herarData?.data.filter((item) => item.achv < 100);
+      const achieve = herarData?.data.filter((item) => item.achv >= 100);
+      const notAchieve = herarData?.data.filter((item) => item.achv < 100);
 
-      setTabData((prevData) => ({
-        ...prevData,
-        [2]: { data: herarData?.data, loading: false, error: null },
-      }));
-
-      setTabData((prevData) => ({
-        ...prevData,
-        [0]: { data: achvGreaterThan100, loading: false, error: null },
-      }));
-
-      setTabData((prevData) => ({
-        ...prevData,
-        [1]: { data: achvLessThan100, loading: false, error: null },
-      }));
+      setTabData({
+        0: { data: achieve, loading: false, error: null },
+        1: { data: notAchieve, loading: false, error: null },
+        2: { data: herarData?.data, loading: false, error: null },
+      });
     }
   };
 
   useEffect(() => {
     funFillData();
-  }, []);
+  }, [herarData]);
 
   const activeTabData = desgVal
     ? tabData[activeTab]?.data?.filter((item) => item.desg === desgVal)
@@ -113,35 +102,17 @@ const HierarchicalPerformanceTabs = () => {
           </div>
         </CardHeader>
         <Nav tabs>
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === 0 ? 'active' : ''}
-              onClick={() => toggleTab(0)}
-            >
-              Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 1 ? 'active' : ''}
-              onClick={() => toggleTab(1)}
-            >
-              Not Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 2 ? 'active' : ''}
-              onClick={() => toggleTab(2)}
-            >
-              All
-            </NavLink>
-          </NavItem>
+          {flags.map((tab, index) => (
+            <NavItem key={index}>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                className={activeTab === index ? 'active' : ''}
+                onClick={() => toggleTab(index)}
+              >
+                {tab}
+              </NavLink>
+            </NavItem>
+          ))}
         </Nav>
 
         {flags.map((tab, id) => (
@@ -197,153 +168,7 @@ const HierarchicalPerformanceTabs = () => {
             </TabPane>
           </TabContent>
         ))}
-        {/*<TabContent activeTab={activeTab}>
-          <TabPane tabId="1">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Name</th>
-                        <th>Scorecard</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData()) &&
-                      getTabData().length > 0 ? (
-                        getTabData().map((item, index) => (
-                          <tr key={index} onClick={() => handleRowClick(item)}>
-                            <td>{item.name}</td>
-                            <td>{item.scorecard}</td>
-                            <td>{item.net_amount}</td>
-                            <td>{item.target}</td>
-                            <td
-                              style={{
-                                color: item.achv >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.achv}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="2">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Name</th>
-                        <th>Scorecard</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData()) &&
-                      getTabData().length > 0 ? (
-                        getTabData().map((item, index) => (
-                          <tr key={index} onClick={() => handleRowClick(item)}>
-                            <td>{item.name}</td>
-                            <td>{item.scorecard}</td>
-                            <td>{item.net_amount}</td>
-                            <td>{item.target}</td>
-                            <td
-                              style={{
-                                color: item.achv >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.achv}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="3">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    <thead className="thead-light">
-                      <tr>
-                        <th>Name</th>
-                        <th>Scorecard</th>
-                        <th>Net Amount</th>
-                        <th>Target</th>
-                        <th>Ach(%)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getTabData() &&
-                      Array.isArray(getTabData()) &&
-                      getTabData().length > 0 ? (
-                        getTabData().map((item, index) => (
-                          <tr key={index} onClick={() => handleRowClick(item)}>
-                            <td>{item.name}</td>
-                            <td>{item.scorecard}</td>
-                            <td>{item.net_amount}</td>
-                            <td>{item.target}</td>
-                            <td
-                              style={{
-                                color: item.achv >= 100 ? '#00d284' : 'red',
-                              }}
-                            >
-                              {item.achv}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        // If no valid data, show a placeholder message
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent> */}
+
         {/* Modal for showing detailed row data */}
         <Modal isOpen={modalOpen} toggle={toggleModal}>
           <ModalHeader toggle={toggleModal}>Performance Details</ModalHeader>

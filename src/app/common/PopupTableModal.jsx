@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useFetch } from '../hooks/useFetch';
+//import { useFetch } from '../hooks/useFetch';
+import { fetchApi } from '../lib/fetchApi';
 import {
   Card,
   CardHeader,
@@ -12,17 +13,14 @@ import {
   Row,
   Col,
 } from 'reactstrap';
+import { apiUrls, popState } from '../lib/fetchApi';
+import { Salescolumns, divHqPopupColumns, divBrandPopupColumns, divHierarchyPopupColumns } from '../lib/tableHead';
 
-const PopupTableModal = (props) => {
-  const {
-    data,
-    // loading = false,
-    // error = null,
-  } = useFetch(props.url, props.request);
+
+const PopupTableModal = ({ url, request, head, headerName, state }) => {
+  //const { data } = useFetch(url, request);
+  const [activeTab, setActiveTab] = useState(2);
   const flags = ['Achieve', 'Not Achieve', 'All'];
-
-  const [activeTab, setActiveTab] = useState('3');
-  //const [data, setData] = useState([]);
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
@@ -30,308 +28,137 @@ const PopupTableModal = (props) => {
     2: { data: null, loading: false, error: null },
   });
 
+  useEffect(() => {
+    (async () => {
+      const opData = await fetchApi(url, request);
+      if (opData && opData.data) {
+        const achvGreaterThan100 = opData.data.filter((item) => item.achv >= 100);
+        const achvLessThan100 = opData.data.filter((item) => item.achv < 100);
+
+        setTabData({
+          [0]: { data: achvGreaterThan100, loading: false, error: null }, // Achieve
+          [1]: { data: achvLessThan100, loading: false, error: null }, // Not Achieve
+          [2]: { data: opData.data, loading: false, error: null }, // All data
+        });
+      }
+    })();
+  }, [url, request, head]);
+
   const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
+    if (activeTab !== tab) setActiveTab(tab);
   };
 
-  useEffect(() => {
-    const achvGreaterThan100 = data.filter((item) => item.achv >= 100);
-    const achvLessThan100 = data.filter((item) => item.achv < 100);
-
-    setTabData(() => ({
-      [0]: { data, loading: false, error: null },
-    }));
-
-    setTabData(() => ({
-      [1]: { data: achvGreaterThan100, loading: false, error: null },
-    }));
-
-    setTabData(() => ({
-      [2]: { data: achvLessThan100, loading: false, error: null },
-    }));
-  }, [data]);
-
-  const getTabData = () => {
-    if (tabData) {
-      switch (activeTab) {
-        case '1':
-          return tabData[0]?.data || [];
-        case '2':
-          return tabData[1]?.data || [];
-        case '3':
-          return tabData[2]?.data || [];
-        default:
-          return [];
-      }
+  const renderTblPopup = () => {
+    if (state === popState.popHqWise) {
+      return (
+        <PopupTableModal
+          url={apiUrls.salesdata}
+          request={request}
+          head={Salescolumns}
+          headerName={'Hq Popup'}
+          state={popState.Salescolumns}
+        />
+      );
     }
+  }
+
+  const renderTable = (data) => {
+    return (
+      <table className="table table-bordered">
+        {data && Array.isArray(data) && data.length > 0 ? (
+          <>
+            <thead className="thead-light">
+              <tr>
+                {head.map((column) => (
+                  <th key={column.accessorKey}>{column.header}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  {head.map((column) => {
+                    const value = item[column.accessorKey];
+                    const isAchv = column.accessorKey === 'achv';
+                    const isNameColumn = column.header.toLowerCase().includes('name'); // Check if 'name' is in the column header
+
+                    const handleClick = (e) => {
+                      if (isNameColumn) {
+                        //return renderTblPopup;
+                        <PopupTableModal
+                          url={apiUrls.salesdata}
+                          request={request}
+                          head={Salescolumns}
+                          headerName={'Hq Popup'}
+                          state={popState.Salescolumns}
+                        />
+
+                      }
+                    };
+
+                    return (
+                      <td
+                        key={column.accessorKey}
+                        style={{
+                          color: isAchv && value >= 100 ? '#00d284' : isAchv ? 'red' : undefined,
+                        }}
+                        onClick={handleClick}
+                      >
+                        {value}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </>
+        ) : (
+          <tbody>
+            <tr>
+              <td colSpan="5" style={{ textAlign: 'center' }}>
+                No data available
+              </td>
+            </tr>
+          </tbody>
+        )}
+      </table>
+    );
   };
 
   return (
-    <Col lg="7" md="6" sm="6">
-      <Card className="card-stats" style={{ height: '395px' }}>
+    <Col lg="12" md="12" sm="12">
+      <Card className="card-stats" >
         <CardHeader>
           <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-bar menu-icon" /> props.header
+            <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
           </div>
         </CardHeader>
+
         <Nav tabs>
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === '1' ? 'active' : ''}
-              onClick={() => toggleTab('1')}
-            >
-              Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '2' ? 'active' : ''}
-              onClick={() => toggleTab('2')}
-            >
-              Not Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '3' ? 'active' : ''}
-              onClick={() => toggleTab('3')}
-            >
-              ALL
-            </NavLink>
-          </NavItem>
+          {flags.map((flag, index) => (
+            <NavItem key={index}>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                className={activeTab === index ? 'active' : ''}
+                onClick={() => toggleTab(index)}
+              >
+                {flag}
+              </NavLink>
+            </NavItem>
+          ))}
         </Nav>
 
-        {flags.map((tab, id) => (
-          <TabContent key={id} activeTab={activeTab}>
-            <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <TabContent activeTab={activeTab}>
+          {flags.map((_, index) => (
+            <TabPane tabId={index} key={index}>
+              <CardBody style={{ overflowY: 'auto' }}>
                 <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      {getTabData() &&
-                      Array.isArray(getTabData().data) &&
-                      getTabData().data.length > 0 ? (
-                        <>
-                          <thead className="thead-light">
-                            <tr>
-                              {Object.keys(getTabData().data[0]).map(
-                                (key, index) => (
-                                  <th key={index}>
-                                    {key.replace('_', ' ').toUpperCase()}
-                                  </th>
-                                )
-                              )}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {getTabData().data.map((item, index) => (
-                              <tr key={index}>
-                                {Object.keys(item).map((key, idx) => (
-                                  <td
-                                    key={idx}
-                                    style={
-                                      key === 'achv' && item[key] >= 100
-                                        ? { color: '#00d284' }
-                                        : { color: 'red' }
-                                    }
-                                  >
-                                    {item[key]}{' '}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </>
-                      ) : (
-                        <tbody>
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
-                          </tr>
-                        </tbody>
-                      )}
-                    </table>
-                  </Col>
+                  <Col>{renderTable(tabData[index].data)}</Col>
                 </Row>
               </CardBody>
             </TabPane>
-          </TabContent>
-        ))}
-
-        {/* 
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="1">
-            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    {getTabData() &&
-                    Array.isArray(getTabData().data) &&
-                    getTabData().data.length > 0 ? (
-                      <>
-                        <thead className="thead-light">
-                          <tr>
-                            {Object.keys(getTabData().data[0]).map(
-                              (key, index) => (
-                                <th key={index}>
-                                  {key.replace('_', ' ').toUpperCase()}
-                                </th>
-                              )
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {getTabData().data.map((item, index) => (
-                            <tr key={index}>
-                              {Object.keys(item).map((key, idx) => (
-                                <td
-                                  key={idx}
-                                  style={
-                                    key === 'achv' && item[key] >= 100
-                                      ? { color: '#00d284' }
-                                      : { color: 'red' }
-                                  }
-                                >
-                                  {item[key]}{' '}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </>
-                    ) : (
-                      <tbody>
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      </tbody>
-                    )}
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
+          ))}
         </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="2">
-            <CardBody>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    {getTabData() &&
-                    Array.isArray(getTabData().data) &&
-                    getTabData().data.length > 0 ? (
-                      <>
-                        <thead className="thead-light">
-                          <tr>
-                            {Object.keys(getTabData().data[0]).map(
-                              (key, index) => (
-                                <th key={index}>
-                                  {key.replace('_', ' ').toUpperCase()}
-                                </th>
-                              )
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {getTabData().data.map((item, index) => (
-                            <tr key={index}>
-                              {Object.keys(item).map((key, idx) => (
-                                <td
-                                  key={idx}
-                                  style={
-                                    key === 'achv' && item[key] >= 100
-                                      ? { color: '#00d284' }
-                                      : { color: 'red' }
-                                  }
-                                >
-                                  {item[key]}{' '}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </>
-                    ) : (
-                      <tbody>
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      </tbody>
-                    )}
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="3">
-            <CardBody>
-              <Row>
-                <Col>
-                  <table className="table table-bordered">
-                    {getTabData() &&
-                    Array.isArray(getTabData().data) &&
-                    getTabData().data.length > 0 ? (
-                      <>
-                        <thead className="thead-light">
-                          <tr>
-                            {Object.keys(getTabData().data[0]).map(
-                              (key, index) => (
-                                <th key={index}>
-                                  {key.replace('_', ' ').toUpperCase()}
-                                </th>
-                              )
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {getTabData().data.map((item, index) => (
-                            <tr key={index}>
-                              {Object.keys(item).map((key, idx) => (
-                                <td
-                                  key={idx}
-                                  style={
-                                    key === 'achv' && item[key] >= 100
-                                      ? { color: '#00d284' }
-                                      : { color: 'red' }
-                                  }
-                                >
-                                  {item[key]}{' '}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </>
-                    ) : (
-                      <tbody>
-                        <tr>
-                          <td colSpan="5" style={{ textAlign: 'center' }}>
-                            No data available
-                          </td>
-                        </tr>
-                      </tbody>
-                    )}
-                  </table>
-                </Col>
-              </Row>
-            </CardBody>
-          </TabPane>
-        </TabContent> */}
       </Card>
     </Col>
   );

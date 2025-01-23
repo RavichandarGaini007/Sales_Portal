@@ -4,6 +4,15 @@ import facejpg from '../../assets/images/faces/face1.jpg';
 //import '@mdi/font/css/materialdesignicons.min.css';
 import { Link } from 'react-router-dom';
 import MultiSelectDropdown from '../common/MultiSelectDropdown';
+import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
+import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
+import '../../assets/vendors/css/vendor.bundle.base.css';
+// import '../../assets/vendors/js/vendor.bundle.base.js';
+// import '../../assets/vendors/flot/jquery.flot.js';
+// import '../../assets/vendors/flot/jquery.flot.resize.js';
+// import '../../assets/vendors/flot/jquery.flot.categories.js';
+// import '../../assets/vendors/flot/jquery.flot.fillbetween.js';
+// import '../../assets/vendors/flot/jquery.flot.stack.js';
 
 const Navbar = () => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });

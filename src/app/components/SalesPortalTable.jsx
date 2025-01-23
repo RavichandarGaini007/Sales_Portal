@@ -11,41 +11,15 @@ import {
   Card,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap'; // Import Bootstrap components
-import HQModal from './HQModal';
+//import HQModal from '../notUsedComponents/HQModal';
 // import BrandModal from './BrandModal';
 // import HierarchicalPerformanceModal from './HierarchicalPerformanceModal';
 import '../css/SalesPortalTable.css';
 import MultiSelectDropdown from '../common/MultiSelectDropdown';
-//import PopupTableModal from './app/common/PopupTableModal';
+import PopupTableModal from '../common/PopupTableModal';
+import { apiUrls, popState } from '../lib/fetchApi';
+import { Salescolumns, divHqPopupColumns, divBrandPopupColumns, divHierarchyPopupColumns } from '../lib/tableHead';
 
-const columns = [
-  { accessorKey: 'division', header: 'DIV' },
-  { accessorKey: 'name', header: 'DIV NAME' },
-  { accessorKey: 'sale', header: 'GROSS SALE(A)' },
-  { accessorKey: 'saleable', header: 'SALEABLE RET. (B)' },
-  { accessorKey: 'nonsaleable', header: 'NON-SALEABLE RET. (C)' },
-  { accessorKey: 'diff', header: 'PRICE DIFF RET.(D)' },
-  { accessorKey: 'netsales', header: 'NET SALES (E=A-B-C-D)' },
-  { accessorKey: 'pend_pick', header: 'PENDING FOR INVOICE (F)' },
-  { accessorKey: 'pend_ord', header: 'PENDING FOR PACKING (G)' },
-  { accessorKey: 'pend_disp', header: 'PENDING FOR DISPATCHES H(F+G)' },
-  { accessorKey: 'unconf_ostd_ord', header: 'UNCONF DUE TO OS (I)' },
-  { accessorKey: 'unconf_stock', header: 'UNCONF DUE TO STOCK (J)' },
-  { accessorKey: 'unconf_total', header: 'TOTAL UNCONF (K=I+J)' },
-  { accessorKey: 'for_ord', header: 'SCORE CARD' },
-  { accessorKey: 'net_amt', header: 'NET AMOUNT (E+H+K)' },
-  { accessorKey: 'target', header: 'TARGET' },
-  { accessorKey: 'achv', header: 'ACHIEVEMENT (%)' },
-  { accessorKey: 'varv', header: 'VAR' },
-  { accessorKey: 'percRet', header: '% RET' },
-  { accessorKey: 'lmtd', header: 'LAST MONTH UPTO DATE' },
-  { accessorKey: 'lymtd', header: 'LAST YEAR UPTO DATE' },
-  { accessorKey: 'lmgrowth', header: 'LAST MONTH UPTO DATE GROWTH' },
-  { accessorKey: 'growth', header: 'LAST YEAR UPTO DATE GROWTH' },
-  { accessorKey: 'lmtd1', header: 'LAST MONTH' },
-  { accessorKey: 'lymtd1', header: 'LAST YEAR' },
-  { accessorKey: 'growth_cy', header: 'LAST YEAR GROWTH' },
-];
 const getLabelColor = (value) => {
   if (value >= 100) return 'success'; // Green
   if (value >= 70) return 'warning'; // Yellow
@@ -56,9 +30,12 @@ const SalesPortalTable = () => {
   const [dropdownSelection, setDropdownSelection] = useState('hqwise'); // Default selection
   const [selectedDivName, setSelectedDivName] = useState(null); // State for selected "Div Name"
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
-  // const [dropdownOpen, setDropdownOpen] = useState(false);
-  // const [apiUrl, setApiUrl] = useState('');
-  // const [apiRequest, setApiRequest] = useState('');
+  const [apiUrl, setApiUrl] = useState(''); // State for API URL
+  const [apiRequest, setApiRequest] = useState({}); // State for API Request
+  const [tblHeader, setTblHeader] = useState([]); // State for Table Header
+  const [popUpState, setpopUpState] = useState([]); // State for Table Header
+
+
 
   // const [visibleColumns, setVisibleColumns] = useState(
   //   columns.reduce((acc, column) => {
@@ -74,9 +51,9 @@ const SalesPortalTable = () => {
   //   }));
   // };
 
-  const handleDropdownChange = (e) => {
-    setDropdownSelection(e.target.value); // Update dropdown selection
-  };
+  // const handleDropdownChange = (e) => {
+  //   setDropdownSelection(e.target.value); // Update dropdown selection
+  // };
   // const handleColumnSelectChange = (selectedList) => {
   //   const updatedVisibleColumns = { ...visibleColumns };
 
@@ -91,8 +68,13 @@ const SalesPortalTable = () => {
 
   useEffect(() => {
     // Fetch data from API
+    // (async () => {
+    //   const opData = await fetchApiGet(apiUrls.SalesTopPerformance);
+
+    //   setData(opData.data);
+    // })();
     axios
-      .get('https://sales.alkemcrm.com/NETCOREAPP/api/Sales/salesdata') // Replace with your API endpoint
+      .get(apiUrls.salesdata) // Replace with your API endpoint
       .then((response) => {
         setData(response.data.data); // Set the fetched data
         //console.log(response.data.data);
@@ -102,24 +84,45 @@ const SalesPortalTable = () => {
       });
   }, []);
 
-  // Toggle the dropdown visibility
-  const toggleDropdown = () => setShowModal(!showModal);
-
   const funApiReqGen = () => {
-    // if (dropdownSelection === 'hqwise') {
-    //   setApiUrl('');
-    // } else if (dropdownSelection === 'brandwise') {
-    //   setApiUrl('');
-    // } else if (dropdownSelection === 'hwise') {
-    //   setApiUrl('');
-    // }
+    let requestData = {
+      tbl_name: dropdownSelection == 'brandwise' || dropdownSelection == 'hwise' ? 'FTP_MAT_VAL_11_2024' : 'FTP_11_2024',
+      empcode: '041406',
+      div: '23',
+      month: '11',
+      year: '2024',
+      flag: 'monthly',
+    };
+
+    switch (dropdownSelection) {
+      case 'hqwise':
+        setApiUrl(apiUrls.DivHqReportData);
+        setTblHeader(divHqPopupColumns);
+        setpopUpState(popState.popHqWise);
+        break;
+      case 'brandwise':
+        setApiUrl(apiUrls.DivBrandReportData);
+        setTblHeader(divBrandPopupColumns);
+        setpopUpState(popState.popBrandWise);
+        break;
+      case 'hwise':
+        setApiUrl(apiUrls.SalesHierarchyDesg);
+        setTblHeader(divHierarchyPopupColumns);
+        setpopUpState(popState.popHierarchyWise);
+        break;
+      default:
+        break;
+    }
+
+    setApiRequest(requestData);
   };
 
   // Handle when a division name is clicked
   const handleDivNameClick = (row) => {
     setSelectedDivName(row.name); // Store the clicked Div Name
     funApiReqGen(); // generate api request
-    toggleDropdown(); // Open modal
+    toggleModal(); // Open modal
+    //console.log(apiUrl);
   };
 
   //const [tblColsTgl, setTblColumns] = useState([]);
@@ -128,6 +131,9 @@ const SalesPortalTable = () => {
   //   //console.log(selectedColumns)
   //   setTblColumns(selectedColumns);
   // };
+
+  // Toggle the model visibility
+  const toggleModal = () => setShowModal(!showModal);
 
   return (
     <>
@@ -139,30 +145,28 @@ const SalesPortalTable = () => {
               <Col md="6" sm="12">
                 {/* Select dropdown for table type */}
                 <FormGroup>
-                  <label id="" htmlFor="">
-                    Select :-
-                    <select
-                      className="form-select"
-                      value={dropdownSelection}
-                      onChange={handleDropdownChange}
-                    >
-                      <option value="hqwise">HQ Wise</option>
-                      <option value="brandwise">Brand Wise</option>
-                      <option value="hwise">Hierarchical Wise</option>
-                      <option value="brmwise">Brand + Region + Material</option>
-                    </select>
-                  </label>
+                  <label htmlFor="dropdownSelect">Select :-</label>
+                  <select
+                    id="dropdownSelect"
+                    className="form-select"
+                    value={dropdownSelection}
+                    onChange={(e) => setDropdownSelection(e.target.value)}
+                  >
+                    <option value="hqwise">HQ Wise</option>
+                    <option value="brandwise">Brand Wise</option>
+                    <option value="hwise">Hierarchical Wise</option>
+                  </select>
                 </FormGroup>
               </Col>
               <Col md="6" sm="12">
                 <FormGroup>
                   <MultiSelectDropdown
-                    options={columns.map((col) => ({
+                    options={Salescolumns.map((col) => ({
                       name: col.header,
                       id: col.accessorKey,
                     }))}
                     displayValue="name"
-                    // onSelect={handleTableColToggle}
+                  // onSelect={handleTableColToggle}
                   />
                 </FormGroup>
               </Col>
@@ -176,11 +180,10 @@ const SalesPortalTable = () => {
                     bordered
                     hover
                     responsive
-                    className="text-center sticky-table"
-                  >
+                    className="text-center sticky-table">
                     <thead className="thead-dark">
                       <tr>
-                        {columns.map((col) => (
+                        {Salescolumns.map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
                         ))}
                         {/* {columns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
@@ -217,29 +220,24 @@ const SalesPortalTable = () => {
                           </td>
                           <td>{row.target}</td>
                           <td style={{ position: 'relative' }}>
-                            <div
-                              className="position-relative"
-                              style={{ height: '18px' }}
+                            <Progress
+                              value={row.achv}
+                              color={getLabelColor(row.achv)}
+                              style={{ height: '100%' }}
+                            />
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: '0',
+                                left: '50%',
+                                transform: 'translate(-50%, 0)',
+                                color: 'black',
+                                fontWeight: 'bold',
+                                paddingTop: '3px',
+                              }}
                             >
-                              <Progress
-                                value={row.achv}
-                                color={getLabelColor(row.achv)}
-                                style={{ height: '100%' }}
-                              />
-                              <span
-                                style={{
-                                  position: 'absolute',
-                                  top: '0',
-                                  left: '50%',
-                                  transform: 'translate(-50%, 0)',
-                                  color: 'black',
-                                  fontWeight: 'bold',
-                                  paddingTop: '3px',
-                                }}
-                              >
-                                {row.achv}%
-                              </span>
-                            </div>
+                              {row.achv}%
+                            </span>
                           </td>
                           <td>{row.varv}</td>
                           <td>{row.percRet}</td>
@@ -261,74 +259,28 @@ const SalesPortalTable = () => {
         </div>
       </div>
 
-      {/* Modal for HQ Wise Data */}
+      {/* Modal for displaying the selected data */}
       <Modal
-        show={showModal && dropdownSelection === 'hqwise'}
-        onHide={() => setShowModal(false)}
+        show={showModal}
+        onHide={toggleModal}
         fullscreen={true} // Enables full-window modal
       >
         <Modal.Body>
-          <HQModal divname={selectedDivName} />
-          {/* <PopupTableModal url={apiUrl} apiReq={apiRequest} tableHead = {tblHeader} /> */}
+          {/* <HQModal divname={selectedDivName} /> */}
+          <PopupTableModal
+            url={apiUrl}
+            request={apiRequest}
+            head={tblHeader}
+            headerName={selectedDivName}
+            state={popUpState}
+          />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={toggleModal}>
             Close
           </Button>
         </Modal.Footer>
       </Modal>
-      {/* Modal for HQ Wise Data */}
-      <Modal
-        show={showModal && dropdownSelection === 'brandwise'}
-        onHide={() => setShowModal(false)}
-        fullscreen={true} // Enables full-window modal
-      >
-        {/* <Modal.Header closeButton>
-          <Modal.Title>Brand Wise Data</Modal.Title>
-        </Modal.Header> */}
-        <Modal.Body>
-          {/* <BrandModal divname={selectedDivName} />
-          <PopupTableModal url="" apiReq = ""/> */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        show={showModal && dropdownSelection === 'hwise'}
-        onHide={() => setShowModal(false)}
-        fullscreen={true} // Enables full-window modal
-      >
-        {/* <Modal.Header closeButton>
-          <Modal.Title>Hierarchical Wise Data</Modal.Title>
-        </Modal.Header> */}
-        <Modal.Body>
-          {/* <HierarchicalPerformanceModal divname={selectedDivName} /> */}
-          {/* <PopupTableModal url="" apiReq="" /> */}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal for HQ Wise Data */}
-      {/* <Modal
-        isOpen={showModal && dropdownSelection === "hqwise"}
-        toggle={toggleDropdown} // This handles modal visibility toggle
-      >
-        <Modal.Body>
-          <HQModal divname={selectedDivName} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
     </>
   );
 };

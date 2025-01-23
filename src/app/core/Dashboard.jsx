@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardBody, Row, Col } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
@@ -107,7 +107,7 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
-          <Row my="8">
+          <Row>
             <Col lg="7" md="7" sm="7">
               <SalesAchvTabs request={salableNonSaleReq} />
             </Col>
@@ -116,21 +116,10 @@ const Dashboard = () => {
             </Col>
           </Row>
           <Row>
-            <Card className="card-stats">
-              <CardHeader>
-                <div className="stats card-title mb-0">
-                  <i className="mdi mdi-chart-bar menu-icon" /> Scorecard
-                </div>
-              </CardHeader>
-              <CardBody>
-                <Row>
-                  <ScoreCard
-                    percentage={scoracrdPercentage}
-                    tableData={scData?.data}
-                  />
-                </Row>
-              </CardBody>
-            </Card>
+            <ScoreCard
+              percentage={scoracrdPercentage}
+              tableData={scData?.data}
+            />
           </Row>
           <Row className="mt-performace">
             <HQPerformance />

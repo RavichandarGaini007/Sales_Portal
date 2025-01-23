@@ -34,9 +34,7 @@ const TopPerformance = () => {
   useEffect(() => {
     const currentFlag = flags[activeTab];
 
-    if (tabData[activeTab]?.data || tabData[activeTab]?.loading) {
-      return; // If data is available or loading, do nothing
-    }
+    if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
 
     (async () => {
       setTabData((prevData) => ({
@@ -71,49 +69,17 @@ const TopPerformance = () => {
           </div>
         </CardHeader>
         <Nav tabs>
-          {/* {flags.map((tab, id) => (
-          <NavItem>
-          <NavLink
-            style={{
-              cursor: "pointer",
-            }}
-            className={activeTab === 0 ? "active" : ""}
-            onClick={() => toggleTab(0)}
-          >
-            {tab}
-          </NavLink>
-        </NavItem>
-        ))} */}
-
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === 0 ? 'active' : ''}
-              onClick={() => toggleTab(0)}
-            >
-              Customer
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 1 ? 'active' : ''}
-              onClick={() => toggleTab(1)}
-            >
-              Brand
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 2 ? 'active' : ''}
-              onClick={() => toggleTab(2)}
-            >
-              HQ
-            </NavLink>
-          </NavItem>
+          {flags.map((tab, index) => (
+            <NavItem key={index}>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                className={activeTab === index ? 'active' : ''}
+                onClick={() => toggleTab(index)}
+              >
+                {tab}
+              </NavLink>
+            </NavItem>
+          ))}
         </Nav>
 
         {flags.map((tab, id) => (

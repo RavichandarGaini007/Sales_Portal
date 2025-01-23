@@ -1,5 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Card, CardHeader, CardBody, Row } from 'reactstrap';
 
 const ScoreCard = ({ percentage, tableData }) => {
   let achvProd = 0;
@@ -17,49 +18,60 @@ const ScoreCard = ({ percentage, tableData }) => {
   };
 
   return (
-    <div className="card p-3">
-      <div className="progress mb-4">
-        <div
-          className="progress-bar"
-          role="progressbar"
-          style={{
-            width: `${percentage}%`,
-            backgroundColor: getProgressColor(percentage),
-            transition: 'width 0.4s',
-          }}
-        >
-          {achvProd}/{totProd}
+    <Card className="card-stats">
+      <CardHeader>
+        <div className="stats card-title mb-0">
+          <i className="mdi mdi-chart-bar menu-icon" /> Scorecard
         </div>
-      </div>
-      <table className="table">
-        <thead className="custom-gray-header">
-          <tr>
-            <th>Brand Name</th>
-            <th>Sale</th>
-            <th>Target</th>
-            <th>Ach(%)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tableData?.map((item, index) => (
-            <tr key={index}>
-              <td className="tblTextLeft" style={{ textAlign: 'left' }}>
-                {item.brand_Name}
-              </td>
-              <td>{item.sale}</td>
-              <td>{item.target}</td>
-              <td
-                style={{
-                  color: item.ach >= 100 ? '#00d284' : 'red',
-                }}
-              >
-                {item.ach}%
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      </CardHeader>
+      <CardBody>
+        <Row>
+          {/* <div className="card p-3"> */}
+          <div className="progress mb-4">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{
+                width: `${percentage}%`,
+                backgroundColor: getProgressColor(percentage),
+                transition: 'width 0.4s',
+              }}
+            >
+              {achvProd}/{totProd}
+            </div>
+          </div>
+          <table className="table">
+            <thead className="custom-gray-header">
+              <tr>
+                <th>Brand Name</th>
+                <th>Sale</th>
+                <th>Target</th>
+                <th>Ach(%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData?.map((item, index) => (
+                <tr key={index}>
+                  <td className="tblTextLeft" style={{ textAlign: 'left' }}>
+                    {item.brand_Name}
+                  </td>
+                  <td>{item.sale}</td>
+                  <td>{item.target}</td>
+                  <td
+                    style={{
+                      color: item.ach >= 100 ? '#00d284' : 'red',
+                    }}
+                  >
+                    {item.ach}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* </div> */}
+        </Row>
+      </CardBody>
+    </Card>
   );
 };
 

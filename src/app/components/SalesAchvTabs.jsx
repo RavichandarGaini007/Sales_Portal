@@ -16,10 +16,76 @@ import {
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 
+const SpeedometerCard = ({ data }) => {
+  return (
+    <Row style={{ paddingLeft: '15px' }} className="align-items-center">
+      <Col sm="8" className="">
+        <ReactSpeedometer
+          value={data?.achv ?? 0}
+          minValue={0}
+          maxValue={100}
+          needleColor="blue"
+          startColor="blue"
+          endColor="yellow"
+          textColor="#000000"
+          currentValueText={`${data?.achv ?? '0'}%`}
+          forceRender={true}
+          needleTransitionDuration={4000}
+          needleTransition="easeQuadInOut"
+          height={200}
+          width={310}
+          ringWidth={40}
+        />
+      </Col>
+      <Col sm="4">
+        <Card
+          className="shadow"
+          style={{
+            width: '200px',
+            padding: '10px',
+            textAlign: 'center',
+          }}
+          id="growthCard"
+        >
+          <Row className="text-center">
+            <Col>
+              <CardText tag="h6" className="fw-bold">
+                NET AMOUNT (E+H+K):
+              </CardText>
+              <CardText>{data?.net_amt ?? '0'}</CardText>
+            </Col>
+            <Col>
+              <CardText tag="h6" className="fw-bold">
+                TARGET:
+              </CardText>
+              <CardText>{data?.target ?? '0'}</CardText>
+            </Col>
+            <Col>
+              <CardText tag="h6" className="fw-bold">
+                ACH (%):
+              </CardText>
+              <CardText>{data?.achv ?? '0'}</CardText>
+            </Col>
+          </Row>
+          <div style={{ color: 'rgb(13 59 135)' }}>
+            <p>
+              <strong>Last Year Growth:</strong>
+              {data?.growth_ly ?? '0'}
+            </p>
+            <p>
+              <strong>Upto Date Growth:</strong>
+              {data?.growth_lm ?? '0'}
+            </p>
+          </div>
+        </Card>
+      </Col>
+    </Row>
+  );
+};
+
 function SalesAchvTabs(props) {
   const flags = ['monthly', 'quaterly', 'yearly'];
   const [activeTab, setActiveTab] = useState('0');
-
   const [tabData, setTabData] = useState({
     monthly: { data: null, loading: false, error: null },
     quaterly: { data: null, loading: false, error: null },
@@ -29,9 +95,7 @@ function SalesAchvTabs(props) {
   useEffect(() => {
     const currentFlag = flags[activeTab];
 
-    if (tabData[currentFlag]?.data || tabData[currentFlag]?.loading) {
-      return; // If data is available or loading, do nothing
-    }
+    if (tabData[currentFlag]?.data || tabData[currentFlag]?.loading) return; // If data is available or loading, do nothing
 
     (async () => {
       try {
@@ -80,47 +144,40 @@ function SalesAchvTabs(props) {
   };
 
   return (
-    <div>
-      <Card className="card-stats">
-        <CardHeader>
-          <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-line menu-icon" /> Sales, Achievement,
-            Target
-          </div>
-        </CardHeader>
-        <Nav tabs>
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === '0' ? 'active' : ''}
-              onClick={() => toggleTab('0')}
-            >
-              Monthly
-            </NavLink>
-          </NavItem>
-          <NavItem>
+    // <Col lg="7" md="6" sm="6">
+    <Card className="card-stats">
+      <CardHeader>
+        <div className="stats card-title mb-0">
+          <i className="mdi mdi-chart-line menu-icon" /> Sales, Achievement,
+          Target
+        </div>
+      </CardHeader>
+      <Nav tabs>
+        {flags.map((flag, index) => (
+          <NavItem key={index}>
             <NavLink
               style={{ cursor: 'pointer' }}
-              className={activeTab === '1' ? 'active' : ''}
-              onClick={() => toggleTab('1')}
+              className={activeTab === String(index) ? 'active' : ''}
+              onClick={() => toggleTab(String(index))}
             >
-              Quarterly
+              {flag.charAt(0).toUpperCase() + flag.slice(1)}
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === '2' ? 'active' : ''}
-              onClick={() => toggleTab('2')}
-            >
-              Yearly
-            </NavLink>
-          </NavItem>
-        </Nav>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="0">
+        ))}
+      </Nav>
+      <TabContent activeTab={activeTab}>
+        {flags.map((flag, index) => (
+          <TabPane tabId={String(index)} key={index}>
+            <CardBody>
+              <Row>
+                <div className="speedometer-wrapper">
+                  <SpeedometerCard data={tabData[flag].data?.[0]} />
+                </div>
+              </Row>
+            </CardBody>
+          </TabPane>
+        ))}
+        {/* <TabPane tabId="0">
             <CardBody>
               <Row>
                 <div className="speedometer-wrapper">
@@ -283,10 +340,10 @@ function SalesAchvTabs(props) {
                 </div>
               </Row>
             </CardBody>
-          </TabPane>
-        </TabContent>
-      </Card>
-    </div>
+          </TabPane> */}
+      </TabContent>
+    </Card>
+    // </Col>
   );
 }
 
