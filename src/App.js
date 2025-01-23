@@ -3,7 +3,7 @@ import './App.css';
 import Dashboard from './app/core/Dashboard';
 import { Route, Routes } from 'react-router-dom';
 //import SalesTable from './app/components/SalesTable';
-import SalesPortalData from './app/components/SalesPortalData';
+import SalesPortalData from './app/notUsedComponents/SalesPortalData';
 import SalesPortalTable from './app/components/SalesPortalTable';
 function App() {
   return (

@@ -1,13 +1,17 @@
 {
   "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@popperjs/core": "^2.11.8",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.6",
+    "jquery": "^3.7.1",
     "material-react-table": "^3.0.1",
     "multiselect-react-dropdown": "^2.0.25",
+    "popper.js": "^1.15.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.5",
     "react-chartjs-2": "^5.2.0",
