@@ -21,30 +21,27 @@ export const fetchApiGet = async (url, config) => {
   }).then((resp) => resp.json());
 };
 
+export const API_REQUEST = "http://192.168.120.64/React_Login_api/api/Sales/";
+
 export const apiUrls = {
   salesdata: 'https://sales.alkemcrm.com/NETCOREAPP/api/Sales/salesdata',
-  salesAchvdata:
-    'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
-  SalesScData: 'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
-  SalesTopPerformance:
-    'http://192.168.120.64/React_Login_api/api/Sales/SalesTopPerformance',
-  SalesHierarchyDesg:
-    'http://192.168.120.64/React_Login_api/api/Sales/SalesHierarchyDesg',
-  SalesDivHQ: 'http://192.168.120.64/React_Login_api/api/Sales/SalesDivHQ',
-  BrandPerfmnceData:
-    'http://192.168.120.64/React_Login_api/api/Sales/BrandPerfmnceData',  
-  // DivHqReportData:
-  //   'http://192.168.120.64/React_Login_api/api/Sales/DivHqReportData',
-  // DivBrandReportData:
-  //   'http://192.168.120.64/React_Login_api/api/Sales/DivBrandReportData',
-  DivHqReportData:
-    'http://localhost:5218/api/Sales/DivHqReportData',
-    DivBrandReportData:
-    'http://localhost:5218/api/Sales/DivBrandReportData',
+  salesAchvdata: API_REQUEST + 'salesAchvdata',
+  SalesScData: API_REQUEST + 'SalesScData',
+  SalesTopPerformance: API_REQUEST + 'SalesTopPerformance',
+  SalesHierarchyDesg: API_REQUEST + 'SalesHierarchyDesg',
+  SalesDivHQ: API_REQUEST + 'SalesDivHQ',
+  BrandPerfmnceData: API_REQUEST + 'BrandPerfmnceData',
+  DivHqReportData: API_REQUEST + 'DivHqReportData',
+  DivBrandReportData: API_REQUEST + 'DivBrandReportData',
+  DivPlantReportData: API_REQUEST + 'DivPlantReportData',
+  DivCustReportData: API_REQUEST + 'DivCustReportData',
 };
 
 export const popState = {
-  popHqWise : 'hqWise',
-  popBrandWise : 'brandWise',
-  popHierarchyWise : 'hierarchyWise'
-}
+  popHqWise: 'hqWise',
+  popBrandWise: 'brandWise',
+  popHierarchyWise: 'hierarchyWise',
+  popPlantWise: 'plantWise',
+  popCustWise: 'custWise',
+  popRegionWise: 'regionwise',
+};

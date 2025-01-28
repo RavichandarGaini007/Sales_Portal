@@ -1,0 +1,20 @@
+.login-page {
+    /* background-color: #f8f9fa; */
+    background-color: lightgray;
+  }
+  
+  @media (max-width: 768px) {
+    .login-page img {
+      /* display: none; */
+    }
+  }
+  .clsportal{
+    width: 100%;
+  }
+  .form-error{
+    text-align: left;
+    color: red;
+    font-size: small;
+}
+.btn-onelogin{color:#fff;background-color: #3b579d;}
+.btn-onelogin:hover{color:#fff;background-color: #13358b;}

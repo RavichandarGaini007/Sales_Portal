@@ -20,9 +20,12 @@ const Navbar = () => {
   const [divisions, setAllDivs] = useState([]);
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
+  const [menuItems, setMenuItems] = useState([]);
 
   useEffect(() => {
     // Fetch data from API
+    getUserMenus();
+
     axios
       .get(
         'http://192.168.120.64/React_Login_api/api/Sales/SalesDiv?strEmpCode=041406'
@@ -51,6 +54,15 @@ const Navbar = () => {
   const handleYearChange = (event) => {
     setYear(event.target.value);
   };
+
+  const getUserMenus = async (e) => {
+    debugger;
+    let empCode = "41406";
+    let role = "Admin";
+    const response = await axios.post(`http://192.168.120.64/React_Login_api/api/Sales/getDashboardMenus?empCode=${empCode}&role=${role}`);
+    const data = await response.data.data;
+    setMenuItems(data);
+  }
   return (
     <div className="horizontal-menu">
       <nav className="navbar top-navbar col-lg-12 col-12 p-0">
@@ -196,7 +208,32 @@ const Navbar = () => {
       <nav className="bottom-navbar">
         <div className="container">
           <ul className="nav page-navigation">
-            <li className="nav-item">
+            {menuItems.map((item, index) => (
+              <li className="nav-item" key={index}>
+                <Link className="nav-link" to={item.url}>
+                  <i className={`${item.menu_icon} menu-icon`}></i>
+                  <span className="menu-title">{item.name}</span>
+                  {menuItems[index].submenu && menuItems[index].submenu.length > 0 && (
+                    <i className="menu-arrow"></i>
+                  )}
+                </Link>
+                {/* Render Submenu if available */}
+                {menuItems[index].submenu && menuItems[index].submenu.length > 0 && (
+                  <div className="submenu">
+                    <ul className="submenu-item">
+                      {menuItems[index].submenu.map((submenu, subIndex) => (
+                        <li className="nav-item" key={subIndex}>
+                          <Link className="nav-link" to={submenu.url}>
+                            <span>{submenu.name}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
+            ))}
+            {/* <li className="nav-item">
               <Link className="nav-link" to="/dashboard">
                 <i className="mdi mdi-compass-outline menu-icon"></i>
                 <span className="menu-title">Dashboard</span>
@@ -266,7 +303,8 @@ const Navbar = () => {
                 <i className="mdi mdi-clipboard-text menu-icon"></i>
                 <span className="menu-title">Help</span>
               </a>
-            </li>
+            </li> */}
+
           </ul>
         </div>
       </nav>

@@ -11,14 +11,16 @@ import {
   Card,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap'; // Import Bootstrap components
-//import HQModal from '../notUsedComponents/HQModal';
-// import BrandModal from './BrandModal';
-// import HierarchicalPerformanceModal from './HierarchicalPerformanceModal';
 import '../css/SalesPortalTable.css';
 import MultiSelectDropdown from '../common/MultiSelectDropdown';
-import PopupTableModal from '../common/PopupTableModal';
-import { apiUrls, popState } from '../lib/fetchApi';
-import { Salescolumns, divHqPopupColumns, divBrandPopupColumns, divHierarchyPopupColumns } from '../lib/tableHead';
+import { apiUrls } from '../lib/fetchApi';
+import { Salescolumns } from '../lib/tableHead';
+import HqWiseReport from './HqWiseReport';
+import BrandWiseReport from './BrandWiseReport';
+import HierarchyWiseReport from './HierarchyWiseReport';
+import PlantWiseReport from './PlantWiseReport';
+import CustomerWiseReport from './CustomerWiseReport';
+import Navbar from '../core/Navbar';
 
 const getLabelColor = (value) => {
   if (value >= 100) return 'success'; // Green
@@ -30,41 +32,8 @@ const SalesPortalTable = () => {
   const [dropdownSelection, setDropdownSelection] = useState('hqwise'); // Default selection
   const [selectedDivName, setSelectedDivName] = useState(null); // State for selected "Div Name"
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
-  const [apiUrl, setApiUrl] = useState(''); // State for API URL
-  const [apiRequest, setApiRequest] = useState({}); // State for API Request
-  const [tblHeader, setTblHeader] = useState([]); // State for Table Header
-  const [popUpState, setpopUpState] = useState([]); // State for Table Header
+  const [tblColsTgl, setTblColumns] = useState([]);
 
-
-
-  // const [visibleColumns, setVisibleColumns] = useState(
-  //   columns.reduce((acc, column) => {
-  //     acc[column.accessorKey] = true; // All columns visible by default
-  //     return acc;
-  //   }, {})
-  // );
-
-  // const toggleColumnVisibility = (columnKey) => {
-  //   setVisibleColumns((prevState) => ({
-  //     ...prevState,
-  //     [columnKey]: !prevState[columnKey],
-  //   }));
-  // };
-
-  // const handleDropdownChange = (e) => {
-  //   setDropdownSelection(e.target.value); // Update dropdown selection
-  // };
-  // const handleColumnSelectChange = (selectedList) => {
-  //   const updatedVisibleColumns = { ...visibleColumns };
-
-  //   columns.forEach((col) => {
-  //     updatedVisibleColumns[col.accessorKey] = selectedList.includes(
-  //       col.accessorKey
-  //     );
-  //   });
-
-  //   setVisibleColumns(updatedVisibleColumns);
-  // };
 
   useEffect(() => {
     // Fetch data from API
@@ -73,76 +42,59 @@ const SalesPortalTable = () => {
 
     //   setData(opData.data);
     // })();
+
+    // setTblColumns( //// use to display all columns
+    //   Salescolumns.reduce((acc, column) => {
+    //     acc[column.accessorKey]; // All columns visible by default
+    //     return acc;
+    //   }, {}));
+
     axios
       .get(apiUrls.salesdata) // Replace with your API endpoint
       .then((response) => {
         setData(response.data.data); // Set the fetched data
-        //console.log(response.data.data);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
   }, []);
 
-  const funApiReqGen = () => {
-    let requestData = {
-      tbl_name: dropdownSelection == 'brandwise' || dropdownSelection == 'hwise' ? 'FTP_MAT_VAL_11_2024' : 'FTP_11_2024',
-      empcode: '041406',
-      div: '23',
-      month: '11',
-      year: '2024',
-      flag: 'monthly',
-    };
-
-    switch (dropdownSelection) {
-      case 'hqwise':
-        setApiUrl(apiUrls.DivHqReportData);
-        setTblHeader(divHqPopupColumns);
-        setpopUpState(popState.popHqWise);
-        break;
-      case 'brandwise':
-        setApiUrl(apiUrls.DivBrandReportData);
-        setTblHeader(divBrandPopupColumns);
-        setpopUpState(popState.popBrandWise);
-        break;
-      case 'hwise':
-        setApiUrl(apiUrls.SalesHierarchyDesg);
-        setTblHeader(divHierarchyPopupColumns);
-        setpopUpState(popState.popHierarchyWise);
-        break;
-      default:
-        break;
-    }
-
-    setApiRequest(requestData);
-  };
-
   // Handle when a division name is clicked
   const handleDivNameClick = (row) => {
     setSelectedDivName(row.name); // Store the clicked Div Name
-    funApiReqGen(); // generate api request
     toggleModal(); // Open modal
-    //console.log(apiUrl);
   };
 
-  //const [tblColsTgl, setTblColumns] = useState([]);
+  const modelComp = () => {
+    const components = {
+      hqwise: <HqWiseReport headerName={selectedDivName} />,
+      brandwise: <BrandWiseReport headerName={selectedDivName} />,
+      hwise: <HierarchyWiseReport headerName={selectedDivName} />,
+      plantwise: <PlantWiseReport headerName={selectedDivName} />,
+      custwise: <CustomerWiseReport headerName={selectedDivName} />,
+    };
 
-  // const handleTableColToggle = (selectedColumns) => {
-  //   //console.log(selectedColumns)
-  //   setTblColumns(selectedColumns);
-  // };
+    if (components[dropdownSelection]) {
+      return components[dropdownSelection];
+    }
+  };
+
+  const handleTableColToggle = (selectedColumns) => {
+    setTblColumns(selectedColumns);
+  };
 
   // Toggle the model visibility
   const toggleModal = () => setShowModal(!showModal);
 
   return (
     <>
+      <Navbar />
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
           <div className="content-wrapper pb-0">
             {/* Row for dropdowns on the same line */}
             <Row className="mb-2">
-              <Col md="6" sm="12">
+              <Col md="4" sm="12">
                 {/* Select dropdown for table type */}
                 <FormGroup>
                   <label htmlFor="dropdownSelect">Select :-</label>
@@ -152,21 +104,25 @@ const SalesPortalTable = () => {
                     value={dropdownSelection}
                     onChange={(e) => setDropdownSelection(e.target.value)}
                   >
+                    <option value="plantwise">Plant Wise</option>
                     <option value="hqwise">HQ Wise</option>
                     <option value="brandwise">Brand Wise</option>
                     <option value="hwise">Hierarchical Wise</option>
+                    <option value="custwise">Customer Wise</option>
+                    <option value="regionwise">Region Wise</option>
                   </select>
                 </FormGroup>
               </Col>
-              <Col md="6" sm="12">
+              <Col md="4" sm="12">
                 <FormGroup>
+                  <label htmlFor="dropdownSelect">Columns :-</label>
                   <MultiSelectDropdown
                     options={Salescolumns.map((col) => ({
                       name: col.header,
                       id: col.accessorKey,
                     }))}
                     displayValue="name"
-                  // onSelect={handleTableColToggle}
+                    onSelect={handleTableColToggle}
                   />
                 </FormGroup>
               </Col>
@@ -183,16 +139,61 @@ const SalesPortalTable = () => {
                     className="text-center sticky-table">
                     <thead className="thead-dark">
                       <tr>
-                        {Salescolumns.map((col) => (
+                        {/* {Salescolumns.map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
+                        ))} */}
+                        {Salescolumns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
+                          <th key={col.accessorKey} style={{ textAlign: 'left' }}>
+                            {col.header}
+                          </th>
                         ))}
-                        {/* {columns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
-                          <th key={col.accessorKey}>{col.header}</th>
-                        ))}  */}
                       </tr>
                     </thead>
                     <tbody>
                       {data.map((row) => (
+                        <tr key={row.id}>
+                          {Salescolumns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
+                            <td key={`${row.id}-${col.accessorKey}`}>
+                              {col.accessorKey === 'name' ? (
+                                <div
+                                  style={{ textAlign: 'left', cursor: 'pointer' }}
+                                  onClick={() => handleDivNameClick(row)}
+                                >
+                                  {row[col.accessorKey]}
+                                </div>
+                              ) : col.accessorKey === 'net_amt' ? (
+                                <Badge color={getLabelColor(row[col.accessorKey])}>
+                                  {row[col.accessorKey].toLocaleString()}
+                                </Badge>
+                              ) : col.accessorKey === 'achv' ? (
+                                <div style={{ position: 'relative' }}>
+                                  <Progress
+                                    value={row[col.accessorKey]}
+                                    color={getLabelColor(row[col.accessorKey])}
+                                    style={{ height: '100%' }}
+                                  />
+                                  <span
+                                    style={{
+                                      position: 'absolute',
+                                      top: '0',
+                                      left: '50%',
+                                      transform: 'translate(-50%, 0)',
+                                      color: 'black',
+                                      fontWeight: 'bold',
+                                      paddingTop: '3px',
+                                    }}
+                                  >
+                                    {row[col.accessorKey]}%
+                                  </span>
+                                </div>
+                              ) : (
+                                row[col.accessorKey]
+                              )}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                      {/* {data.map((row) => (
                         <tr key={row.id}>
                           <td>{row.division}</td>
                           <td
@@ -249,7 +250,7 @@ const SalesPortalTable = () => {
                           <td>{row.lymtd1}</td>
                           <td>{row.growth_cy}</td>
                         </tr>
-                      ))}
+                      ))} */}
                     </tbody>
                   </Table>
                 </Card>
@@ -266,14 +267,7 @@ const SalesPortalTable = () => {
         fullscreen={true} // Enables full-window modal
       >
         <Modal.Body>
-          {/* <HQModal divname={selectedDivName} /> */}
-          <PopupTableModal
-            url={apiUrl}
-            request={apiRequest}
-            head={tblHeader}
-            headerName={selectedDivName}
-            state={popUpState}
-          />
+          {modelComp()}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={toggleModal}>

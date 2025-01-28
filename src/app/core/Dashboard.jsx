@@ -16,6 +16,7 @@ import AwardsDetailsCard from '../components/AwardsDetailsCard';
 import SalesDivBar from '../components/SalesDivBar';
 import SalesAchvTabs from '../components/SalesAchvTabs';
 import '../css/commonCss.css';
+import Navbar from '../core/Navbar';
 
 //@TODO : move this request code out of component
 const scoreCardReq = {
@@ -44,11 +45,11 @@ const Dashboard = () => {
 
   const { data: scData } = useFetch(
     'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
-    scoreCardReq
+    scoreCardReq,
   );
   const { data: salableData } = useFetch(
     'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
-    salableNonSaleReq
+    salableNonSaleReq,
   );
 
   const navComps = (flag) => {
@@ -61,11 +62,11 @@ const Dashboard = () => {
 
   if (salableData && salableData.data) {
     salesDivData = salableData.data.filter(
-      (items) => items.division != 'Grand Total'
+      (items) => items.division != 'Grand Total',
     );
 
     salableGrndTotl = salableData.data.filter(
-      (items) => items.division === 'Grand Total'
+      (items) => items.division === 'Grand Total',
     );
   }
 
@@ -76,73 +77,78 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container-fluid page-body-wrapper">
-      <div className="main-panel">
-        <div className="content-wrapper pb-0">
-          <div className="page-header flex-wrap">
-            <div className="header-left">
-              <button
-                className="btn btn-primary mb-2 mb-md-0 mr-2"
-                onClick={() => navComps('dashboard')}
-              >
-                {' '}
-                New Portal{' '}
-              </button>
-              <button
-                className="btn btn-outline-primary mb-2 mb-md-0 mr-2"
-                onClick={() => navComps('TableFormat')}
-              >
-                {' '}
-                Table Formate{' '}
-              </button>
-              <button className="btn btn-outline-primary mb-2 mb-md-0 mr-2">
-                <a
-                  href="https://sales.alkemcrm.com/sd_new/default.aspx"
-                  target="_blank"
-                  rel="noreferrer"
+    <>
+      <Navbar />
+      <div className="container-fluid page-body-wrapper">
+        <div className="main-panel">
+          <div className="content-wrapper pb-0">
+            <div className="page-header flex-wrap">
+              <div className="header-left">
+                <button
+                  className="btn btn-primary mb-2 mb-md-0 mr-2"
+                  onClick={() => navComps('dashboard')}
                 >
                   {' '}
-                  Old Portal{' '}
-                </a>
-              </button>
+                  New Portal{' '}
+                </button>
+                <button
+                  className="btn btn-outline-primary mb-2 mb-md-0 mr-2"
+                  onClick={() => navComps('TableFormat')}
+                >
+                  {' '}
+                  Table Formate{' '}
+                </button>
+                <button className="btn btn-outline-primary mb-2 mb-md-0 mr-2">
+                  <a
+                    href="https://sales.alkemcrm.com/sd_new/default.aspx"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {' '}
+                    Old Portal{' '}
+                  </a>
+                </button>
+              </div>
             </div>
+            <Row className="mt-performace">
+              <Col lg="7" md="7" sm="7">
+                <SalesAchvTabs request={salableNonSaleReq} />
+              </Col>
+              <Col lg="5" md="5" sm="5">
+                <SalesDivBar tableData={salesDivData} />
+              </Col>
+            </Row>
+            <Row className="mt-performace">
+              <Col lg="7" md="7" sm="7">
+                <ScoreCard
+                  percentage={scoracrdPercentage}
+                  tableData={scData?.data}
+                />
+              </Col>
+            </Row>
+            <Row className="mt-performace">
+              <HQPerformance />
+              <SaleablePieChart tableData={salableData} />
+            </Row>
+            <Row className="mt-performace">
+              <BrandPerformance />
+              <UnconfirmedOrderChart tableData={salableGrndTotl} />
+            </Row>
+            <Row className="mt-performace">
+              <HierarchicalPerformanceTabs />
+            </Row>
+            <Row className="mt-performace">
+              <OrderTracking />
+              <TopPerformance />
+            </Row>
+            <Row className="mt-performace">
+              <NewsAndInformation />
+              <AwardsDetailsCard />
+            </Row>
           </div>
-          <Row>
-            <Col lg="7" md="7" sm="7">
-              <SalesAchvTabs request={salableNonSaleReq} />
-            </Col>
-            <Col lg="5" md="5" sm="5">
-              <SalesDivBar tableData={salesDivData} />
-            </Col>
-          </Row>
-          <Row>
-            <ScoreCard
-              percentage={scoracrdPercentage}
-              tableData={scData?.data}
-            />
-          </Row>
-          <Row className="mt-performace">
-            <HQPerformance />
-            <SaleablePieChart tableData={salableData} />
-          </Row>
-          <Row className="mt-performace">
-            <BrandPerformance />
-            <UnconfirmedOrderChart tableData={salableGrndTotl} />
-          </Row>
-          <Row className="mt-performace">
-            <HierarchicalPerformanceTabs />
-          </Row>
-          <Row className="mt-performace">
-            <OrderTracking />
-            <TopPerformance />
-          </Row>
-          <Row className="mt-performace">
-            <NewsAndInformation />
-            <AwardsDetailsCard />
-          </Row>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

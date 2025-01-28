@@ -133,8 +133,8 @@ const HierarchicalPerformanceTabs = () => {
                       </thead>
                       <tbody>
                         {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
+                          Array.isArray(activeTabData) &&
+                          activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
                             <tr
                               key={index}

@@ -54,7 +54,15 @@ const SalesDivBar = ({ tableData }) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'bottom',
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'top',
+        font: {
+          size: 14,
+        },
+        color: '#000',
       },
       tooltip: {
         enabled: true,

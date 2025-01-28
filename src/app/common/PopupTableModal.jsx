@@ -84,15 +84,7 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
 
                     const handleClick = (e) => {
                       if (isNameColumn) {
-                        //return renderTblPopup;
-                        <PopupTableModal
-                          url={apiUrls.salesdata}
-                          request={request}
-                          head={Salescolumns}
-                          headerName={'Hq Popup'}
-                          state={popState.Salescolumns}
-                        />
-
+                        return renderTblPopup;
                       }
                     };
 
