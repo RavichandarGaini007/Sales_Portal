@@ -91,7 +91,7 @@ const TopPerformance = () => {
                     <table className="table table-bordered">
                       <thead className="thead-light">
                         <tr>
-                          <th>{tab} Name</th>
+                          <th className="txtLeft">{tab} Name</th>
                           <th>Gross Sale</th>
                           <th>Net Amount</th>
                           <th>Target</th>
@@ -104,7 +104,7 @@ const TopPerformance = () => {
                           activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
                             <tr key={index}>
-                              <td>{item.name}</td>
+                              <td className="txtLeft">{item.name}</td>
                               <td>{item.gross_sale}</td>
                               <td>{item.net_amt}</td>
                               <td>{item.target}</td>

@@ -17,6 +17,7 @@ import SalesDivBar from '../components/SalesDivBar';
 import SalesAchvTabs from '../components/SalesAchvTabs';
 import '../css/commonCss.css';
 import Navbar from '../core/Navbar';
+import RegionPerformance from '../components/RegionPerformance';
 
 //@TODO : move this request code out of component
 const scoreCardReq = {
@@ -30,7 +31,7 @@ const scoreCardReq = {
 const salableNonSaleReq = {
   tbl_name: 'FTP_11_2024',
   empcode: '041406',
-  div: '23',
+  div: '23,01,07,49,28',
   month: '11',
   year: '2024',
   flag: 'monthly',
@@ -45,11 +46,11 @@ const Dashboard = () => {
 
   const { data: scData } = useFetch(
     'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
-    scoreCardReq,
+    scoreCardReq
   );
   const { data: salableData } = useFetch(
     'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
-    salableNonSaleReq,
+    salableNonSaleReq
   );
 
   const navComps = (flag) => {
@@ -62,11 +63,11 @@ const Dashboard = () => {
 
   if (salableData && salableData.data) {
     salesDivData = salableData.data.filter(
-      (items) => items.division != 'Grand Total',
+      (items) => items.division != 'Grand Total'
     );
 
     salableGrndTotl = salableData.data.filter(
-      (items) => items.division === 'Grand Total',
+      (items) => items.division === 'Grand Total'
     );
   }
 
@@ -119,16 +120,23 @@ const Dashboard = () => {
               </Col>
             </Row>
             <Row className="mt-performace">
-              <Col lg="7" md="7" sm="7">
+              <Col lg="6" md="6" sm="6">
                 <ScoreCard
                   percentage={scoracrdPercentage}
                   tableData={scData?.data}
                 />
               </Col>
+              <Col lg="6" md="6" sm="6">
+                <SaleablePieChart tableData={salableGrndTotl} />
+              </Col>
             </Row>
             <Row className="mt-performace">
-              <HQPerformance />
-              <SaleablePieChart tableData={salableData} />
+              <Col lg="6" md="6" sm="6">
+                <HQPerformance />
+              </Col>
+              <Col lg="6" md="6" sm="6">
+                <RegionPerformance />
+              </Col>
             </Row>
             <Row className="mt-performace">
               <BrandPerformance />

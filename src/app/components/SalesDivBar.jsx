@@ -23,7 +23,7 @@ ChartJS.register(
 
 const SalesDivBar = ({ tableData }) => {
   const chartData = React.useMemo(() => {
-    const labels = tableData?.map((item) => item.division);
+    const labels = tableData?.map((item) => item.div_Name);
     const salesData = tableData?.map((item) => item.net_amt);
     const targetData = tableData?.map((item) => item.target);
 

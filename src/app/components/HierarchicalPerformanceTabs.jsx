@@ -124,7 +124,7 @@ const HierarchicalPerformanceTabs = () => {
                     <table className="table table-bordered">
                       <thead className="thead-light">
                         <tr>
-                          <th>Name</th>
+                          <th className="txtLeft">Name</th>
                           <th>Scorecard</th>
                           <th>Net Amount</th>
                           <th>Target</th>
@@ -140,7 +140,7 @@ const HierarchicalPerformanceTabs = () => {
                               key={index}
                               onClick={() => handleRowClick(item)}
                             >
-                              <td>{item.name}</td>
+                              <td className="txtLeft">{item.name}</td>
                               <td>{item.scorecard}</td>
                               <td>{item.net_amount}</td>
                               <td>{item.target}</td>

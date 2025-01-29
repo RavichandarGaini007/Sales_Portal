@@ -88,7 +88,7 @@ const BrandPerformance = () => {
                     <table className="table table-bordered">
                       <thead className="thead-light">
                         <tr>
-                          <th>Brand Name</th>
+                          <th className="txtLeft">Brand Name</th>
                           <th>Gross Sale</th>
                           <th>Net Amount</th>
                           <th>Target</th>
@@ -97,11 +97,11 @@ const BrandPerformance = () => {
                       </thead>
                       <tbody>
                         {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
+                          Array.isArray(activeTabData) &&
+                          activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
                             <tr key={index}>
-                              <td>{item.brand}</td>
+                              <td className="txtLeft">{item.brand}</td>
                               <td>{item.gross_sale}</td>
                               <td>{item.net_amt}</td>
                               <td>{item.target}</td>

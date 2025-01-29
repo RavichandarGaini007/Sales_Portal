@@ -1,3 +1,12 @@
-.txtLeft{
-    text-align: left;
+.txtLeft {
+    text-align: left !important;
+    /* Left align text */
+}
+
+.thead-light {
+    position: sticky;
+    top: 0;
+    /* Set to 0 to stick at the top of the page */
+    z-index: 1;
+    /* Ensures the header stays above the rest of the content */
 }

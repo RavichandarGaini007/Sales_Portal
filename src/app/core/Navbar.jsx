@@ -56,7 +56,6 @@ const Navbar = () => {
   };
 
   const getUserMenus = async (e) => {
-    debugger;
     let empCode = "41406";
     let role = "Admin";
     const response = await axios.post(`http://192.168.120.64/React_Login_api/api/Sales/getDashboardMenus?empCode=${empCode}&role=${role}`);

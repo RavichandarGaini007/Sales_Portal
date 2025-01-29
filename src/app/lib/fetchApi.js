@@ -35,6 +35,8 @@ export const apiUrls = {
   DivBrandReportData: API_REQUEST + 'DivBrandReportData',
   DivPlantReportData: API_REQUEST + 'DivPlantReportData',
   DivCustReportData: API_REQUEST + 'DivCustReportData',
+  RegionReportData: API_REQUEST + 'RegionReportData',
+  ProductReportData: API_REQUEST + 'ProductReportData',
 };
 
 export const popState = {

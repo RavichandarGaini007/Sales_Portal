@@ -12,12 +12,14 @@ import {
   Col,
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
-import '../css/commonCss.css';
+//import '../css/commonCss.css';
 
 const req = {
-  tbl_name: 'FTP_11_2024',
+  tbl_name: 'ftp_mat_val_11_2024',
   empcode: '041406',
   div: '23',
+  month: '11',
+  year: '2024'
 };
 
 const HQPerformance = () => {
@@ -77,100 +79,104 @@ const HQPerformance = () => {
   };
 
   return (
-    <Col lg="7" md="6" sm="6">
-      <Card className="card-stats">
-        <CardHeader>
-          <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-bar menu-icon" /> HQ Performance
-          </div>
-        </CardHeader>
-        <Nav tabs>
-          <NavItem>
-            <NavLink
-              style={{
-                cursor: 'pointer',
-              }}
-              className={activeTab === 0 ? 'active' : ''}
-              onClick={() => toggleTab(0)}
-            >
-              Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 1 ? 'active' : ''}
-              onClick={() => toggleTab(1)}
-            >
-              Not Achieve
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              style={{ cursor: 'pointer' }}
-              className={activeTab === 2 ? 'active' : ''}
-              onClick={() => toggleTab(2)}
-            >
-              All
-            </NavLink>
-          </NavItem>
-        </Nav>
-        {flags.map((tab, id) => (
-          <TabContent key={id} activeTab={activeTab}>
-            <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          <th className="textLeft">HQ Name</th>
-                          <th>MSR</th>
-                          <th>Gross Sale</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeTabData &&
-                          Array.isArray(activeTabData) &&
-                          activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr key={index}>
-                              <td style={{ textAlign: 'left' }}>
-                                {item.bezei}
-                              </td>
-                              <td>{item.msr}</td>
-                              <td>{item.gross_sale}</td>
-                              <td>{item.net_amt1}</td>
-                              <td>{item.target1}</td>
-                              <td
-                                style={{
-                                  color: item.ach >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.ach}%
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
+    // <Col lg="7" md="6" sm="6">
+    <Card className="card-stats">
+      <CardHeader>
+        <div className="stats card-title mb-0">
+          <i className="mdi mdi-chart-bar menu-icon" /> HQ Performance
+        </div>
+      </CardHeader>
+      <Nav tabs>
+        <NavItem>
+          <NavLink
+            style={{
+              cursor: 'pointer',
+            }}
+            className={activeTab === 0 ? 'active' : ''}
+            onClick={() => toggleTab(0)}
+          >
+            Achieve
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            style={{ cursor: 'pointer' }}
+            className={activeTab === 1 ? 'active' : ''}
+            onClick={() => toggleTab(1)}
+          >
+            Not Achieve
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            style={{ cursor: 'pointer' }}
+            className={activeTab === 2 ? 'active' : ''}
+            onClick={() => toggleTab(2)}
+          >
+            All
+          </NavLink>
+        </NavItem>
+      </Nav>
+      {flags.map((tab, id) => (
+        <TabContent key={id} activeTab={activeTab}>
+          <TabPane tabId={id}>
+            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <Row>
+                <Col>
+                  <table className="table table-bordered">
+                    <thead className="thead-light">
+                      <tr>
+                        <th>HQ</th>
+                        <th className="txtLeft">HQ Name</th>
+                        <th>MSR</th>
+                        <th>ScoreCard</th>
+                        <th>Gross Sale</th>
+                        <th>Net Amount</th>
+                        <th>Target</th>
+                        <th>Ach(%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeTabData &&
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
+                        activeTabData.map((item, index) => (
+                          <tr key={index}>
+                            <td>{item.vkbur}</td>
+                            <td className="txtLeft">
+                              {item.bezei}
+                            </td>
+                            <td>{item.msr}</td>
+                            <td>{item.for_ord}</td>
+                            <td>{item.gross_sale}</td>
+                            <td>{item.net_amt1}</td>
+                            <td>{item.target1}</td>
+                            <td
+                              style={{
+                                color: item.ach >= 100 ? '#00d284' : 'red',
+                              }}
+                            >
+                              {item.ach}%
                             </td>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </Col>
-                </Row>
-              </CardBody>
-            </TabPane>
-          </TabContent>
-        ))}
-      </Card>
-    </Col>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: 'center' }}>
+                            No data available
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+            </CardBody>
+          </TabPane>
+        </TabContent>
+      ))}
+    </Card>
+    //</Col>
   );
 };
 

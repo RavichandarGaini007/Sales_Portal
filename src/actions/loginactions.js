@@ -5,7 +5,6 @@ import { API_REQUEST } from '../app/lib/fetchApi';
 export const loginUser = createAsyncThunk(
   'user/login',
   async (page, { rejectWithValue }) => {
-    debugger;
     try {
       const response = await axios.post(API_REQUEST + 'login', {
         emailid: page.emailid,

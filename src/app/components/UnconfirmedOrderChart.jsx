@@ -48,7 +48,7 @@ const UnconfirmedOrderChart = (props) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top', // Display legend on top
+        position: 'bottom', // Display legend on top
       },
       tooltip: {
         enabled: true, // Enable tooltips for better interactivity
