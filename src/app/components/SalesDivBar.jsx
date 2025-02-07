@@ -21,11 +21,40 @@ ChartJS.register(
   Legend
 );
 
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: { position: 'bottom' },
+    datalabels: {
+      anchor: 'end',
+      align: 'top',
+      font: { size: 14 },
+      color: '#000',
+    },
+    tooltip: { enabled: true },
+    title: { display: true },
+  },
+  scales: {
+    x: {
+      categoryPercentage: 0.6,
+      barPercentage: 0.8,
+    },
+  },
+};
+
 const SalesDivBar = ({ tableData }) => {
+  if (!tableData || tableData.length === 0) {
+    return null;
+  }
+
   const chartData = React.useMemo(() => {
-    const labels = tableData?.map((item) => item.div_Name);
-    const salesData = tableData?.map((item) => item.net_amt);
-    const targetData = tableData?.map((item) => item.target);
+    const salesDivData = tableData.filter(
+      (items) => items.division !== 'Grand Total'
+    );
+
+    const labels = salesDivData.map((item) => item.div_Name);
+    const salesData = salesDivData.map((item) => item.net_amt);
+    const targetData = salesDivData.map((item) => item.target);
 
     return {
       labels,
@@ -49,35 +78,6 @@ const SalesDivBar = ({ tableData }) => {
       ],
     };
   }, [tableData]);
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-      datalabels: {
-        anchor: 'end',
-        align: 'top',
-        font: {
-          size: 14,
-        },
-        color: '#000',
-      },
-      tooltip: {
-        enabled: true,
-      },
-      title: {
-        display: true,
-      },
-    },
-    scales: {
-      x: {
-        categoryPercentage: 0.6,
-        barPercentage: 0.8,
-      },
-    },
-  };
 
   return (
     <Card className="card-stats">

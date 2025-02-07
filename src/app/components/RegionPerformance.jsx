@@ -1,161 +1,242 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Card,
-    CardHeader,
-    CardBody,
-    Nav,
-    NavItem,
-    NavLink,
-    TabContent,
-    TabPane,
-    Row,
-    Col,
-    Modal,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  Nav,
+  NavItem,
+  NavLink,
+  TabContent,
+  TabPane,
+  Row,
+  Col,
 } from 'reactstrap';
-import { apiUrls } from '../lib/fetchApi';
-import { useFetch } from '../hooks/useFetch';
-//import '../css/commonCss.css';
+import { Modal } from 'react-bootstrap';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
+//import { useFetch } from '../hooks/useFetch';
+import RegionWiseReport from './RegionWiseReport';
+import ProductWiseReport from './ProductWiseReport';
+import { useRequest } from '../common/RequestContext';
 
-const regionReq = {
-    tbl_name: 'FTP_MAT_VAL_11_2024',
-    empcode: '041406',
-    div: '01',
-    month: '11',
-    year: '2024',
-    brand: '231',
-};
+// const regionReq = {
+//     tbl_name: 'FTP_MAT_VAL_11_2024',
+//     empcode: '041406',
+//     div: '01',
+//     month: '11',
+//     year: '2024',
+//     //brand: '231',
+// };
 function RegionPerformance() {
-    const flags = ['Achieve', 'Not Achieve', 'All'];
-    const { data: regionData } = useFetch(apiUrls.RegionReportData, regionReq);
+  const flags = ['Achieve', 'Not Achieve', 'All'];
+  const { request } = useRequest();
+  //const { data: regionData } = useFetch(apiUrls.RegionReportData, regionReq);
 
-    const [activeTab, setActiveTab] = useState(2);
-    const [modalOpen, setModalOpen] = useState(false);
+  //const [regionData, setregionData] = useState(null);
+  const [activeTab, setActiveTab] = useState(2);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [rowData, setrowData] = useState(null);
+  const [rowModel, setRowModel] = useState(false);
 
-    const [tabData, setTabData] = useState({
-        0: { data: null, loading: false, error: null },
-        1: { data: null, loading: false, error: null },
-        2: { data: null, loading: false, error: null },
-    });
+  const [tabData, setTabData] = useState({
+    0: { data: null, loading: false, error: null },
+    1: { data: null, loading: false, error: null },
+    2: { data: null, loading: false, error: null },
+  });
 
-    const funFillData = () => {
-        if (regionData) {
-            const achieve = regionData?.data.filter((item) => item.achv >= 100);
-            const notAchieve = regionData?.data.filter((item) => item.achv < 100);
+  useEffect(() => {
+    // Fetch data from API
+    (async () => {
+      if (request) {
+        const opData = await fetchApi(apiUrls.RegionReportData, {
+          ...request,
+          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+        });
 
-            setTabData({
-                0: { data: achieve, loading: false, error: null },
-                1: { data: notAchieve, loading: false, error: null },
-                2: { data: regionData?.data, loading: false, error: null },
-            });
+        if (opData && opData.data) {
+          const achieve = opData?.data.filter((item) => item.achv >= 100);
+          const notAchieve = opData?.data.filter((item) => item.achv < 100);
+
+          setTabData({
+            0: { data: achieve, loading: false, error: null },
+            1: { data: notAchieve, loading: false, error: null },
+            2: { data: opData?.data, loading: false, error: null },
+          });
         }
-    };
+      }
+    })();
+  }, [request]);
 
-    useEffect(() => {
-        funFillData();
-    }, [regionData]);
+  //   const funFillData = () => {
+  //     if (regionData) {
+  //       const achieve = regionData?.data.filter((item) => item.achv >= 100);
+  //       const notAchieve = regionData?.data.filter((item) => item.achv < 100);
 
-    const activeTabData = tabData[activeTab]?.data;
+  //       setTabData({
+  //         0: { data: achieve, loading: false, error: null },
+  //         1: { data: notAchieve, loading: false, error: null },
+  //         2: { data: regionData?.data, loading: false, error: null },
+  //       });
+  //     }
+  //   };
 
-    const toggleTab = (tab) => {
-        if (activeTab !== tab) {
-            setActiveTab(tab);
-        }
-    };
+  //   useEffect(() => {
+  //     funFillData();
+  //   }, [regionData]);
 
-    const toggleModal = () => setModalOpen(!modalOpen);
+  const activeTabData = tabData[activeTab]?.data;
 
-    const handleRowClick = (data) => {
-        toggleModal(); // Open the modal when a row is clicked
-    };
+  const toggleTab = (tab) => {
+    if (activeTab !== tab) {
+      setActiveTab(tab);
+    }
+  };
 
-    return (
-        <Col lg="12" md="6" sm="6">
-            <Card className="card-stats">
-                <CardHeader>
+  const toggleModal = () => setModalOpen((prev) => !prev);
+
+  const toggleRowModel = () => setRowModel((prev) => !prev);
+
+  const handleRowClick = (data) => {
+    setrowData(data);
+    setRowModel(true);
+  };
+
+  return (
+    // <Col lg="12" md="6" sm="6">
+    <>
+      <Card className="card-stats">
+        <CardHeader className="card-header-flex">
+          <div className="stats card-title mb-0">
+            <i className="mdi mdi-chart-bar menu-icon" /> Region Performance
+          </div>
+          <div
+            className="icon-container"
+            onClick={toggleModal}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                toggleModal(); // Triggers the modal toggle on Enter or Space
+              }
+            }}
+          >
+            <i className="mdi mdi-view-list" />
+          </div>
+        </CardHeader>
+        {/* <CardHeader>
                     <div className="d-flex justify-content-between">
                         <div className="stats card-title mb-0">
                             <i className="mdi mdi-chart-bar menu-icon" /> Region
                             Performance
                         </div>
                     </div>
-                </CardHeader>
-                <Nav tabs>
-                    {flags.map((tab, index) => (
-                        <NavItem key={index}>
-                            <NavLink
-                                style={{ cursor: 'pointer' }}
-                                className={activeTab === index ? 'active' : ''}
-                                onClick={() => toggleTab(index)}
-                            >
-                                {tab}
-                            </NavLink>
-                        </NavItem>
-                    ))}
-                </Nav>
+                </CardHeader> */}
+        <Nav tabs>
+          {flags.map((tab, index) => (
+            <NavItem key={index}>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                className={activeTab === index ? 'active' : ''}
+                onClick={() => toggleTab(index)}
+              >
+                {tab}
+              </NavLink>
+            </NavItem>
+          ))}
+        </Nav>
 
-                {flags.map((tab, id) => (
-                    <TabContent key={id} activeTab={activeTab}>
-                        <TabPane tabId={id}>
-                            <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                                <Row>
-                                    <Col>
-                                        <table className="table table-bordered">
-                                            <thead className="thead-light">
-                                                <tr>
-                                                    <th>Region</th>
-                                                    <th className="txtLeft">Region Name</th>
-                                                    <th>Net Sale</th>
-                                                    <th>Net Amount</th>
-                                                    <th>Target</th>
-                                                    <th>Ach(%)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {activeTabData &&
-                                                    Array.isArray(activeTabData) &&
-                                                    activeTabData.length > 0 ? (
-                                                    activeTabData.map((item, index) => (
-                                                        <tr
-                                                            key={index}
-                                                            onClick={() => handleRowClick(item)}
-                                                        >
-                                                            <td>{item.regio}</td>
-                                                            <td className="txtLeft"
-                                                                style={{ cursor: 'pointer' }}
-                                                            >{item.region_desc}</td>
-                                                            <td>{item.netsales1}</td>
-                                                            <td>{item.net_amt1}</td>
-                                                            <td>{item.target1}</td>
-                                                            <td
-                                                                style={{
-                                                                    color: item.achv >= 100 ? '#00d284' : 'red',
-                                                                }}
-                                                            >
-                                                                {item.achv}%
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                ) : (
-                                                    <tr>
-                                                        <td colSpan="5" style={{ textAlign: 'center' }}>
-                                                            No data available
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </Col>
-                                </Row>
-                            </CardBody>
-                        </TabPane>
-                    </TabContent>
-                ))}
-            </Card>
-        </Col >
-    );
+        {flags.map((tab, id) => (
+          <TabContent key={id} activeTab={activeTab}>
+            <TabPane tabId={id}>
+              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <Row>
+                  <Col>
+                    <table className="table table-bordered">
+                      <thead className="thead-light">
+                        <tr>
+                          <th>Region</th>
+                          <th className="txtLeft">Region Name</th>
+                          <th>Net Sale</th>
+                          <th>Net Amount</th>
+                          <th>Target</th>
+                          <th>Ach(%)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {activeTabData &&
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
+                          activeTabData.map((item, index) => (
+                            <tr
+                              key={index}
+                              onClick={() => handleRowClick(item)}
+                            >
+                              <td>{item.regio}</td>
+                              <td
+                                className="txtLeft"
+                                style={{ cursor: 'pointer' }}
+                              >
+                                {item.region_desc}
+                              </td>
+                              <td>{item.netsales1}</td>
+                              <td>{item.net_amt1}</td>
+                              <td>{item.target1}</td>
+                              <td
+                                style={{
+                                  color: item.achv >= 100 ? '#00d284' : 'red',
+                                }}
+                              >
+                                {item.achv}%
+                                {item.achv >= 100 ? (
+                                  <i className="mdi mdi-arrow-up"></i>
+                                ) : (
+                                  <i className="mdi mdi-arrow-down"></i>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" style={{ textAlign: 'center' }}>
+                              No data available
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </Col>
+                </Row>
+              </CardBody>
+            </TabPane>
+          </TabContent>
+        ))}
+      </Card>
+
+      <Modal show={rowModel} onHide={toggleRowModel} fullscreen>
+        <Modal.Body>
+          <ProductWiseReport
+            headerName={rowData?.region_desc}
+            HqCode={rowData?.regio}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={toggleRowModel}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={modalOpen} onHide={toggleModal} fullscreen>
+        <Modal.Body>
+          <RegionWiseReport headerName="Region Wise" />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={toggleModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+    // </Col >
+  );
 }
 
-export default RegionPerformance
+export default RegionPerformance;

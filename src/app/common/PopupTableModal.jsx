@@ -13,13 +13,22 @@ import {
   Row,
   Col,
 } from 'reactstrap';
-import { apiUrls, popState } from '../lib/fetchApi';
-import { Salescolumns, divHqPopupColumns, divBrandPopupColumns, divHierarchyPopupColumns } from '../lib/tableHead';
+// import { Modal } from 'react-bootstrap';
+// import { Button } from 'reactstrap';
 
-
-const PopupTableModal = ({ url, request, head, headerName, state }) => {
-  //const { data } = useFetch(url, request);
+const PopupTableModal = ({
+  url,
+  request,
+  head,
+  headerName,
+  state,
+  onRowClick,
+  modalState,
+}) => {
   const [activeTab, setActiveTab] = useState(2);
+  const [renderComp, setRenderComp] = useState(null);
+  //const [modalOpen, setModalOpen] = useState(true);
+
   const flags = ['Achieve', 'Not Achieve', 'All'];
 
   const [tabData, setTabData] = useState({
@@ -32,7 +41,9 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
     (async () => {
       const opData = await fetchApi(url, request);
       if (opData && opData.data) {
-        const achvGreaterThan100 = opData.data.filter((item) => item.achv >= 100);
+        const achvGreaterThan100 = opData.data.filter(
+          (item) => item.achv >= 100
+        );
         const achvLessThan100 = opData.data.filter((item) => item.achv < 100);
 
         setTabData({
@@ -48,19 +59,18 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
     if (activeTab !== tab) setActiveTab(tab);
   };
 
-  const renderTblPopup = () => {
-    if (state === popState.popHqWise) {
-      return (
-        <PopupTableModal
-          url={apiUrls.salesdata}
-          request={request}
-          head={Salescolumns}
-          headerName={'Hq Popup'}
-          state={popState.Salescolumns}
-        />
-      );
+  // const toggleModal = () => {
+  //   //setModalOpen((prev) => !prev);
+  //   setModalOpen(false);
+  //   //modalState = 'false';
+  // }
+
+  const handleRowClick = (data) => {
+    if (onRowClick && typeof onRowClick === 'function') {
+      const comp = onRowClick(data);
+      setRenderComp(comp);
     }
-  }
+  };
 
   const renderTable = (data) => {
     return (
@@ -76,27 +86,33 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
             </thead>
             <tbody>
               {data.map((item, index) => (
-                <tr key={index}>
+                <tr
+                  key={index}
+                  onClick={() => {
+                    handleRowClick(item);
+                  }}
+                >
                   {head.map((column) => {
                     const value = item[column.accessorKey];
                     const isAchv = column.accessorKey === 'achv';
-                    const isNameColumn = column.header.toLowerCase().includes('name'); // Check if 'name' is in the column header
-
-                    const handleClick = (e) => {
-                      if (isNameColumn) {
-                        return renderTblPopup;
-                      }
-                    };
-
                     return (
                       <td
                         key={column.accessorKey}
                         style={{
-                          color: isAchv && value >= 100 ? '#00d284' : isAchv ? 'red' : undefined,
+                          color:
+                            isAchv && value >= 100
+                              ? '#00d284'
+                              : isAchv
+                                ? 'red'
+                                : undefined,
                         }}
-                        onClick={handleClick}
                       >
                         {value}
+                        {isAchv && value >= 100 ? (
+                          <i className="mdi mdi-arrow-up"></i>
+                        ) : isAchv && value ? (
+                          <i className="mdi mdi-arrow-down"></i>
+                        ) : undefined}
                       </td>
                     );
                   })}
@@ -118,8 +134,12 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
   };
 
   return (
-    <Col lg="12" md="12" sm="12">
-      <Card className="card-stats" >
+    <>
+      {/* <Modal show={modalState} fullscreen>
+        <Modal.Body> */}
+      {/* <Col lg="12" md="12" sm="12"> */}
+      Popup Table Model
+      <Card className="card-stats">
         <CardHeader>
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
@@ -152,7 +172,16 @@ const PopupTableModal = ({ url, request, head, headerName, state }) => {
           ))}
         </TabContent>
       </Card>
-    </Col>
+      {/* </Col> */}
+      {/* </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={toggleModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal > */}
+      {renderComp}
+    </>
   );
 };
 

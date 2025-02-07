@@ -3,7 +3,7 @@ import '../css/MultiSelectDropdown.css';
 
 const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
   const [search, setSearch] = useState('');
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState(options);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const dropdownRef = useRef(null);
@@ -26,12 +26,25 @@ const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
 
   const toggleOption = (option) => {
     setSelectedOptions((prev) =>
-      prev.includes(option)
+      prev.some((item) => item[displayValue] === option[displayValue])
         ? prev.filter((item) => item[displayValue] !== option[displayValue])
         : [...prev, option]
     );
   };
 
+  // Handle "Select All" functionality
+  const handleSelectAll = () => {
+    if (selectedOptions.length === options.length) {
+      setSelectedOptions([]); // Deselect all
+    } else {
+      setSelectedOptions([...options]); // Select all
+    }
+  };
+
+  // Check if all options are selected
+  const isAllSelected = selectedOptions.length === options.length && options.length > 0;
+
+  // Filter options based on search query
   const filteredOptions = options.filter((option) =>
     option[displayValue].toLowerCase().includes(search.toLowerCase())
   );
@@ -48,14 +61,25 @@ const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
           }
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onFocus={() => {
-            console.log('on focus call');
-            setIsDropdownOpen(true);
-          }}
+          onFocus={() => setIsDropdownOpen(true)}
         />
       </div>
       {isDropdownOpen && (
         <div className="msd-dropdown-menu">
+          {/* Select All Option */}
+          {options.length > 0 && (
+            <label className="msd-dropdown-item msd-select-all">
+              <input
+                type="checkbox"
+                className="mx-3"
+                checked={isAllSelected}
+                onChange={handleSelectAll}
+              />
+              Select All
+            </label>
+          )}
+
+          {/* Individual Options */}
           {filteredOptions.length ? (
             filteredOptions.map((option) => (
               <label key={option[displayValue]} className="msd-dropdown-item">
@@ -63,7 +87,7 @@ const MultiSelectDropdown = ({ options, displayValue, onSelect }) => {
                   type="checkbox"
                   className="mx-3"
                   checked={selectedOptions.some(
-                    (s) => s[displayValue] == option[displayValue]
+                    (s) => s[displayValue] === option[displayValue]
                   )}
                   onChange={() => toggleOption(option)}
                 />

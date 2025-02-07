@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import { useFetch } from '../hooks/useFetch';
+//import { useFetch } from '../hooks/useFetch';
 import ScoreCard from '../components/ScoreCard';
 import HQPerformance from '../components/HQPerformance';
 import SaleablePieChart from '../components/SaleablePieChart';
@@ -16,70 +16,71 @@ import AwardsDetailsCard from '../components/AwardsDetailsCard';
 import SalesDivBar from '../components/SalesDivBar';
 import SalesAchvTabs from '../components/SalesAchvTabs';
 import '../css/commonCss.css';
-import Navbar from '../core/Navbar';
 import RegionPerformance from '../components/RegionPerformance';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
+import { useRequest } from '../common/RequestContext';
 
 //@TODO : move this request code out of component
-const scoreCardReq = {
-  tbl_name: 'FTP_MAT_VAL_11_2024',
-  empcode: '041406',
-  div: '23',
-  month: '11',
-  year: '2024',
-};
+// const scoreCardReq = {
+//   tbl_name: 'FTP_MAT_VAL_11_2024',
+//   empcode: '041406',
+//   div: '23',
+//   month: '11',
+//   year: '2024',
+// };
 
-const salableNonSaleReq = {
-  tbl_name: 'FTP_11_2024',
-  empcode: '041406',
-  div: '23,01,07,49,28',
-  month: '11',
-  year: '2024',
-  flag: 'monthly',
-};
+// const salableNonSaleReq = {
+//   tbl_name: 'FTP_11_2024',
+//   empcode: '041406',
+//   div: '23,01,07,49,28',
+//   month: '11',
+//   year: '2024',
+//   flag: 'monthly',
+// };
 
 const Dashboard = () => {
-  let scoracrdPercentage = '0';
-  let salesDivData = [];
-  let salableGrndTotl;
+  const [scData, setscData] = useState([]);
+  const [salableData, setsalableData] = useState([]);
+  const { request } = useRequest();
 
   const navigate = useNavigate(); // Hook to navigate programmatically
 
-  const { data: scData } = useFetch(
-    'http://192.168.120.64/React_Login_api/api/Sales/SalesScData',
-    scoreCardReq
-  );
-  const { data: salableData } = useFetch(
-    'http://192.168.120.64/React_Login_api/api/Sales/salesAchvdata',
-    salableNonSaleReq
-  );
+  // const { data: scData } = useFetch(apiUrls.SalesScData, scoreCardReq);
+  // const { data: salableData } = useFetch(
+  //   apiUrls.salesAchvdata,
+  //   salableNonSaleReq
+  // );
+
+  useEffect(() => {
+    // Fetch data from API
+    (async () => {
+      if (request) {
+        const opData = await fetchApi(apiUrls.SalesScData, {
+          ...request,
+          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+        });
+        const opSalableData = await fetchApi(apiUrls.salesAchvdata, request);
+
+        if (opData && opData.data) {
+          setscData(opData.data);
+        }
+        if (opSalableData && opSalableData.data) {
+          setsalableData(opSalableData.data);
+        }
+      }
+    })();
+  }, [request]);
 
   const navComps = (flag) => {
     if (flag === 'dashboard') {
-      navigate('/dashboard');
+      navigate('/mainLayout/dashboard');
     } else if (flag === 'TableFormat') {
-      navigate('/SalesPortal');
+      navigate('/mainLayout/SalesPortal');
     }
   };
 
-  if (salableData && salableData.data) {
-    salesDivData = salableData.data.filter(
-      (items) => items.division != 'Grand Total'
-    );
-
-    salableGrndTotl = salableData.data.filter(
-      (items) => items.division === 'Grand Total'
-    );
-  }
-
-  if (scData && scData.data) {
-    const percAbove100 = scData.data.filter((item) => item.ach > 100).length;
-    const totRows = scData.data.length;
-    scoracrdPercentage = (percAbove100 / totRows) * 100;
-  }
-
   return (
     <>
-      <Navbar />
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
           <div className="content-wrapper pb-0">
@@ -113,21 +114,18 @@ const Dashboard = () => {
             </div>
             <Row className="mt-performace">
               <Col lg="7" md="7" sm="7">
-                <SalesAchvTabs request={salableNonSaleReq} />
+                <SalesAchvTabs />
               </Col>
               <Col lg="5" md="5" sm="5">
-                <SalesDivBar tableData={salesDivData} />
+                <SalesDivBar tableData={salableData} />
               </Col>
             </Row>
             <Row className="mt-performace">
               <Col lg="6" md="6" sm="6">
-                <ScoreCard
-                  percentage={scoracrdPercentage}
-                  tableData={scData?.data}
-                />
+                <ScoreCard tableData={scData} />
               </Col>
               <Col lg="6" md="6" sm="6">
-                <SaleablePieChart tableData={salableGrndTotl} />
+                <SaleablePieChart tableData={salableData} />
               </Col>
             </Row>
             <Row className="mt-performace">
@@ -139,8 +137,12 @@ const Dashboard = () => {
               </Col>
             </Row>
             <Row className="mt-performace">
-              <BrandPerformance />
-              <UnconfirmedOrderChart tableData={salableGrndTotl} />
+              <Col lg="7" md="6" sm="6">
+                <BrandPerformance />
+              </Col>
+              <Col lg="5" md="6" sm="6">
+                <UnconfirmedOrderChart tableData={salableData} />
+              </Col>
             </Row>
             <Row className="mt-performace">
               <HierarchicalPerformanceTabs />

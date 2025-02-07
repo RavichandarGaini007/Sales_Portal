@@ -1,19 +1,19 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Card, CardHeader, CardBody, Row } from 'reactstrap';
+import { Card, CardHeader, CardBody, Row, Col } from 'reactstrap';
 
-const ScoreCard = ({ percentage, tableData }) => {
-  let achvProd = 0;
-  let totProd = 0;
-
-  if (tableData) {
-    achvProd = tableData.filter((item) => item.ach > 100).length;
-    totProd = tableData.length;
+const ScoreCard = ({ tableData }) => {
+  if (!tableData || tableData.length === 0) {
+    return null;
   }
+
+  const percAbove100 = tableData.filter((item) => item.ach > 100).length;
+  const totRows = tableData.length;
+  const percentage = (percAbove100 / totRows) * 100;
 
   const getProgressColor = (percentage) => {
     if (percentage < 50) return 'red';
-    else if (percentage < 80) return 'orange';
+    if (percentage < 80) return 'orange';
     return '#00d284';
   };
 
@@ -26,49 +26,53 @@ const ScoreCard = ({ percentage, tableData }) => {
       </CardHeader>
       <CardBody>
         <Row>
-          {/* <div className="card p-3"> */}
-          <div className="progress mb-4">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{
-                width: `${percentage}%`,
-                backgroundColor: getProgressColor(percentage),
-                transition: 'width 0.4s',
-              }}
-            >
-              {achvProd}/{totProd}
+          <Col>
+            {/* Progress bar */}
+            <div className="progress mb-4">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{
+                  width: `${percentage || 100}%`,
+                  backgroundColor: getProgressColor(percentage),
+                  transition: 'width 0.4s',
+                }}
+              >
+                {percAbove100}/{totRows}
+              </div>
             </div>
-          </div>
-          <table className="table">
-            <thead className="custom-gray-header">
-              <tr>
-                <th>Brand Name</th>
-                <th>Sale</th>
-                <th>Target</th>
-                <th>Ach(%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableData?.map((item, index) => (
-                <tr key={index}>
-                  <td className="tblTextLeft" style={{ textAlign: 'left' }}>
-                    {item.brand_Name}
-                  </td>
-                  <td>{item.sale}</td>
-                  <td>{item.target}</td>
-                  <td
-                    style={{
-                      color: item.ach >= 100 ? '#00d284' : 'red',
-                    }}
-                  >
-                    {item.ach}%
-                  </td>
+
+            {/* Table */}
+            <table className="table">
+              <thead className="custom-gray-header">
+                <tr>
+                  <th>Brand Name</th>
+                  <th>Sale</th>
+                  <th>Target</th>
+                  <th>Ach(%)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* </div> */}
+              </thead>
+              <tbody>
+                {tableData.map(({ brand_Name, sale, target, ach }, index) => (
+                  <tr key={index}>
+                    <td className="tblTextLeft" style={{ textAlign: 'left' }}>
+                      {brand_Name}
+                    </td>
+                    <td>{sale}</td>
+                    <td>{target}</td>
+                    <td style={{ color: ach >= 100 ? '#00d284' : 'red' }}>
+                      {ach}%
+                      {ach >= 100 ? (
+                        <i className="mdi mdi-arrow-up"></i>
+                      ) : (
+                        <i className="mdi mdi-arrow-down"></i>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Col>
         </Row>
       </CardBody>
     </Card>

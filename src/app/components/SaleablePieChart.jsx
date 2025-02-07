@@ -7,14 +7,23 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const SaleablePieChart = ({ tableData }) => {
-  const saleablePercentage =
-    Math.round((tableData?.[0]?.saleable / tableData?.[0]?.net_amt) * 100 ?? 0);
-  const nonSaleablePercentage =
-    Math.round((tableData?.[0]?.nonsaleable / tableData?.[0]?.net_amt) * 100 ?? 0);
-  const totalSales = Math.round(100 - saleablePercentage - nonSaleablePercentage);
+  if (!tableData || tableData.length === 0) {
+    return null;
+  }
 
-  // const saleableAmount = (saleablePercentage / 100) * totalSales;
-  // const nonSaleableAmount = (nonSaleablePercentage / 100) * totalSales;
+  const salableGrndTotl = tableData.find(
+    (item) => item.division === 'Grand Total'
+  );
+  if (!salableGrndTotl) return null;
+
+  const saleablePercentage =
+    Math.round((salableGrndTotl.saleable / salableGrndTotl.net_amt) * 100) || 0;
+  const nonSaleablePercentage =
+    Math.round((salableGrndTotl.nonsaleable / salableGrndTotl.net_amt) * 100) ||
+    0;
+  const totalSales = Math.round(
+    100 - saleablePercentage - nonSaleablePercentage
+  );
 
   const pieData = {
     labels: ['Sale', 'Saleable', 'Non-Saleable'],
@@ -31,11 +40,12 @@ const SaleablePieChart = ({ tableData }) => {
     plugins: {
       tooltip: {
         callbacks: {
-          label: function (tooltipItem) {
-            const label = tooltipItem.label || '';
-            const value = tooltipItem.raw || 0;
-            return `${label}: ${value}%`;
-          },
+          label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw}%`,
+          // label: function (tooltipItem) {
+          //   const label = tooltipItem.label || '';
+          //   const value = tooltipItem.raw || 0;
+          //   return `${label}: ${value}%`;
+          // },
         },
       },
       legend: {
@@ -45,6 +55,14 @@ const SaleablePieChart = ({ tableData }) => {
     },
     maintainAspectRatio: false,
   };
+
+  const colorStyle = (color) => ({
+    display: 'inline-block',
+    width: '15px',
+    height: '15px',
+    backgroundColor: color,
+    marginRight: '5px',
+  });
 
   return (
     // <Col lg="5" md="12" sm="12">
@@ -64,46 +82,18 @@ const SaleablePieChart = ({ tableData }) => {
             </div>
           </Col>
           <Col md="6" sm="12" className="text-center">
-            {/* <h5 className="mb-3">Breakdown</h5> */}
             <ul className="list-unstyled" style={{ textAlign: 'left' }}>
               <li>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '15px',
-                    height: '15px',
-                    backgroundColor: '#5e6eed',
-                    marginRight: '5px',
-                  }}
-                ></span>
+                <span style={colorStyle('#5e6eed')}></span>
                 Total Sales: {totalSales}%
-                {/* ({nonSaleableAmount.toFixed(2)} units) */}
               </li>
               <li>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '15px',
-                    height: '15px',
-                    backgroundColor: '#00d284',
-                    marginRight: '5px',
-                  }}
-                ></span>
+                <span style={colorStyle('#00d284')}></span>
                 Saleable: {saleablePercentage}%
-                {/* ({saleableAmount.toFixed(2)} units) */}
               </li>
               <li>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '15px',
-                    height: '15px',
-                    backgroundColor: '#ff0d59',
-                    marginRight: '5px',
-                  }}
-                ></span>
+                <span style={colorStyle('#ff0d59')}></span>
                 Non-Saleable: {nonSaleablePercentage}%
-                {/* ({nonSaleableAmount.toFixed(2)} units) */}
               </li>
             </ul>
           </Col>

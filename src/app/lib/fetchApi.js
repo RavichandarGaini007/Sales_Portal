@@ -24,7 +24,7 @@ export const fetchApiGet = async (url, config) => {
 export const API_REQUEST = "http://192.168.120.64/React_Login_api/api/Sales/";
 
 export const apiUrls = {
-  salesdata: 'https://sales.alkemcrm.com/NETCOREAPP/api/Sales/salesdata',
+  salesdata: API_REQUEST + 'salesdata',
   salesAchvdata: API_REQUEST + 'salesAchvdata',
   SalesScData: API_REQUEST + 'SalesScData',
   SalesTopPerformance: API_REQUEST + 'SalesTopPerformance',
@@ -37,6 +37,9 @@ export const apiUrls = {
   DivCustReportData: API_REQUEST + 'DivCustReportData',
   RegionReportData: API_REQUEST + 'RegionReportData',
   ProductReportData: API_REQUEST + 'ProductReportData',
+  DashboardMenus: API_REQUEST + 'getDashboardMenus',
+  SalesDiv: API_REQUEST + 'SalesDiv',
+  userEmailId: API_REQUEST + 'userEmailId',
 };
 
 export const popState = {
@@ -46,4 +49,5 @@ export const popState = {
   popPlantWise: 'plantWise',
   popCustWise: 'custWise',
   popRegionWise: 'regionwise',
+  popProductWise: 'productwise',
 };

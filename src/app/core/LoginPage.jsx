@@ -14,6 +14,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
+import MainLayout from './MainLayout';
 
 const initialValues = {
   emailid: '',
@@ -28,7 +29,7 @@ const LoginPage = () => {
 
   const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [loading, setLoading] = useState(false); // To handle loading state
-  const [errorMessage, setErrorMessage] = useState(""); // To display API errors
+  const [errorMessage, setErrorMessage] = useState(''); // To display API errors
 
   const navigate = useNavigate();
 
@@ -43,54 +44,63 @@ const LoginPage = () => {
     arrows: false,
   };
 
-  const { values, handleSubmit, handleChange, setFieldValue, errors, touched, handleBlur } =
-    useFormik({
-      initialValues: initialValues,
-      validationSchema: login_validation,
-      onSubmit: async (e) => {
-        try {
-          setLoading(true); // Show loading state
-          setErrorMessage(""); // Clear any previous errors
-          dispatch(loginUser(e))
-            .unwrap()
-            .then((f) => {
-              if (f.code === 1) {
-                navigate("/dashboard");
-                //alert("Login Successful!");
-                //window.location.reload();
+  const {
+    values,
+    handleSubmit,
+    handleChange,
+    setFieldValue,
+    errors,
+    touched,
+    handleBlur,
+  } = useFormik({
+    initialValues: initialValues,
+    validationSchema: login_validation,
+    onSubmit: async (e) => {
+      try {
+        setLoading(true); // Show loading state
+        setErrorMessage(''); // Clear any previous errors
+        dispatch(loginUser(e))
+          .unwrap()
+          .then((f) => {
+            if (f.code === 1) {
+              if (f.data[0].enetsale === 'ALL') {
+                navigate('/mainLayout/SalesPortal');
+              } else {
+                navigate('/mainLayout/dashboard');
               }
-              else {
-                alert(f.message);
-              }
-            })
-            .catch(() => {
-              setLoading(false);
-            });
-        } catch (error) {
-          console.error("Error during login:", error);
-          setErrorMessage(
-            error.response?.data?.message || "Failed to login. Please try again."
-          );
-        } finally {
-          setLoading(false); // Hide loading state
-          //navigate("/dashboard");
-        }
-      },
-    });
+              //navigate("/dashboard");
+            } else {
+              alert(f.message);
+            }
+          })
+          .catch(() => {
+            setLoading(false);
+          });
+      } catch (error) {
+        console.error('Error during login:', error);
+        setErrorMessage(
+          error.response?.data?.message || 'Failed to login. Please try again.'
+        );
+      } finally {
+        setLoading(false); // Hide loading state
+        //navigate("/dashboard");
+      }
+    },
+  });
 
   const handleBlurEmail = async (e) => {
     const email = e.target.value;
     try {
       // Example: Replace with your actual API endpoint and logic
-      const response = await axios.post(`http://192.168.120.64/React_Login_api/api/User/userEmailId?user_id=${email}`);
+      const response = await axios.post(
+        `http://192.168.120.64/React_Login_api/api/User/userEmailId?user_id=${email}`
+      );
       const data = await response.data;
 
-      if (data.data[0].emailid)
-        setFieldValue('emailid', data.data[0].emailid)
-      else
-        setFieldValue('emailid', 'undefine')
+      if (data.data[0].emailid) setFieldValue('emailid', data.data[0].emailid);
+      else setFieldValue('emailid', 'undefine');
     } catch (error) {
-      console.error("Error checking email:", error);
+      console.error('Error checking email:', error);
     }
   };
 
@@ -98,9 +108,9 @@ const LoginPage = () => {
     setKeepSignedIn(e.target.checked);
   };
 
-  const loginClick = () => {
-    navigate('/dashboard');
-  }
+  // const loginClick = () => {
+  //   navigate('/dashboard');
+  // }
 
   return (
     <Container fluid className="login-page vh-100 d-flex align-items-center">
@@ -115,7 +125,7 @@ const LoginPage = () => {
               src={logo}
               alt="Company Logo"
               className="mb-3"
-              style={{ width: "120px" }}
+              style={{ width: '120px' }}
             />
             <h2>Sales Portal Login</h2>
           </div>
@@ -128,7 +138,10 @@ const LoginPage = () => {
                 placeholder="Enter your Emailid"
                 value={values.emailid}
                 onChange={handleChange}
-                onBlur={(e) => { handleBlur(e); handleBlurEmail(e); }}
+                onBlur={(e) => {
+                  handleBlur(e);
+                  handleBlurEmail(e);
+                }}
               />
               {touched.emailid && errors.emailid ? (
                 // toast.error(errors.emailid)
@@ -144,7 +157,6 @@ const LoginPage = () => {
                 value={values.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
-
               />
               {touched.password && errors.password ? (
                 <p className="form-error">{errors.password}</p>
@@ -179,7 +191,7 @@ const LoginPage = () => {
                 src={pharma1}
                 alt="Slide 1"
                 className="img-fluid"
-                style={{ height: "100vh", objectFit: "cover" }}
+                style={{ height: '100vh', objectFit: 'cover' }}
               />
             </div>
             <div>
@@ -187,7 +199,7 @@ const LoginPage = () => {
                 src={pharma2}
                 alt="Slide 2"
                 className="img-fluid"
-                style={{ height: "100vh", objectFit: "cover" }}
+                style={{ height: '100vh', objectFit: 'cover' }}
               />
             </div>
             <div>
@@ -195,7 +207,7 @@ const LoginPage = () => {
                 src={pharma3}
                 alt="Slide 3"
                 className="img-fluid"
-                style={{ height: "100vh", objectFit: "cover" }}
+                style={{ height: '100vh', objectFit: 'cover' }}
               />
             </div>
           </Slider>

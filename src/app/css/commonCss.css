@@ -1,12 +1,34 @@
 .txtLeft {
-    text-align: left !important;
-    /* Left align text */
+  text-align: left !important;
+  cursor: pointer;
+  /* Left align text */
 }
 
 .thead-light {
-    position: sticky;
-    top: 0;
-    /* Set to 0 to stick at the top of the page */
-    z-index: 1;
-    /* Ensures the header stays above the rest of the content */
+  position: sticky;
+  top: 0;
+  /* Set to 0 to stick at the top of the page */
+  z-index: 1;
+  /* Ensures the header stays above the rest of the content */
+}
+
+.thead-light.sticky {
+  background-color: #007bff;
+  /* New background color when sticky */
+  color: white;
+  /* Change text color for visibility */
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  /* Space out the title and the icon */
+  align-items: center;
+  /* Vertically center both items */
+}
+
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  /* Align the icon to the right */
 }

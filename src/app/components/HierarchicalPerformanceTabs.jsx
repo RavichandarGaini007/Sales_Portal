@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Button,
   Card,
   CardHeader,
   CardBody,
@@ -10,30 +11,36 @@ import {
   TabPane,
   Row,
   Col,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  // Modal,
+  // ModalHeader,
+  // ModalBody,
+  // ModalFooter,
 } from 'reactstrap';
-import { apiUrls } from '../lib/fetchApi';
-import { useFetch } from '../hooks/useFetch';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
+//import { useFetch } from '../hooks/useFetch';
+import { Modal } from 'react-bootstrap';
+import HqWiseReport from './HqWiseReport';
+import { useRequest } from '../common/RequestContext';
 
-const hierarReq = {
-  tbl_name: 'FTP_MAT_VAL_11_2024',
-  empcode: '041406',
-  div: '23',
-  month: '11',
-  year: '2024',
-};
+// const hierarReq = {
+//   tbl_name: 'FTP_MAT_VAL_11_2024',
+//   empcode: '041406',
+//   div: '23',
+//   month: '11',
+//   year: '2024',
+// };
 
 const HierarchicalPerformanceTabs = () => {
   const flags = ['Achieve', 'Not Achieve', 'All'];
-  const { data: herarData } = useFetch(apiUrls.SalesHierarchyDesg, hierarReq);
+  const { request } = useRequest();
+  //const { data: herarData } = useFetch(apiUrls.SalesHierarchyDesg, hierarReq);
 
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedData, setSelectedData] = useState(null);
+  //const [selectedData, setSelectedData] = useState(null);
   const [desgVal, setDesgVal] = useState('ME');
+  const [rowData, setrowData] = useState(null);
+  const [rowModel, setRowModel] = useState(false);
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
@@ -41,22 +48,46 @@ const HierarchicalPerformanceTabs = () => {
     2: { data: null, loading: false, error: null },
   });
 
-  const funFillData = () => {
-    if (herarData) {
-      const achieve = herarData?.data.filter((item) => item.achv >= 100);
-      const notAchieve = herarData?.data.filter((item) => item.achv < 100);
-
-      setTabData({
-        0: { data: achieve, loading: false, error: null },
-        1: { data: notAchieve, loading: false, error: null },
-        2: { data: herarData?.data, loading: false, error: null },
-      });
-    }
-  };
-
   useEffect(() => {
-    funFillData();
-  }, [herarData]);
+    // Fetch data from API
+    (async () => {
+      if (request) {
+        //const opData = null;
+        const opData = await fetchApi(apiUrls.SalesHierarchyDesg, {
+          ...request,
+          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+        });
+
+        if (opData && opData.data) {
+          const achieve = opData?.data.filter((item) => item.achv >= 100);
+          const notAchieve = opData?.data.filter((item) => item.achv < 100);
+
+          setTabData({
+            0: { data: achieve, loading: false, error: null },
+            1: { data: notAchieve, loading: false, error: null },
+            2: { data: opData?.data, loading: false, error: null },
+          });
+        }
+      }
+    })();
+  }, [request]);
+
+  // const funFillData = () => {
+  //   if (herarData) {
+  //     const achieve = herarData?.data.filter((item) => item.achv >= 100);
+  //     const notAchieve = herarData?.data.filter((item) => item.achv < 100);
+
+  //     setTabData({
+  //       0: { data: achieve, loading: false, error: null },
+  //       1: { data: notAchieve, loading: false, error: null },
+  //       2: { data: herarData?.data, loading: false, error: null },
+  //     });
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   funFillData();
+  // }, [herarData]);
 
   const activeTabData = desgVal
     ? tabData[activeTab]?.data?.filter((item) => item.desg === desgVal)
@@ -70,10 +101,16 @@ const HierarchicalPerformanceTabs = () => {
 
   const toggleModal = () => setModalOpen(!modalOpen);
 
+  const toggleRowModel = () => setRowModel((prev) => !prev);
+
   const handleRowClick = (data) => {
-    setSelectedData(data);
-    toggleModal(); // Open the modal when a row is clicked
+    setrowData(data);
+    setRowModel(true);
   };
+  // const handleRowClick = (data) => {
+  //   setSelectedData(data);
+  //   toggleModal(); // Open the modal when a row is clicked
+  // };
 
   const onDropdownClick = (event) => {
     setDesgVal(event.target.value);
@@ -88,6 +125,7 @@ const HierarchicalPerformanceTabs = () => {
               <i className="mdi mdi-chart-bar menu-icon" /> Hierarchical
               Performance
             </div>
+
             <select
               id="roleSelect"
               style={{ maxWidth: '200px' }}
@@ -99,6 +137,16 @@ const HierarchicalPerformanceTabs = () => {
               <option value="RM">RM</option>
               <option value="ME">ME</option>
             </select>
+            <div
+              onClick={toggleModal}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  toggleModal(); // Triggers the modal toggle on Enter or Space
+                }
+              }}
+            >
+              <i className="mdi mdi-view-list" />
+            </div>
           </div>
         </CardHeader>
         <Nav tabs>
@@ -133,8 +181,8 @@ const HierarchicalPerformanceTabs = () => {
                       </thead>
                       <tbody>
                         {activeTabData &&
-                          Array.isArray(activeTabData) &&
-                          activeTabData.length > 0 ? (
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
                             <tr
                               key={index}
@@ -150,6 +198,11 @@ const HierarchicalPerformanceTabs = () => {
                                 }}
                               >
                                 {item.achv}%
+                                {item.achv >= 100 ? (
+                                  <i className="mdi mdi-arrow-up"></i>
+                                ) : (
+                                  <i className="mdi mdi-arrow-down"></i>
+                                )}
                               </td>
                             </tr>
                           ))
@@ -169,8 +222,23 @@ const HierarchicalPerformanceTabs = () => {
           </TabContent>
         ))}
 
-        {/* Modal for showing detailed row data */}
-        <Modal isOpen={modalOpen} toggle={toggleModal}>
+        <Modal show={rowModel} onHide={toggleRowModel} fullscreen>
+          <Modal.Body>
+            <HqWiseReport
+              headerName={rowData?.name}
+              BrandCode={rowData?.fsCode}
+              isDrillEnable={false}
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={toggleRowModel}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/*         
+        <Modal isOpen={modalOpen} toggle={toggleModal} fullscreen>
           <ModalHeader toggle={toggleModal}>Performance Details</ModalHeader>
           <ModalBody>
             {selectedData ? (
@@ -200,7 +268,7 @@ const HierarchicalPerformanceTabs = () => {
               Close
             </button>
           </ModalFooter>
-        </Modal>
+        </Modal> */}
       </Card>
     </Col>
   );

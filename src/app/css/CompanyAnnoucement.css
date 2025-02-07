@@ -1,0 +1,10 @@
+.modal {
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+  }
+  
+  .modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  

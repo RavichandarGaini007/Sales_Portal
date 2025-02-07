@@ -1,26 +1,18 @@
+
 import { configureStore } from '@reduxjs/toolkit';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage'; // Uses localStorage
 import rootReducerWithLogout from './reducers/rootReducer';
 
-// Configure the Redux store with the root reducer
+const persistConfig = {
+  key: 'root',
+  storage, // Saves state to localStorage
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducerWithLogout);
+
 export const store = configureStore({
-  reducer: rootReducerWithLogout,
+  reducer: persistedReducer,
 });
 
-// export default store;
-
-// import { configureStore } from "@reduxjs/toolkit";
-// import loginSlice from "./reducers/loginreducers";
-// // import loginEmailSlice from "./reducers/homereducers";
-// import getDesignationSlice from "./reducers/designationreducers";
-// import getEmployeeSlice from "./reducers/employeereducers";
-// import rplDataSlice from "./reducers/rpldatareducers";
-// export const store = configureStore({
-//   reducer: {
-//     app: loginSlice,
-//     // emailid: loginEmailSlice,
-//     designation: getDesignationSlice,
-//     empcodes: getEmployeeSlice,
-//     rpldata: rplDataSlice
-//   },
-// });
-
+export const persistor = persistStore(store);

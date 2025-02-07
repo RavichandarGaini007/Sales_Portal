@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   Table,
@@ -13,14 +12,24 @@ import {
 import { Modal } from 'react-bootstrap'; // Import Bootstrap components
 import '../css/SalesPortalTable.css';
 import MultiSelectDropdown from '../common/MultiSelectDropdown';
-import { apiUrls } from '../lib/fetchApi';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
 import { Salescolumns } from '../lib/tableHead';
 import HqWiseReport from './HqWiseReport';
 import BrandWiseReport from './BrandWiseReport';
 import HierarchyWiseReport from './HierarchyWiseReport';
 import PlantWiseReport from './PlantWiseReport';
 import CustomerWiseReport from './CustomerWiseReport';
-import Navbar from '../core/Navbar';
+import Widgets from './Widgets';
+import '../css/widget.css';
+import { useRequest } from '../common/RequestContext';
+
+// const salesReq = {
+//   tbl_name: 'FTP_11_2024',
+//   empcode: '041406',
+//   div: 'ALL',
+//   month: '11',
+//   year: '2024',
+// };
 
 const getLabelColor = (value) => {
   if (value >= 100) return 'success'; // Green
@@ -29,40 +38,31 @@ const getLabelColor = (value) => {
 };
 const SalesPortalTable = () => {
   const [data, setData] = useState([]);
-  const [dropdownSelection, setDropdownSelection] = useState('hqwise'); // Default selection
+  const [dropdownSelection, setDropdownSelection] = useState('plantwise'); // Default selection
   const [selectedDivName, setSelectedDivName] = useState(null); // State for selected "Div Name"
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [tblColsTgl, setTblColumns] = useState([]);
-
+  const { request } = useRequest();
 
   useEffect(() => {
+    //const storedRequest = JSON.parse(localStorage.getItem('commonRequest'));
     // Fetch data from API
-    // (async () => {
-    //   const opData = await fetchApiGet(apiUrls.SalesTopPerformance);
+    (async () => {
+      if (request) {
+        const opData = await fetchApi(apiUrls.salesdata, request);
+        if (opData && opData.data) {
+          setData(opData.data);
+        }
+      }
+    })();
+  }, [request]);
 
-    //   setData(opData.data);
-    // })();
-
-    // setTblColumns( //// use to display all columns
-    //   Salescolumns.reduce((acc, column) => {
-    //     acc[column.accessorKey]; // All columns visible by default
-    //     return acc;
-    //   }, {}));
-
-    axios
-      .get(apiUrls.salesdata) // Replace with your API endpoint
-      .then((response) => {
-        setData(response.data.data); // Set the fetched data
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, []);
+  //const toggleRowModel = () => setRowModel((prev) => !prev);
 
   // Handle when a division name is clicked
   const handleDivNameClick = (row) => {
     setSelectedDivName(row.name); // Store the clicked Div Name
-    toggleModal(); // Open modal
+    setShowModal(true);
   };
 
   const modelComp = () => {
@@ -74,9 +74,7 @@ const SalesPortalTable = () => {
       custwise: <CustomerWiseReport headerName={selectedDivName} />,
     };
 
-    if (components[dropdownSelection]) {
-      return components[dropdownSelection];
-    }
+    return components[dropdownSelection] || null;
   };
 
   const handleTableColToggle = (selectedColumns) => {
@@ -88,11 +86,12 @@ const SalesPortalTable = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
           <div className="content-wrapper pb-0">
             {/* Row for dropdowns on the same line */}
+            <Widgets wdata={data}></Widgets>
             <Row className="mb-2">
               <Col md="4" sm="12">
                 {/* Select dropdown for table type */}
@@ -136,14 +135,20 @@ const SalesPortalTable = () => {
                     bordered
                     hover
                     responsive
-                    className="text-center sticky-table">
+                    className="text-center sticky-table"
+                  >
                     <thead className="thead-dark">
                       <tr>
                         {/* {Salescolumns.map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
                         ))} */}
-                        {Salescolumns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
-                          <th key={col.accessorKey} style={{ textAlign: 'left' }}>
+                        {Salescolumns.filter((c) =>
+                          tblColsTgl.some((s) => s.id === c.accessorKey)
+                        ).map((col) => (
+                          <th
+                            key={col.accessorKey}
+                            style={{ textAlign: 'left' }}
+                          >
                             {col.header}
                           </th>
                         ))}
@@ -152,17 +157,24 @@ const SalesPortalTable = () => {
                     <tbody>
                       {data.map((row) => (
                         <tr key={row.id}>
-                          {Salescolumns.filter(c => tblColsTgl.some(s => s.id === c.accessorKey)).map((col) => (
+                          {Salescolumns.filter((c) =>
+                            tblColsTgl.some((s) => s.id === c.accessorKey)
+                          ).map((col) => (
                             <td key={`${row.id}-${col.accessorKey}`}>
                               {col.accessorKey === 'name' ? (
                                 <div
-                                  style={{ textAlign: 'left', cursor: 'pointer' }}
+                                  style={{
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                  }}
                                   onClick={() => handleDivNameClick(row)}
                                 >
                                   {row[col.accessorKey]}
                                 </div>
                               ) : col.accessorKey === 'net_amt' ? (
-                                <Badge color={getLabelColor(row[col.accessorKey])}>
+                                <Badge
+                                  color={getLabelColor(row[col.accessorKey])}
+                                >
                                   {row[col.accessorKey].toLocaleString()}
                                 </Badge>
                               ) : col.accessorKey === 'achv' ? (
@@ -184,6 +196,11 @@ const SalesPortalTable = () => {
                                     }}
                                   >
                                     {row[col.accessorKey]}%
+                                    {row[col.accessorKey] >= 100 ? (
+                                      <i className="mdi mdi-arrow-up"></i>
+                                    ) : (
+                                      <i className="mdi mdi-arrow-down"></i>
+                                    )}
                                   </span>
                                 </div>
                               ) : (
@@ -193,64 +210,6 @@ const SalesPortalTable = () => {
                           ))}
                         </tr>
                       ))}
-                      {/* {data.map((row) => (
-                        <tr key={row.id}>
-                          <td>{row.division}</td>
-                          <td
-                            style={{ textAlign: 'left', cursor: 'pointer' }}
-                            onClick={() => handleDivNameClick(row)}
-                          >
-                            {row.name}
-                          </td>
-                          <td>{row.sale}</td>
-                          <td>{row.saleable}</td>
-                          <td>{row.nonsaleable}</td>
-                          <td>{row.diff}</td>
-                          <td>{row.netsales}</td>
-                          <td>{row.pend_pick}</td>
-                          <td>{row.pend_ord}</td>
-                          <td>{row.pend_disp}</td>
-                          <td>{row.unconf_ostd_ord}</td>
-                          <td>{row.unconf_stock}</td>
-                          <td>{row.unconf_total}</td>
-                          <td>{row.for_ord}</td>
-                          <td style={{ fontSize: '12px' }}>
-                            <Badge color={getLabelColor(row.net_amt)}>
-                              {row.net_amt.toLocaleString()}
-                            </Badge>
-                          </td>
-                          <td>{row.target}</td>
-                          <td style={{ position: 'relative' }}>
-                            <Progress
-                              value={row.achv}
-                              color={getLabelColor(row.achv)}
-                              style={{ height: '100%' }}
-                            />
-                            <span
-                              style={{
-                                position: 'absolute',
-                                top: '0',
-                                left: '50%',
-                                transform: 'translate(-50%, 0)',
-                                color: 'black',
-                                fontWeight: 'bold',
-                                paddingTop: '3px',
-                              }}
-                            >
-                              {row.achv}%
-                            </span>
-                          </td>
-                          <td>{row.varv}</td>
-                          <td>{row.percRet}</td>
-                          <td>{row.lmtd}</td>
-                          <td>{row.lymtd}</td>
-                          <td>{row.lmgrowth}</td>
-                          <td>{row.growth}</td>
-                          <td>{row.lmtd1}</td>
-                          <td>{row.lymtd1}</td>
-                          <td>{row.growth_cy}</td>
-                        </tr>
-                      ))} */}
                     </tbody>
                   </Table>
                 </Card>
@@ -260,17 +219,17 @@ const SalesPortalTable = () => {
         </div>
       </div>
 
+      {/* {rowModel && modelComp()} */}
+
       {/* Modal for displaying the selected data */}
       <Modal
         show={showModal}
-        onHide={toggleModal}
+        onHide={() => setShowModal(false)}
         fullscreen={true} // Enables full-window modal
       >
-        <Modal.Body>
-          {modelComp()}
-        </Modal.Body>
+        <Modal.Body>{modelComp()}</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={toggleModal}>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
         </Modal.Footer>

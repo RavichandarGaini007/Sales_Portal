@@ -12,13 +12,14 @@ import {
   Col,
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
+import { useRequest } from '../common/RequestContext';
 
-const perfReq = {
-  tbl_name: 'FTP_11_2024',
-  empcode: '041406',
-  div: '23',
-  flag: 'customer',
-};
+// const perfReq = {
+//   tbl_name: 'FTP_11_2024',
+//   empcode: '041406',
+//   div: '23',
+//   flag: 'customer',
+// };
 
 const TopPerformance = () => {
   const flags = ['Customer', 'Barnd', 'Hq'];
@@ -28,31 +29,34 @@ const TopPerformance = () => {
     1: { data: null, loading: false, error: null },
     2: { data: null, loading: false, error: null },
   });
+  const { request } = useRequest();
 
   const activeTabData = tabData[activeTab].data;
 
   useEffect(() => {
     const currentFlag = flags[activeTab];
 
-    if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
+    //if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
 
-    (async () => {
-      setTabData((prevData) => ({
-        ...prevData,
-        [activeTab]: { ...prevData[activeTab], loading: true },
-      }));
-      const opData = await fetchApi(apiUrls.SalesTopPerformance, {
-        ...perfReq,
-        flag: currentFlag,
-      });
-      if (!tabData[activeTab].data && !tabData[activeTab].loading) {
+    if (request) {
+      (async () => {
         setTabData((prevData) => ({
           ...prevData,
-          [activeTab]: { data: opData.data, loading: false, error: null },
+          [activeTab]: { ...prevData[activeTab], loading: true },
         }));
-      }
-    })();
-  }, [activeTab]);
+        const opData = await fetchApi(apiUrls.SalesTopPerformance, {
+          ...request,
+          flag: currentFlag,
+        });
+        if (!tabData[activeTab].data && !tabData[activeTab].loading) {
+          setTabData((prevData) => ({
+            ...prevData,
+            [activeTab]: { data: opData.data, loading: false, error: null },
+          }));
+        }
+      })();
+    }
+  }, [activeTab, request]);
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -100,8 +104,8 @@ const TopPerformance = () => {
                       </thead>
                       <tbody>
                         {activeTabData &&
-                          Array.isArray(activeTabData) &&
-                          activeTabData.length > 0 ? (
+                        Array.isArray(activeTabData) &&
+                        activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
                             <tr key={index}>
                               <td className="txtLeft">{item.name}</td>
@@ -114,6 +118,11 @@ const TopPerformance = () => {
                                 }}
                               >
                                 {item.achv}%
+                                {item.achv >= 100 ? (
+                                  <i className="mdi mdi-arrow-up"></i>
+                                ) : (
+                                  <i className="mdi mdi-arrow-down"></i>
+                                )}
                               </td>
                             </tr>
                           ))

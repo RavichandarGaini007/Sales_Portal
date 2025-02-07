@@ -7,6 +7,12 @@ import MultiSelectDropdown from '../common/MultiSelectDropdown';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
+import { useSelector } from 'react-redux';
+import Multiselect_dropdown from '../common/Multiselect_dropdown';
+import { Button } from 'reactstrap';
+import { apiUrls } from '../lib/fetchApi';
+import { useRequest } from '../common/RequestContext';
+
 // import '../../assets/vendors/js/vendor.bundle.base.js';
 // import '../../assets/vendors/flot/jquery.flot.js';
 // import '../../assets/vendors/flot/jquery.flot.resize.js';
@@ -15,34 +21,72 @@ import '../../assets/vendors/css/vendor.bundle.base.css';
 // import '../../assets/vendors/flot/jquery.flot.stack.js';
 
 const Navbar = () => {
-  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+  const { updateRequest } = useRequest();
+  const { data, isAuthorized, isLoading } = useSelector((state) => {
+    return state.app;
+  });
+  const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const [divisions, setAllDivs] = useState([]);
   const [month, setMonth] = useState(currentMonth);
   const [year, setYear] = useState(currentYear);
   const [menuItems, setMenuItems] = useState([]);
+  const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    const storedReqValue = localStorage.getItem('commonRequest');
+
+    if (storedReqValue?.div) {
+      divisions.forEach((col) => {
+        storedReqValue.div.forEach((item) => {
+          if (item.div === col.div) {
+            setSelected(col);
+          }
+        });
+      });
+    } else if (divisions?.length) {
+      setSelected(
+        divisions.map((col) => ({
+          label: col.name,
+          value: col.div,
+        }))
+      );
+    }
+  }, [divisions]);
 
   useEffect(() => {
     // Fetch data from API
     getUserMenus();
 
     axios
-      .get(
-        'http://192.168.120.64/React_Login_api/api/Sales/SalesDiv?strEmpCode=041406'
-      ) // Replace with your API endpoint
+      .get(apiUrls.SalesDiv + '?strEmpCode=' + data?.data[0]?.userid) // Replace with your API endpoint
       .then((response) => {
         const data = response.data.data;
         setAllDivs(data);
+
+        if (
+          data?.data &&
+          Array.isArray(data.data) &&
+          data.data.length > 0 &&
+          data?.data[0]?.enetsale === 'ALL'
+        ) {
+          setAllDivs([...data.data, { div: 'ALL', name: 'ALL' }]);
+        }
+
+        // if (data?.data[0]?.enetsale === 'ALL') {
+        //   setAllDivs([...data, { div: 'ALL', name: 'ALL' }]);
+        // }
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
+
+    genRequest();
   }, []);
 
   // Handle change for Division dropdown
   const handleDivisionChange = (selectedColumns) => {
-    //setDivision(event.target.value);
-    console.log(selectedColumns);
+    setSelected(selectedColumns);
   };
 
   // Handle change for Month dropdown
@@ -56,12 +100,35 @@ const Navbar = () => {
   };
 
   const getUserMenus = async (e) => {
-    let empCode = "41406";
-    let role = "Admin";
-    const response = await axios.post(`http://192.168.120.64/React_Login_api/api/Sales/getDashboardMenus?empCode=${empCode}&role=${role}`);
+    let empCode = '41406';
+    let role = 'Admin';
+    const response = await axios.post(
+      apiUrls.DashboardMenus + `?empCode=${empCode}&role=${role}`
+    );
     const data = await response.data.data;
     setMenuItems(data);
-  }
+  };
+
+  const handleSearch = () => {
+    genRequest();
+  };
+
+  const genRequest = () => {
+    const comReq = {
+      tbl_name: 'FTP_' + month + '_' + year,
+      empcode: data?.data[0]?.userid,
+      div: selected.length
+        ? Array(selected.map((items) => items.value)).join(',')
+        : data?.data[0]?.enetsale,
+      month: month.toString(),
+      year: year.toString(),
+      flag: 'monthly',
+    };
+    //console.log(comReq);
+    updateRequest(comReq);
+    localStorage.setItem('commonRequest', JSON.stringify(comReq));
+  };
+
   return (
     <div className="horizontal-menu">
       <nav className="navbar top-navbar col-lg-12 col-12 p-0">
@@ -69,7 +136,7 @@ const Navbar = () => {
           <div className="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
             <a
               className="navbar-brand brand-logo"
-              href="/dashboard"
+              href="/mainLayout/dashboard"
               style={{ width: '50px' }}
             >
               <img
@@ -88,7 +155,10 @@ const Navbar = () => {
             >
               Sales Portal
             </span>
-            <a className="navbar-brand brand-logo-mini" href="/dashboard">
+            <a
+              className="navbar-brand brand-logo-mini"
+              href="/mainLayout/dashboard"
+            >
               <img
                 src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
                 alt="logo"
@@ -100,7 +170,7 @@ const Navbar = () => {
               <li className="nav-item nav-search d-none d-lg-block">
                 <div className="input-group">
                   {/* Division Dropdown */}
-                  <MultiSelectDropdown
+                  {/* <MultiSelectDropdown
                     className="mx-3"
                     options={divisions.map((col) => ({
                       name: col.name,
@@ -108,19 +178,16 @@ const Navbar = () => {
                     }))}
                     displayValue="name"
                     onSelect={handleDivisionChange}
-                  />
-                  {/* <select
-                    value={division}
-                    onChange={handleDivisionChange}
-                    className="form-select form-select-sm me-2"
-                    aria-label="Select Division"
-                  >
-                    {divisions.map((div, index) => (
-                      <option key={index} value={div.div}>
-                        {div.name}
-                      </option>
-                    ))}
-                  </select> */}
+                  /> */}
+                  <Multiselect_dropdown
+                    className="mx-3"
+                    options={divisions.map((col) => ({
+                      label: col.name,
+                      value: col.div,
+                    }))}
+                    selectedList={selected}
+                    setSelected={setSelected}
+                  ></Multiselect_dropdown>
 
                   {/* Month Dropdown */}
                   <select
@@ -130,18 +197,18 @@ const Navbar = () => {
                     aria-label="Select Month"
                   >
                     <option value="">Select Month</option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    <option value="April">April</option>
-                    <option value="May">May</option>
-                    <option value="June">June</option>
-                    <option value="July">July</option>
-                    <option value="August">August</option>
-                    <option value="September">September</option>
-                    <option value="October">October</option>
-                    <option value="November">November</option>
-                    <option value="December">December</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
                   </select>
 
                   {/* Year Dropdown */}
@@ -157,6 +224,12 @@ const Navbar = () => {
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
                   </select>
+                  <Button
+                    className="me-2 btn btn-primary"
+                    onClick={handleSearch}
+                  >
+                    Search
+                  </Button>
                 </div>
               </li>
             </ul>
@@ -170,12 +243,12 @@ const Navbar = () => {
                   aria-expanded="false"
                 >
                   <div className="nav-profile-img">
-                    <img src={facejpg} alt="profile" />
+                    <img src={data?.data[0]?.userprofile} alt="profile card" />
                   </div>
                   <div className="nav-profile-text">
                     <p className="text-black font-weight-semibold m-0">
                       {' '}
-                      Olson jass{' '}
+                      {data?.data[0]?.name}{' '}
                     </p>
                   </div>
                 </a>
@@ -212,24 +285,26 @@ const Navbar = () => {
                 <Link className="nav-link" to={item.url}>
                   <i className={`${item.menu_icon} menu-icon`}></i>
                   <span className="menu-title">{item.name}</span>
-                  {menuItems[index].submenu && menuItems[index].submenu.length > 0 && (
-                    <i className="menu-arrow"></i>
-                  )}
+                  {menuItems[index].submenu &&
+                    menuItems[index].submenu.length > 0 && (
+                      <i className="menu-arrow"></i>
+                    )}
                 </Link>
                 {/* Render Submenu if available */}
-                {menuItems[index].submenu && menuItems[index].submenu.length > 0 && (
-                  <div className="submenu">
-                    <ul className="submenu-item">
-                      {menuItems[index].submenu.map((submenu, subIndex) => (
-                        <li className="nav-item" key={subIndex}>
-                          <Link className="nav-link" to={submenu.url}>
-                            <span>{submenu.name}</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {menuItems[index].submenu &&
+                  menuItems[index].submenu.length > 0 && (
+                    <div className="submenu">
+                      <ul className="submenu-item">
+                        {menuItems[index].submenu.map((submenu, subIndex) => (
+                          <li className="nav-item" key={subIndex}>
+                            <Link className="nav-link" to={submenu.url}>
+                              <span>{submenu.name}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
               </li>
             ))}
             {/* <li className="nav-item">
@@ -303,7 +378,6 @@ const Navbar = () => {
                 <span className="menu-title">Help</span>
               </a>
             </li> */}
-
           </ul>
         </div>
       </nav>

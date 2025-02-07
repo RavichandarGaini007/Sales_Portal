@@ -15,6 +15,7 @@ import {
   CardText,
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
+import { useRequest } from '../common/RequestContext';
 
 const SpeedometerCard = ({ data }) => {
   return (
@@ -83,8 +84,10 @@ const SpeedometerCard = ({ data }) => {
   );
 };
 
-function SalesAchvTabs(props) {
+function SalesAchvTabs() {
   const flags = ['monthly', 'quaterly', 'yearly'];
+  const { request } = useRequest();
+
   const [activeTab, setActiveTab] = useState('0');
   const [tabData, setTabData] = useState({
     monthly: { data: null, loading: false, error: null },
@@ -95,7 +98,7 @@ function SalesAchvTabs(props) {
   useEffect(() => {
     const currentFlag = flags[activeTab];
 
-    if (tabData[currentFlag]?.data || tabData[currentFlag]?.loading) return; // If data is available or loading, do nothing
+    //if (tabData[currentFlag].data || tabData[currentFlag]?.loading) return; // If data is available or loading, do nothing
 
     (async () => {
       try {
@@ -107,21 +110,24 @@ function SalesAchvTabs(props) {
           },
         }));
 
-        const opData = await fetchApi(apiUrls.salesAchvdata, {
-          ...props.request,
-          flag: currentFlag,
-        });
-        if (!tabData[currentFlag].data && !tabData[currentFlag].loading) {
-          setTabData((prevData) => ({
-            ...prevData,
-            [currentFlag]: {
-              data: opData.data.filter(
-                (items) => items.division === 'Grand Total'
-              ),
-              loading: false,
-              error: null,
-            },
-          }));
+        if (request) {
+          const opData = await fetchApi(apiUrls.salesAchvdata, {
+            ...request,
+            flag: currentFlag,
+          });
+
+          if (opData.data) {
+            setTabData((prevData) => ({
+              ...prevData,
+              [currentFlag]: {
+                data: opData.data.filter(
+                  (items) => items.division === 'Grand Total'
+                ),
+                loading: false,
+                error: null,
+              },
+            }));
+          }
         }
       } catch (error) {
         // Handle error
@@ -135,7 +141,7 @@ function SalesAchvTabs(props) {
         }));
       }
     })();
-  }, [activeTab]);
+  }, [request, activeTab]);
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
