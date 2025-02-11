@@ -16,7 +16,7 @@ import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 //import { useFetch } from '../hooks/useFetch';
 import RegionWiseReport from './RegionWiseReport';
-import ProductWiseReport from './ProductWiseReport';
+import HqWiseReport from './HqWiseReport';
 import { useRequest } from '../common/RequestContext';
 
 // const regionReq = {
@@ -212,9 +212,9 @@ function RegionPerformance() {
 
       <Modal show={rowModel} onHide={toggleRowModel} fullscreen>
         <Modal.Body>
-          <ProductWiseReport
+          <HqWiseReport
             headerName={rowData?.region_desc}
-            HqCode={rowData?.regio}
+            regionCode={rowData?.regio}
           />
         </Modal.Body>
         <Modal.Footer>

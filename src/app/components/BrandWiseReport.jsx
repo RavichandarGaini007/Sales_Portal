@@ -1,61 +1,92 @@
-import React, { useState } from 'react'
-import PopupTableModal from '../common/PopupTableModal'
+import React, { useState } from 'react';
+import PopupTableModal from '../common/PopupTableModal';
 import { divBrandPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import ProductWiseReport from './ProductWiseReport';
 import { Modal } from 'react-bootstrap';
 import { Button } from 'reactstrap';
+import { useRequest } from '../common/RequestContext';
 
-function BrandWiseReport({ headerName, BrandCode }) {
-    const [modalOpen, setModalOpen] = useState(false);
-    const [rowData, setrowData] = useState(null);
+function BrandWiseReport({
+  headerName,
+  isDrillEnable,
+  brandCode,
+  hqCode,
+  plantCode,
+  divCode,
+}) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [rowData, setrowData] = useState(null);
+  const { request } = useRequest();
 
-    const requestData = {
-        tbl_name: 'FTP_MAT_VAL_11_2024',
-        empcode: '041406',
-        div: '23',
-        month: '11',
-        year: '2024',
-        brand: BrandCode,
-    };
+  //   const requestData = {
+  //     tbl_name: 'FTP_MAT_VAL_11_2024',
+  //     empcode: '041406',
+  //     div: '23',
+  //     month: '11',
+  //     year: '2024',
+  //     brand: BrandCode,
+  //   };
 
-    const toggleModal = () => {
-        setModalOpen(!modalOpen);
+  const toggleModal = () => {
+    setModalOpen(!modalOpen);
+  };
+
+  const handleRowClick = (data) => {
+    if (isDrillEnable === true) {
+      setrowData(data); // Store the clicked row's data
+      toggleModal(); // Open the modal
     }
+  };
 
-    const handleRowClick = (data) => {
-        setrowData(data); // Store the clicked row's data
-        toggleModal(); // Open the modal
-    };
+  const buildRequestParams = useCallback(() => {
+    const params = { ...request };
 
-    return (
-        <>
-            Brand Wise Report
+    params.tbl_name = request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_');
+    if (plantCode) params.plant = plantCode;
+    if (divCode) params.div = divCode;
+    if (hqCode) params.hq = hqCode;
+    if (brandCode) params.brand = brandCode;
 
-            <PopupTableModal
-                url={apiUrls.DivBrandReportData}
-                request={requestData}
-                head={divBrandPopupColumns}
-                headerName={headerName}
-                state={popState.popBrandWise}
-                //onRowClick={(data) => <ProductWiseReport headerName={data.brand_name} />}
-                onRowClick={handleRowClick}
+    return params;
+  }, [request, plantCode, divCode, hqCode, brandCode]);
+
+  return (
+    <>
+      <PopupTableModal
+        url={apiUrls.DivBrandReportData}
+        request={{
+          ...request,
+          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+          div: divCode || null, // Check if divCode exists; if not, use div
+          brand: brandCode || null,
+          hq: hqCode || null,
+          plant: plantCode || null,
+        }}
+        head={divBrandPopupColumns}
+        headerName={headerName}
+        state={popState.popBrandWise}
+        //onRowClick={(data) => <ProductWiseReport headerName={data.brand_name} />}
+        onRowClick={handleRowClick}
+      />
+      {rowData && (
+        <Modal show={modalOpen} onHide={toggleModal} fullscreen>
+          <Modal.Body>
+            <ProductWiseReport
+              headerName={rowData.brand_name}
+              brandCode={rowData?.brand_code}
+              divCode={divCode}
             />
-
-            {rowData && (
-                <Modal show={modalOpen} onHide={toggleModal} fullscreen>
-                    <Modal.Body>
-                        <ProductWiseReport headerName={rowData.brand_name} BrandCode={rowData?.mvgr1} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={toggleModal}>
-                            Close
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-            )}
-        </>
-    )
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={toggleModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+    </>
+  );
 }
 
-export default BrandWiseReport
+export default BrandWiseReport;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 //import { useFetch } from '../hooks/useFetch';
 import { fetchApi } from '../lib/fetchApi';
 import {
+  Button,
   Card,
   CardHeader,
   CardBody,
@@ -13,6 +14,7 @@ import {
   Row,
   Col,
 } from 'reactstrap';
+import { exportToExcel } from '../lib/fileDownload';
 // import { Modal } from 'react-bootstrap';
 // import { Button } from 'reactstrap';
 
@@ -87,7 +89,8 @@ const PopupTableModal = ({
             <tbody>
               {data.map((item, index) => (
                 <tr
-                  key={index}
+                  // key={index}
+                  key={`${item.id}-${index}`}
                   onClick={() => {
                     handleRowClick(item);
                   }}
@@ -97,7 +100,8 @@ const PopupTableModal = ({
                     const isAchv = column.accessorKey === 'achv';
                     return (
                       <td
-                        key={column.accessorKey}
+                        // key={column.accessorKey}
+                        key={`${item.id}-${column.accessorKey}`}
                         style={{
                           color:
                             isAchv && value >= 100
@@ -133,17 +137,20 @@ const PopupTableModal = ({
     );
   };
 
+  const downloadExcel = () => {
+    //exportToExcel(tabData[activeTab].data);
+  };
+
   return (
     <>
-      {/* <Modal show={modalState} fullscreen>
-        <Modal.Body> */}
-      {/* <Col lg="12" md="12" sm="12"> */}
-      Popup Table Model
       <Card className="card-stats">
         <CardHeader>
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
           </div>
+          <Button variant="secondary" onClick={downloadExcel}>
+            Download
+          </Button>
         </CardHeader>
 
         <Nav tabs>
@@ -172,14 +179,7 @@ const PopupTableModal = ({
           ))}
         </TabContent>
       </Card>
-      {/* </Col> */}
-      {/* </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal > */}
+
       {renderComp}
     </>
   );

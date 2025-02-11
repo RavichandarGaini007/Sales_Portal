@@ -71,7 +71,7 @@ const Widgets = ({ wdata }) => {
                 <span className={`text-${getClass(domestic_sale?.lmgrowth)}`}>
                   {domestic_sale?.lmgrowth}%
                 </span>{' '}
-                MOM growth{' | '}{' '}
+                MOM {' | '}{' '}
                 <span className={`text-${getClass(domestic_sale?.growth)}`}>
                   {domestic_sale?.growth}%
                 </span>{' '}
@@ -110,7 +110,7 @@ const Widgets = ({ wdata }) => {
                 <span className={`text-${getClass(generic_sale?.lmgrowth)}`}>
                   {generic_sale?.lmgrowth}%
                 </span>{' '}
-                MOM growth{' | '}{' '}
+                MOM {' | '}{' '}
                 <span className={`text-${getClass(generic_sale?.growth)}`}>
                   {generic_sale?.growth}%
                 </span>{' '}
@@ -149,7 +149,7 @@ const Widgets = ({ wdata }) => {
                 <span className={`text-${getClass(total_sale?.lmgrowth)}`}>
                   {total_sale?.lmgrowth}%
                 </span>{' '}
-                MOM growth{' | '}{' '}
+                MOM {' | '}{' '}
                 <span className={`text-${getClass(total_sale?.growth)}`}>
                   {total_sale?.growth}%
                 </span>{' '}

@@ -1,11 +1,3 @@
-.sticky-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: #f2f2f2; /* or any background color */
-  z-index: 1; /* Ensure header stays above table body */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow to header */
-}
-
 /* Allow the table to scroll vertically */
 .table-container {
   max-height: 500px; /* Adjust this value to control the scrollable height */
@@ -27,4 +19,32 @@ td {
 th {
   background-color: #f8f9fa;
   font-weight: bold;
+}
+
+.sticky-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1; /* Ensure header stays above table body */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add shadow to header */
+}
+
+.sticky-column {
+  position: sticky;
+  left: 0;
+  background-color: #f9f9f9;
+  z-index: 1;
+  border-right: 2px solid #fcfafa; /* Adds a separating border between sticky columns and the rest */
+}
+
+.sticky-column-twocol {
+  position: sticky;
+  left: 0;
+  background-color: #f9f9f9;
+  z-index: 3 !important;
+  border-right: 2px solid #f8f6f6; /* Adds a separating border between sticky columns and the rest */
+}
+
+th.sticky-column {
+  top: 0;
+  background-color: #e2e2e2; /* Optional: Highlight header columns */
 }

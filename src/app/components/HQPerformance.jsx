@@ -16,7 +16,7 @@ import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import HqWiseReport from './HqWiseReport';
 import CustomerWiseReport from './CustomerWiseReport';
-import { exportToExcel, FileDownload } from '../lib/fileDownload';
+import { exportToExcel } from '../lib/fileDownload';
 import { useRequest } from '../common/RequestContext';
 
 const HQPerformance = () => {
@@ -111,8 +111,7 @@ const HQPerformance = () => {
   };
 
   const downloadExcel = () => {
-    //exportToExcel(tabData[activeTab].data); working excel download
-    FileDownload(tabData[activeTab].data);
+    exportToExcel(tabData[activeTab].data); ////working excel download
   };
 
   return (
@@ -123,7 +122,7 @@ const HQPerformance = () => {
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> HQ Performance
           </div>
-          <div
+          {/* <div
             className="icon-container"
             onClick={toggleModal}
             onKeyDown={(e) => {
@@ -131,12 +130,20 @@ const HQPerformance = () => {
                 toggleModal(); // Triggers the modal toggle on Enter or Space
               }
             }}
-          >
-            <i className="mdi mdi-view-list" />
+          ></div> */}
+
+          <div className="card-icons">
+            <span
+              className="mdi mdi-view-list"
+              style={{ cursor: 'pointer', padding: '5px' }}
+              onClick={toggleModal}
+            />
+            <span
+              className="mdi mdi-file-excel"
+              style={{ cursor: 'pointer', padding: '5px' }}
+              onClick={downloadExcel}
+            />
           </div>
-          <Button variant="secondary" onClick={downloadExcel}>
-            Download
-          </Button>
         </CardHeader>
         <Nav tabs>
           <NavItem>

@@ -7,10 +7,30 @@ import { Modal } from 'react-bootstrap';
 import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
-function HqWiseReport({ headerName, isDrillEnable }) {
+function HqWiseReport({
+  headerName,
+  isDrillEnable,
+  plantCode,
+  hqCode,
+  divCode,
+  regionCode,
+  misCode,
+}) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
+
+  const buildRequestParams = useCallback(() => {
+    const params = { ...request };
+
+    if (plantCode) params.plant = plantCode;
+    if (divCode) params.div = divCode;
+    if (hqCode) params.hq = hqCode;
+    if (regionCode) params.region = regionCode;
+    if (misCode) params.mis = misCode;
+
+    return params;
+  }, [request, plantCode, divCode, hqCode, regionCode, misCode]);
 
   // const requestData = {
   //   tbl_name: 'FTP_11_2024',
@@ -33,10 +53,9 @@ function HqWiseReport({ headerName, isDrillEnable }) {
 
   return (
     <>
-      Hq Wise report Comp
       <PopupTableModal
         url={apiUrls.DivHqReportData}
-        request={request}
+        request={buildRequestParams()}
         head={divHqPopupColumns}
         headerName={headerName}
         state={popState.popHqWise}
@@ -50,6 +69,7 @@ function HqWiseReport({ headerName, isDrillEnable }) {
             <CustomerWiseReport
               headerName={rowData.bezei}
               HqCode={rowData?.vkbur}
+              divCode={divCode}
             />
           </Modal.Body>
           <Modal.Footer>

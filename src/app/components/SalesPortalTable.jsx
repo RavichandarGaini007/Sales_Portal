@@ -19,9 +19,11 @@ import BrandWiseReport from './BrandWiseReport';
 import HierarchyWiseReport from './HierarchyWiseReport';
 import PlantWiseReport from './PlantWiseReport';
 import CustomerWiseReport from './CustomerWiseReport';
+import RegionWiseReport from './RegionWiseReport';
 import Widgets from './Widgets';
 import '../css/widget.css';
 import { useRequest } from '../common/RequestContext';
+import { MdHeight } from 'react-icons/md';
 
 // const salesReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -39,7 +41,7 @@ const getLabelColor = (value) => {
 const SalesPortalTable = () => {
   const [data, setData] = useState([]);
   const [dropdownSelection, setDropdownSelection] = useState('plantwise'); // Default selection
-  const [selectedDivName, setSelectedDivName] = useState(null); // State for selected "Div Name"
+  const [rowData, setrowData] = useState(null);
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [tblColsTgl, setTblColumns] = useState([]);
   const { request } = useRequest();
@@ -61,20 +63,55 @@ const SalesPortalTable = () => {
 
   // Handle when a division name is clicked
   const handleDivNameClick = (row) => {
-    setSelectedDivName(row.name); // Store the clicked Div Name
+    setrowData(row); // Store the clicked row's data
     setShowModal(true);
   };
 
   const modelComp = () => {
-    const components = {
-      hqwise: <HqWiseReport headerName={selectedDivName} />,
-      brandwise: <BrandWiseReport headerName={selectedDivName} />,
-      hwise: <HierarchyWiseReport headerName={selectedDivName} />,
-      plantwise: <PlantWiseReport headerName={selectedDivName} />,
-      custwise: <CustomerWiseReport headerName={selectedDivName} />,
-    };
+    if (rowData) {
+      const components = {
+        hqwise: (
+          <HqWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+            isDrillEnable={true}
+          />
+        ),
+        brandwise: (
+          <BrandWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+            isDrillEnable={true}
+          />
+        ),
+        hwise: (
+          <HierarchyWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+          />
+        ),
+        plantwise: (
+          <PlantWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+          />
+        ),
+        custwise: (
+          <CustomerWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+          />
+        ),
+        regionwise: (
+          <RegionWiseReport
+            headerName={rowData.name}
+            divCode={rowData.division}
+          />
+        ),
+      };
 
-    return components[dropdownSelection] || null;
+      return components[dropdownSelection] || null;
+    }
   };
 
   const handleTableColToggle = (selectedColumns) => {
@@ -91,7 +128,7 @@ const SalesPortalTable = () => {
         <div className="main-panel">
           <div className="content-wrapper pb-0">
             {/* Row for dropdowns on the same line */}
-            <Widgets wdata={data}></Widgets>
+            <Widgets wdata={data} />
             <Row className="mb-2">
               <Col md="4" sm="12">
                 {/* Select dropdown for table type */}
@@ -130,7 +167,7 @@ const SalesPortalTable = () => {
             <Row className="">
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
               <Col lg="12" md="6" sm="6">
-                <Card className="card-stats">
+                <Card className="card-stats" style={{ height: '500px' }}>
                   <Table
                     bordered
                     hover
@@ -144,14 +181,23 @@ const SalesPortalTable = () => {
                         ))} */}
                         {Salescolumns.filter((c) =>
                           tblColsTgl.some((s) => s.id === c.accessorKey)
-                        ).map((col) => (
-                          <th
-                            key={col.accessorKey}
-                            style={{ textAlign: 'left' }}
-                          >
-                            {col.header}
-                          </th>
-                        ))}
+                        ).map((col) => {
+                          const colClass =
+                            col.accessorKey === 'division' ||
+                            col.accessorKey === 'name'
+                              ? 'sticky-column-twocol'
+                              : '';
+
+                          return (
+                            <th
+                              key={col.accessorKey}
+                              style={{ textAlign: 'left' }}
+                              className={colClass}
+                            >
+                              {col.header}
+                            </th>
+                          );
+                        })}
                       </tr>
                     </thead>
                     <tbody>
@@ -159,55 +205,67 @@ const SalesPortalTable = () => {
                         <tr key={row.id}>
                           {Salescolumns.filter((c) =>
                             tblColsTgl.some((s) => s.id === c.accessorKey)
-                          ).map((col) => (
-                            <td key={`${row.id}-${col.accessorKey}`}>
-                              {col.accessorKey === 'name' ? (
-                                <div
-                                  style={{
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                  }}
-                                  onClick={() => handleDivNameClick(row)}
-                                >
-                                  {row[col.accessorKey]}
-                                </div>
-                              ) : col.accessorKey === 'net_amt' ? (
-                                <Badge
-                                  color={getLabelColor(row[col.accessorKey])}
-                                >
-                                  {row[col.accessorKey].toLocaleString()}
-                                </Badge>
-                              ) : col.accessorKey === 'achv' ? (
-                                <div style={{ position: 'relative' }}>
-                                  <Progress
-                                    value={row[col.accessorKey]}
-                                    color={getLabelColor(row[col.accessorKey])}
-                                    style={{ height: '100%' }}
-                                  />
-                                  <span
+                          ).map((col) => {
+                            const colClass =
+                              col.accessorKey === 'division' ||
+                              col.accessorKey === 'name'
+                                ? 'sticky-column'
+                                : '';
+
+                            return (
+                              <td
+                                key={`${row.id}-${col.accessorKey}`}
+                                className={colClass}
+                              >
+                                {col.accessorKey === 'name' ? (
+                                  <div
                                     style={{
-                                      position: 'absolute',
-                                      top: '0',
-                                      left: '50%',
-                                      transform: 'translate(-50%, 0)',
-                                      color: 'black',
-                                      fontWeight: 'bold',
-                                      paddingTop: '3px',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
                                     }}
+                                    onClick={() => handleDivNameClick(row)}
                                   >
-                                    {row[col.accessorKey]}%
-                                    {row[col.accessorKey] >= 100 ? (
-                                      <i className="mdi mdi-arrow-up"></i>
-                                    ) : (
-                                      <i className="mdi mdi-arrow-down"></i>
-                                    )}
-                                  </span>
-                                </div>
-                              ) : (
-                                row[col.accessorKey]
-                              )}
-                            </td>
-                          ))}
+                                    {row[col.accessorKey]}
+                                  </div>
+                                ) : col.accessorKey === 'net_amt' ? (
+                                  <Badge
+                                    color={getLabelColor(row[col.accessorKey])}
+                                  >
+                                    {row[col.accessorKey].toLocaleString()}
+                                  </Badge>
+                                ) : col.accessorKey === 'achv' ? (
+                                  <div style={{ position: 'relative' }}>
+                                    <Progress
+                                      value={row[col.accessorKey]}
+                                      color={getLabelColor(
+                                        row[col.accessorKey]
+                                      )}
+                                    />
+                                    <span
+                                      style={{
+                                        position: 'absolute',
+                                        top: '0',
+                                        left: '50%',
+                                        transform: 'translate(-50%, 0)',
+                                        color: 'black',
+                                        fontWeight: 'bold',
+                                        paddingTop: '2px',
+                                      }}
+                                    >
+                                      {row[col.accessorKey]}%
+                                      {row[col.accessorKey] >= 100 ? (
+                                        <i className="mdi mdi-arrow-up"></i>
+                                      ) : (
+                                        <i className="mdi mdi-arrow-down"></i>
+                                      )}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  row[col.accessorKey]
+                                )}
+                              </td>
+                            );
+                          })}
                         </tr>
                       ))}
                     </tbody>

@@ -205,7 +205,7 @@ const BrandPerformance = () => {
         <Modal.Body>
           <ProductWiseReport
             headerName={rowData?.brand}
-            BrandCode={rowData?.mvgr1}
+            brandCode={rowData?.mvgr1}
           />
         </Modal.Body>
         <Modal.Footer>

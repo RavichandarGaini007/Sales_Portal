@@ -61,8 +61,8 @@ const Navbar = () => {
     axios
       .get(apiUrls.SalesDiv + '?strEmpCode=' + data?.data[0]?.userid) // Replace with your API endpoint
       .then((response) => {
-        const data = response.data.data;
-        setAllDivs(data);
+        const resdata = response.data.data;
+        //setAllDivs(resdata);
 
         if (
           data?.data &&
@@ -70,7 +70,7 @@ const Navbar = () => {
           data.data.length > 0 &&
           data?.data[0]?.enetsale === 'ALL'
         ) {
-          setAllDivs([...data.data, { div: 'ALL', name: 'ALL' }]);
+          setAllDivs([...resdata, { div: 'ALL', name: 'ALL' }]);
         }
 
         // if (data?.data[0]?.enetsale === 'ALL') {
@@ -117,9 +117,11 @@ const Navbar = () => {
     const comReq = {
       tbl_name: 'FTP_' + month + '_' + year,
       empcode: data?.data[0]?.userid,
-      div: selected.length
-        ? Array(selected.map((items) => items.value)).join(',')
-        : data?.data[0]?.enetsale,
+      div:
+        selected.length === divisions.length &&
+        data?.data[0]?.enetsale === 'ALL'
+          ? data?.data[0]?.enetsale
+          : Array(selected.map((items) => items.value)).join(','),
       month: month.toString(),
       year: year.toString(),
       flag: 'monthly',

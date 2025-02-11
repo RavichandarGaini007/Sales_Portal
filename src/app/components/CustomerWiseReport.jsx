@@ -7,19 +7,19 @@ import { Button } from 'reactstrap';
 import CustInvoiceReport from './CustInvoiceReport';
 import { useRequest } from '../common/RequestContext';
 
-function CustomerWiseReport({ headerName, HqCode }) {
+function CustomerWiseReport({ headerName, HqCode, divCode }) {
   const [modalOpen, setModalOpen] = useState(true);
   const [customerData, setCustomerData] = useState(null);
   const { request } = useRequest();
 
-  const requestData = {
-    tbl_name: 'FTP_11_2024',
-    empcode: '041406',
-    div: '23',
-    month: '11',
-    year: '2024',
-    plant: '1903',
-  };
+  //   const requestData = {
+  //     tbl_name: 'FTP_11_2024',
+  //     empcode: '041406',
+  //     div: '23',
+  //     month: '11',
+  //     year: '2024',
+  //     plant: '1903',
+  //   };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -32,10 +32,13 @@ function CustomerWiseReport({ headerName, HqCode }) {
 
   return (
     <>
-      Customer Wise report
       <PopupTableModal
         url={apiUrls.DivCustReportData}
-        request={requestData}
+        request={{
+          ...request,
+          hq: HqCode || null,
+          div: divCode || null,
+        }}
         head={divCustPopupColumns}
         headerName={headerName}
         state={popState.popCustWise}
@@ -45,7 +48,10 @@ function CustomerWiseReport({ headerName, HqCode }) {
       {customerData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
           <Modal.Body>
-            <CustInvoiceReport headerName={customerData.bezei} />
+            <CustInvoiceReport
+              headerName={customerData.name1}
+              custCode={customerData.kunnr}
+            />
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={toggleModal}>

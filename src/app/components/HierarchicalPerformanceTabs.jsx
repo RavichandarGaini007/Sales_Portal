@@ -226,7 +226,7 @@ const HierarchicalPerformanceTabs = () => {
           <Modal.Body>
             <HqWiseReport
               headerName={rowData?.name}
-              BrandCode={rowData?.fsCode}
+              misCode={rowData?.fsCode}
               isDrillEnable={false}
             />
           </Modal.Body>
