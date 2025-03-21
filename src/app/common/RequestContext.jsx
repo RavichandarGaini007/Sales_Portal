@@ -12,12 +12,15 @@ export const useRequest = () => {
 export const RequestProvider = ({ children }) => {
   const [request, setRequest] = useState(null);
 
-  const updateRequest = (newRequest, extraParams = {}) => {
-    setRequest((prevRequest) => ({
-      ...prevRequest,
-      ...newRequest, // Update/override existing fields
-      ...extraParams, // Add extra parameters
-    }));
+  // const updateRequest = (newRequest, extraParams = {}) => {
+  //   setRequest((prevRequest) => ({
+  //     ...prevRequest,
+  //     ...newRequest, // Update/override existing fields
+  //     ...extraParams, // Add extra parameters
+  //   }));
+  // };
+  const updateRequest = (newRequest) => {
+    setRequest(newRequest);
   };
 
   return (

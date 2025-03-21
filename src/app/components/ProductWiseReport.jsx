@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PopupTableModal from '../common/PopupTableModal';
 import { ProductReportColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
@@ -18,17 +18,22 @@ function ProductWiseReport({ headerName, brandCode, divCode }) {
   //     type: 'val',
   //   };
 
+  const buildRequestParams = useCallback(() => {
+    const params = { ...request };
+
+    params.tbl_name = request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_');
+    if (brandCode) params.brand = brandCode;
+    if (divCode) params.div = divCode;
+    params.type = 'val';
+
+    return params;
+  }, [request, brandCode, divCode]);
+
   return (
     <>
       <PopupTableModal
         url={apiUrls.ProductReportData}
-        request={{
-          ...request,
-          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
-          brand: brandCode || null,
-          div: divCode || null, // Check if divCode exists; if not, use div
-          type: 'val',
-        }}
+        request={buildRequestParams()}
         head={ProductReportColumns}
         headerName={headerName}
         state={popState.popProductWise}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PopupTableModal from '../common/PopupTableModal';
 import { RegionReportColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
@@ -26,18 +26,29 @@ function RegionWiseReport({ headerName, divCode }) {
   };
 
   const handleRowClick = (data) => {
-    setrowData(data); // Store the clicked row's data
+    if (
+      rowData?.regio !== data.regio ||
+      rowData?.division1 !== data.division1
+    ) {
+      setrowData(data); // Store the clicked row's data
+    }
     toggleModal(); // Open the modal
   };
+
+  const buildRequestParams = useCallback(() => {
+    const params = { ...request };
+
+    params.tbl_name = request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_');
+    if (divCode) params.div = divCode;
+
+    return params;
+  }, [request, divCode]);
+
   return (
     <>
       <PopupTableModal
         url={apiUrls.RegionReportData}
-        request={{
-          ...request,
-          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
-          div: divCode || null, // Check if divCode exists; if not, use div
-        }}
+        request={buildRequestParams()}
         head={RegionReportColumns}
         headerName={headerName}
         state={popState.popRegionWise}

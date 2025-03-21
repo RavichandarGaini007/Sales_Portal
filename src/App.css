@@ -23377,7 +23377,7 @@ dl li {
 
 @media (max-width: 991px) {
   .horizontal-menu .top-navbar .navbar-menu-wrapper {
-    width: calc(100% - 55px);
+    /* width: calc(100% - 55px); */
     padding-left: 15px;
     padding-right: 0;
   }
@@ -24475,7 +24475,7 @@ dl li {
 .horizontal-menu .bottom-navbar .page-navigation {
   position: relative;
   width: 100%;
-  z-index: 99;
+  z-index: 9;
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between;
@@ -25161,6 +25161,10 @@ dl li {
   .content-wrapper {
     max-width: 1200px;
   }
+  /* hide bottom filter for desktop view */
+  .bottom-filter {
+    display: none !important;
+  }
 }
 
 .page-body-wrapper {
@@ -25172,6 +25176,10 @@ dl li {
   .page-body-wrapper {
     padding-top: 70px;
     /* Assuming $horizontal-top-navbar-height is 70px */
+  }
+  /* display bottom filter for mobile view */
+  .bottom-filter {
+    display: block !important;
   }
 }
 

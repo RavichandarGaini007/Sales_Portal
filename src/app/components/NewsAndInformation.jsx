@@ -52,7 +52,7 @@ const NewsAndInformation = () => {
         </CardHeader>
         <CardBody style={{ padding: '20px' }}>
           <Scrollbars
-            style={{ height: 300 }} // Define the height of the scrollable area
+            style={{ height: '100%' }} // Define the height of the scrollable area
             autoHide // Automatically hide the scrollbar when not scrolling
             autoHideTimeout={1000} // Delay before hiding scrollbar
             autoHideDuration={200} // Duration of hiding animation

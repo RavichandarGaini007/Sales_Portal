@@ -1,6 +1,6 @@
 .multi-select-dropdown {
   position: relative;
-  width: 300px;
+  width: auto;
 }
 
 .msd-dropdown-input input {

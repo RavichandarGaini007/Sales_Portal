@@ -11,6 +11,7 @@ import {
   TabPane,
   Row,
   Col,
+  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
@@ -18,6 +19,10 @@ import { apiUrls, fetchApi } from '../lib/fetchApi';
 import RegionWiseReport from './RegionWiseReport';
 import HqWiseReport from './HqWiseReport';
 import { useRequest } from '../common/RequestContext';
+import { downloadCSV } from '../lib/fileDownload';
+import { regioPerformanceHead } from '../lib/tableHead';
+import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
+import BouncingLoader from '../common/BouncingLoader';
 
 // const regionReq = {
 //     tbl_name: 'FTP_MAT_VAL_11_2024',
@@ -30,9 +35,7 @@ import { useRequest } from '../common/RequestContext';
 function RegionPerformance() {
   const flags = ['Achieve', 'Not Achieve', 'All'];
   const { request } = useRequest();
-  //const { data: regionData } = useFetch(apiUrls.RegionReportData, regionReq);
 
-  //const [regionData, setregionData] = useState(null);
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
@@ -48,6 +51,11 @@ function RegionPerformance() {
     // Fetch data from API
     (async () => {
       if (request) {
+        setTabData((prvData) => ({
+          ...prvData,
+          [activeTab]: { ...prvData[activeTab], loading: true },
+        }));
+
         const opData = await fetchApi(apiUrls.RegionReportData, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
@@ -67,24 +75,15 @@ function RegionPerformance() {
     })();
   }, [request]);
 
-  //   const funFillData = () => {
-  //     if (regionData) {
-  //       const achieve = regionData?.data.filter((item) => item.achv >= 100);
-  //       const notAchieve = regionData?.data.filter((item) => item.achv < 100);
-
-  //       setTabData({
-  //         0: { data: achieve, loading: false, error: null },
-  //         1: { data: notAchieve, loading: false, error: null },
-  //         2: { data: regionData?.data, loading: false, error: null },
-  //       });
-  //     }
-  //   };
-
-  //   useEffect(() => {
-  //     funFillData();
-  //   }, [regionData]);
-
   const activeTabData = tabData[activeTab]?.data;
+
+  // const activeTabData = () => {
+  //   if (tabData[activeTab]?.data) {
+  //     return tabData[activeTab]?.data.filter((item) => item !== 'Grand Total');
+  //   } else {
+  //     return tabData[activeTab]?.data;
+  //   }
+  // };
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -101,34 +100,88 @@ function RegionPerformance() {
     setRowModel(true);
   };
 
+  const downloadExcel = () => {
+    downloadCSV(
+      tabData[activeTab].data,
+      regioPerformanceHead,
+      'RegionPerformance.csv'
+    ); ////working excel download
+  };
+
+  const renderTableBody = () => {
+    if (!activeTabData || activeTabData.length === 0) {
+      return (
+        <tr>
+          <td colSpan="5" style={{ textAlign: 'center' }}>
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return activeTabData.map((item, index) => (
+      <tr key={index}>
+        {regioPerformanceHead.map((column) => {
+          const value = item[column.accessorKey];
+          const isAchv = column.accessorKey === 'achv';
+
+          return (
+            <td key={`${item.id}-${column.accessorKey}`}>
+              {column.accessorKey === 'region_desc' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'achv' ? (
+                isAchv && value !== undefined ? (
+                  <span
+                    style={{
+                      color: item.achv >= 100 ? '#00d284' : 'red',
+                    }}
+                  >
+                    {value}%{' '}
+                    {value >= 100 ? (
+                      <i className="mdi mdi-arrow-up"></i>
+                    ) : (
+                      <i className="mdi mdi-arrow-down"></i>
+                    )}
+                  </span>
+                ) : null
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ));
+  };
+
   return (
     // <Col lg="12" md="6" sm="6">
     <>
-      <Card className="card-stats">
+      <Card className="card-stats com-card-height">
         <CardHeader className="card-header-flex">
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> Region Performance
           </div>
-          <div
-            className="icon-container"
-            onClick={toggleModal}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                toggleModal(); // Triggers the modal toggle on Enter or Space
-              }
-            }}
-          >
-            <i className="mdi mdi-view-list" />
+          <div className="card-icons ">
+            <span
+              className="mdi mdi-view-list icons-style"
+              onClick={toggleModal}
+            />
+            <span
+              className="mdi mdi-file-excel icons-style"
+              onClick={downloadExcel}
+            />
           </div>
         </CardHeader>
-        {/* <CardHeader>
-                    <div className="d-flex justify-content-between">
-                        <div className="stats card-title mb-0">
-                            <i className="mdi mdi-chart-bar menu-icon" /> Region
-                            Performance
-                        </div>
-                    </div>
-                </CardHeader> */}
         <Nav tabs>
           {flags.map((tab, index) => (
             <NavItem key={index}>
@@ -146,33 +199,51 @@ function RegionPerformance() {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          <th>Region</th>
-                          <th className="txtLeft">Region Name</th>
+              <CardBody className="com-card-body-height">
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  // <Spinner color="primary" />
+                  <Row>
+                    <Col>
+                      <table className="table table-bordered">
+                        <thead className="thead-light">
+                          <tr>
+                            {regioPerformanceHead.map((column) => {
+                              const colClass =
+                                column.accessorKey === 'region_desc'
+                                  ? 'txtLeft'
+                                  : '';
+
+                              return (
+                                <th
+                                  key={column.accessorKey}
+                                  className={colClass}
+                                >
+                                  {column.header}
+                                </th>
+                              );
+                            })}
+
+                            {/* <th>Region</th>
+                          <th className="txtLeft ">Region Name</th>
                           <th>Net Sale</th>
                           <th>Net Amount</th>
                           <th>Target</th>
-                          <th>Ach(%)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                          <th>Ach(%)</th> */}
+                          </tr>
+                        </thead>
+                        <tbody>{renderTableBody()}</tbody>
+                        {/* <tbody>
                         {activeTabData &&
                         Array.isArray(activeTabData) &&
                         activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
-                            <tr
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
+                            <tr key={index}>
                               <td>{item.regio}</td>
                               <td
-                                className="txtLeft"
-                                style={{ cursor: 'pointer' }}
+                                className="txtLeft txtLeftCursor"
+                                onClick={() => handleRowClick(item)}
                               >
                                 {item.region_desc}
                               </td>
@@ -200,10 +271,11 @@ function RegionPerformance() {
                             </td>
                           </tr>
                         )}
-                      </tbody>
-                    </table>
-                  </Col>
-                </Row>
+                      </tbody> */}
+                      </table>
+                    </Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           </TabContent>
@@ -215,6 +287,7 @@ function RegionPerformance() {
           <HqWiseReport
             headerName={rowData?.region_desc}
             regionCode={rowData?.regio}
+            isDrillEnable={false}
           />
         </Modal.Body>
         <Modal.Footer>

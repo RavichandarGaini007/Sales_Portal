@@ -13,10 +13,9 @@ import {
   TabPane,
   Row,
   Col,
+  Spinner,
 } from 'reactstrap';
 import { exportToExcel } from '../lib/fileDownload';
-// import { Modal } from 'react-bootstrap';
-// import { Button } from 'reactstrap';
 
 const PopupTableModal = ({
   url,
@@ -138,19 +137,23 @@ const PopupTableModal = ({
   };
 
   const downloadExcel = () => {
-    //exportToExcel(tabData[activeTab].data);
+    exportToExcel(tabData[activeTab].data);
   };
 
   return (
     <>
       <Card className="card-stats">
-        <CardHeader>
+        <CardHeader className="card-header-flex">
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
           </div>
-          <Button variant="secondary" onClick={downloadExcel}>
-            Download
-          </Button>
+          <div className="card-icons">
+            <span
+              className="mdi mdi-download"
+              style={{ cursor: 'pointer', padding: '5px' }}
+              onClick={downloadExcel}
+            />
+          </div>
         </CardHeader>
 
         <Nav tabs>

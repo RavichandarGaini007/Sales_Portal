@@ -36,24 +36,19 @@ const Widgets = ({ wdata }) => {
   return (
     <>
       <Row>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 grid-margin stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">
-                <div className="float-left">
-                  <i className="mdi mdi-poll-box text-success icon-lg" />
-                  {/* <Line data={data} options={options} /> */}
-                  {/* <canvas
-                    class="chartjs-render-monitor"
-                    style={{ display: 'block', width: '100%', height: '40px' }}
-                  ></canvas> */}
-                </div>
                 <div className="float-right">
-                  <p className="mb-0 text-right text-dark txt-header">
-                    Domestic Sales
+                  <i className="mdi mdi-poll-box text-success icon-lg" />
+                </div>
+                <div className="float-left">
+                  <p className="mb-0 text-left text-dark txt-header">
+                    Domestic Without Generic
                   </p>
                   <div className="fluid-container">
-                    <h6 className="font-weight-semibold text-right mb-0 text-dark">
+                    <h6 className="font-weight-semibold text-left mb-0 text-dark">
                       Sales - <span className="">{domestic_sale?.net_amt}</span>
                       <br></br>
                       Target - <span className="">{domestic_sale?.target}</span>
@@ -80,19 +75,19 @@ const Widgets = ({ wdata }) => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 grid-margin stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">
-                <div className="float-left">
+                <div className="float-right">
                   <i className="mdi mdi-cube text-danger icon-lg" />
                 </div>
-                <div className="float-right">
-                  <p className="mb-0 text-right text-dark txt-header">
+                <div className="float-left">
+                  <p className="mb-0 text-left text-dark txt-header">
                     Generic Sales
                   </p>
                   <div className="fluid-container">
-                    <h6 className="font-weight-semibold text-right mb-0 text-dark">
+                    <h6 className="font-weight-semibold text-left mb-0 text-dark">
                       Sales - <span className="">{generic_sale?.net_amt}</span>
                       <br></br>
                       Target - <span className="">{generic_sale?.target}</span>
@@ -119,19 +114,19 @@ const Widgets = ({ wdata }) => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 grid-margin stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">
-                <div className="float-left">
+                <div className="float-right">
                   <i className="mdi mdi-sort  text-success icon-lg" />
                 </div>
-                <div className="float-right">
-                  <p className="mb-0 text-right text-dark txt-header">
+                <div className="float-left">
+                  <p className="mb-0 text-left text-dark txt-header">
                     Total Sales
                   </p>
                   <div className="fluid-container">
-                    <h6 className="font-weight-semibold text-right mb-0 text-dark">
+                    <h6 className="font-weight-semibold text-left mb-0 text-dark">
                       Sales - <span className="">{total_sale?.net_amt}</span>
                       <br></br>
                       Target - <span className="">{total_sale?.target}</span>
@@ -158,19 +153,19 @@ const Widgets = ({ wdata }) => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 grid-margin stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">
-                <div className="float-left">
+                <div className="float-right">
                   <i className="mdi mdi-cube text-danger icon-lg" />
                 </div>
-                <div className="float-right">
-                  <p className="mb-0 text-right text-dark txt-header">
+                <div className="float-left">
+                  <p className="mb-0 text-left text-dark txt-header">
                     Cluster Wise Sales
                   </p>
                   <div className="fluid-container">
-                    <h6 className="font-weight-semibold text-right mb-0 text-dark">
+                    <h6 className="font-weight-semibold text-left mb-0 text-dark">
                       Cluster1 -{' '}
                       <span className="">
                         {' '}

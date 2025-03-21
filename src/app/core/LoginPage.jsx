@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Slider from 'react-slick';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import '../css/LoginPage.css'; // Custom styles
-import logo from './logo.png'; // Replace with your company logo
-import pharma1 from './pharma1.jpg'; // Replace with your company logo
-import pharma2 from './pharma2.jpg'; // Replace with your company logo
-import pharma3 from './pharma3.jpg';
+import alkemLogo from './logo.png'; // Replace with your company logo
+import pharma1 from './LoginImages/pharma1.jpg'; // Replace with your company logo
+import pharma2 from './LoginImages/pharma2.jpg'; // Replace with your company logo
+import pharma3 from './LoginImages/pharma3.jpg';
 import login_validation from './login_validation';
 import { useFormik } from 'formik';
 import axios from 'axios';
@@ -14,7 +14,6 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
-import MainLayout from './MainLayout';
 
 const initialValues = {
   emailid: '',
@@ -92,8 +91,11 @@ const LoginPage = () => {
     const email = e.target.value;
     try {
       // Example: Replace with your actual API endpoint and logic
+      // const response = await axios.post(
+      //   `https://192.168.120.64/React_Login_api/api/User/userEmailId?user_id=${email}`
+      // );
       const response = await axios.post(
-        `http://192.168.120.64/React_Login_api/api/User/userEmailId?user_id=${email}`
+        `https://alkemcrm.com/salesapi/api/User/userEmailId?user_id=${email}`
       );
       const data = await response.data;
 
@@ -122,7 +124,7 @@ const LoginPage = () => {
         >
           <div className="text-center mb-4">
             <img
-              src={logo}
+              src={alkemLogo}
               alt="Company Logo"
               className="mb-3"
               style={{ width: '120px' }}

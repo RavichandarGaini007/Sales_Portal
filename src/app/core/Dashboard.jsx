@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Row, Col } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-//import { useFetch } from '../hooks/useFetch';
 import ScoreCard from '../components/ScoreCard';
 import HQPerformance from '../components/HQPerformance';
 import SaleablePieChart from '../components/SaleablePieChart';
@@ -13,12 +12,13 @@ import OrderTracking from '../components/OrderTracking';
 import TopPerformance from '../components/TopPerformance';
 import NewsAndInformation from '../components/NewsAndInformation';
 import AwardsDetailsCard from '../components/AwardsDetailsCard';
-import SalesDivBar from '../components/SalesDivBar';
 import SalesAchvTabs from '../components/SalesAchvTabs';
 import '../css/commonCss.css';
 import RegionPerformance from '../components/RegionPerformance';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
+import SalesDivs from '../components/SalesDivs';
+import Spinner from '../common/Spinner';
 
 //@TODO : move this request code out of component
 // const scoreCardReq = {
@@ -44,12 +44,6 @@ const Dashboard = () => {
   const { request } = useRequest();
 
   const navigate = useNavigate(); // Hook to navigate programmatically
-
-  // const { data: scData } = useFetch(apiUrls.SalesScData, scoreCardReq);
-  // const { data: salableData } = useFetch(
-  //   apiUrls.salesAchvdata,
-  //   salableNonSaleReq
-  // );
 
   useEffect(() => {
     // Fetch data from API
@@ -117,7 +111,7 @@ const Dashboard = () => {
                 <SalesAchvTabs />
               </Col>
               <Col lg="5" md="5" sm="5">
-                <SalesDivBar tableData={salableData} />
+                <SalesDivs tableData={salableData} />
               </Col>
             </Row>
             <Row className="mt-performace">
@@ -130,7 +124,9 @@ const Dashboard = () => {
             </Row>
             <Row className="mt-performace">
               <Col lg="6" md="6" sm="6">
-                <HQPerformance />
+                <Suspense fallback={<h1>🌀 Loading...</h1>}>
+                  <HQPerformance />
+                </Suspense>
               </Col>
               <Col lg="6" md="6" sm="6">
                 <RegionPerformance />

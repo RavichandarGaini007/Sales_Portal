@@ -1,7 +1,11 @@
 .txtLeft {
   text-align: left !important;
+}
+
+.txtLeftCursor {
+  text-align: left !important;
   cursor: pointer;
-  /* Left align text */
+  text-decoration: underline;
 }
 
 .thead-light {
@@ -31,4 +35,24 @@
   display: flex;
   justify-content: flex-end;
   /* Align the icon to the right */
+}
+
+.icons-style {
+  cursor: pointer;
+  font-size: 20px;
+  padding-left: 10px;
+}
+
+/* styles.css */
+.dropdown-content {
+  z-index: 9999; /* Adjust this value as needed */
+}
+
+.com-card-height {
+  height: 400px;
+}
+
+.com-card-body-height {
+  max-height: 300px;
+  overflow-y: auto;
 }

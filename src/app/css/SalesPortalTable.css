@@ -14,11 +14,13 @@ th,
 td {
   padding: 10px;
   text-align: center;
+  font-size: 12px !important;
 }
 
 th {
   background-color: #f8f9fa;
   font-weight: bold;
+  font-size: 12px !important;
 }
 
 .sticky-table thead th {

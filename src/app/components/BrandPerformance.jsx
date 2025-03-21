@@ -11,6 +11,7 @@ import {
   TabPane,
   Row,
   Col,
+  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
@@ -18,6 +19,10 @@ import { apiUrls, fetchApi } from '../lib/fetchApi';
 import BrandWiseReport from './BrandWiseReport';
 import ProductWiseReport from './ProductWiseReport';
 import { useRequest } from '../common/RequestContext';
+import { brandPerformanceHead } from '../lib/tableHead';
+import { downloadCSV } from '../lib/fileDownload';
+import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
+
 // const brandReq = {
 //   tbl_name: 'FTP_MAT_VAL_11_2024',
 //   empcode: '041406',
@@ -27,7 +32,6 @@ import { useRequest } from '../common/RequestContext';
 const BrandPerformance = () => {
   const flags = ['Achieve', 'Not Achieve', 'All'];
   const { request } = useRequest();
-  //const { data: brandData } = useFetch(apiUrls.BrandPerfmnceData, brandReq);
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
@@ -43,6 +47,11 @@ const BrandPerformance = () => {
     // Fetch data from API
     (async () => {
       if (request) {
+        setTabData((prvData) => ({
+          ...prvData,
+          [activeTab]: { ...prvData[activeTab], loading: true },
+        }));
+
         const opData = await fetchApi(apiUrls.BrandPerfmnceData, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
@@ -64,25 +73,6 @@ const BrandPerformance = () => {
 
   const activeTabData = tabData[activeTab].data;
 
-  // const funFillData = () => {
-  //   if (brandData) {
-  //     const achvGreaterThan100 = brandData?.data.filter(
-  //       (item) => item.achv >= 100
-  //     );
-  //     const achvLessThan100 = brandData?.data.filter((item) => item.achv < 100);
-
-  //     setTabData({
-  //       0: { data: achvGreaterThan100, loading: false, error: null },
-  //       1: { data: achvLessThan100, loading: false, error: null },
-  //       2: { data: brandData?.data, loading: false, error: null },
-  //     });
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   funFillData();
-  // }, [brandData]);
-
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
@@ -98,29 +88,96 @@ const BrandPerformance = () => {
     setRowModel(true);
   };
 
+  const downloadExcel = () => {
+    downloadCSV(
+      tabData[activeTab].data,
+      brandPerformanceHead,
+      'brandPerformance.csv'
+    ); ////working excel download
+  };
+
+  const renderTableBody = () => {
+    if (tabData[activeTab].loading) {
+      return (
+        <tr>
+          <td colSpan="8" style={{ textAlign: 'center' }}>
+            <Spinner color="primary" />;
+          </td>
+        </tr>
+      );
+    }
+
+    if (!activeTabData || activeTabData.length === 0) {
+      return (
+        <tr>
+          <td colSpan="5" style={{ textAlign: 'center' }}>
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return activeTabData.map((item, index) => (
+      <tr key={index}>
+        {brandPerformanceHead.map((column) => {
+          const value = item[column.accessorKey];
+          const isAchv = column.accessorKey === 'achv';
+
+          return (
+            <td key={`${item.id}-${column.accessorKey}`}>
+              {column.accessorKey === 'brand' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'achv' ? (
+                isAchv && value !== undefined ? (
+                  <span
+                    style={{
+                      color: item.achv >= 100 ? '#00d284' : 'red',
+                    }}
+                  >
+                    {value}%{' '}
+                    {value >= 100 ? (
+                      <i className="mdi mdi-arrow-up"></i>
+                    ) : (
+                      <i className="mdi mdi-arrow-down"></i>
+                    )}
+                  </span>
+                ) : null
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ));
+  };
+
   return (
     // <Col lg="7" md="6" sm="6">
     <>
-      <Card className="card-stats">
-        {/* <CardHeader>
-          <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-bar menu-icon" /> Brand Performance
-          </div>
-        </CardHeader> */}
+      <Card className="card-stats com-card-height">
         <CardHeader className="card-header-flex">
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> Brand Performance
           </div>
-          <div
-            className="icon-container"
-            onClick={toggleModal}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                toggleModal(); // Triggers the modal toggle on Enter or Space
-              }
-            }}
-          >
-            <i className="mdi mdi-view-list" />
+          <div className="card-icons ">
+            <span
+              className="mdi mdi-view-list icons-style"
+              onClick={toggleModal}
+            />
+            <span
+              className="mdi mdi-file-excel icons-style"
+              onClick={downloadExcel}
+            />
           </div>
         </CardHeader>
         <Nav tabs>
@@ -140,59 +197,45 @@ const BrandPerformance = () => {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <CardBody className="com-card-body-height">
+                {/* <Scrollbars
+                  style={{ height: '100%' }} // Define the height of the scrollable area
+                  autoHide // Automatically hide the scrollbar when not scrolling
+                  autoHideTimeout={1000} // Delay before hiding scrollbar
+                  autoHideDuration={200} // Duration of hiding animation
+                  renderThumbVertical={({ style, ...props }) => (
+                    <div
+                      {...props}
+                      style={{
+                        ...style,
+                        backgroundColor: '#6c63ff',
+                        borderRadius: '4px',
+                      }}
+                    />
+                  )}
+                > */}
                 <Row>
                   <Col>
                     <table className="table table-bordered">
                       <thead className="thead-light">
                         <tr>
-                          <th>Brand Code</th>
-                          <th className="txtLeft">Brand Name</th>
-                          <th>Gross Sale</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th>
+                          {brandPerformanceHead.map((column) => {
+                            const colClass =
+                              column.accessorKey === 'brand' ? 'txtLeft' : '';
+
+                            return (
+                              <th key={column.accessorKey} className={colClass}>
+                                {column.header}
+                              </th>
+                            );
+                          })}
                         </tr>
                       </thead>
-                      <tbody>
-                        {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
-                              <td>{item.mvgr1}</td>
-                              <td className="txtLeft">{item.brand}</td>
-                              <td>{item.gross_sale}</td>
-                              <td>{item.net_amt}</td>
-                              <td>{item.target}</td>
-                              <td
-                                style={{
-                                  color: item.achv >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.achv}%
-                                {item.achv >= 100 ? (
-                                  <i className="mdi mdi-arrow-up"></i>
-                                ) : (
-                                  <i className="mdi mdi-arrow-down"></i>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
+                      <tbody>{renderTableBody()}</tbody>
                     </table>
                   </Col>
                 </Row>
+                {/* </Scrollbars> */}
               </CardBody>
             </TabPane>
           </TabContent>

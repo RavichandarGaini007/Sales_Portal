@@ -66,7 +66,7 @@ const TopPerformance = () => {
 
   return (
     <Col lg="7" md="6" sm="6">
-      <Card className="card-stats" style={{ height: '395px' }}>
+      <Card className="card-stats com-card-height">
         <CardHeader>
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> Top Performance
@@ -89,7 +89,7 @@ const TopPerformance = () => {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <CardBody className="com-card-body-height">
                 <Row>
                   <Col>
                     <table className="table table-bordered">

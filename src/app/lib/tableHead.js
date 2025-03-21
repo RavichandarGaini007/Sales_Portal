@@ -28,6 +28,8 @@ export const Salescolumns = [
 ];
 
 export const divHqPopupColumns = [
+  { accessorKey: 'division1', header: 'Div' },
+  { accessorKey: 'name1', header: 'Div Name' },
   { accessorKey: 'vkbur', header: 'HQ' },
   { accessorKey: 'bezei', header: 'HQ NAME' },
   { accessorKey: 'msr', header: 'MSR' },
@@ -60,6 +62,8 @@ export const divHqPopupColumns = [
 ];
 
 export const divBrandPopupColumns = [
+  { accessorKey: 'division1', header: 'Div' },
+  { accessorKey: 'name1', header: 'Div Name' },
   { accessorKey: 'brand_code', header: 'BRAND CODE' },
   { accessorKey: 'brand_name', header: 'BRAND NAME' },
   { accessorKey: 'sale1', header: 'Gross Sale (A)' },
@@ -205,3 +209,41 @@ export const ProductReportColumns = [
   { accessorKey: 'v_lmtd1', header: 'LAST MONTH' },
   { accessorKey: 'v_lymtd1', header: 'LAST YEAR' },
 ]
+
+export const regioPerformanceHead = [
+  { accessorKey: 'regio', header: 'Region' },
+  { accessorKey: 'region_desc', header: 'Region Name' },
+  { accessorKey: 'netsales1', header: 'Net Sales' },
+  { accessorKey: 'net_amt1', header: 'Net Amount' },
+  { accessorKey: 'target1', header: 'Target' },
+  { accessorKey: 'achv', header: 'Ach(%)' },
+];
+
+export const brandPerformanceHead = [
+  { accessorKey: 'mvgr1', header: 'Brand Code' },
+  { accessorKey: 'brand', header: 'Brand Name' },
+  { accessorKey: 'gross_sale', header: 'Gross Sale' },
+  { accessorKey: 'net_amt', header: 'Net Amount' },
+  { accessorKey: 'target', header: 'Target' },
+  { accessorKey: 'achv', header: 'Ach(%)' },
+];
+
+export const hqPerformanceHead = [
+  { accessorKey: 'vkbur', header: 'Hq Code' },
+  { accessorKey: 'bezei', header: 'Hq Name' },
+  { accessorKey: 'msr', header: 'Msr' },
+  { accessorKey: 'for_ord', header: 'ScoreCard' },
+  { accessorKey: 'gross_sale', header: 'Gross Sale' },
+  { accessorKey: 'net_amt1', header: 'Net Amount' },
+  { accessorKey: 'target1', header: 'Target' },
+  { accessorKey: 'achv', header: 'Ach(%)' },
+];
+
+export const hierarchyPerformanceHead = [
+  { accessorKey: 'div', header: 'Division' },
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'scorecard', header: 'ScoreCard' },
+  { accessorKey: 'net_amount', header: 'Net Amount' },
+  { accessorKey: 'target', header: 'Target' },
+  { accessorKey: 'achv', header: 'Ach(%)' },
+];

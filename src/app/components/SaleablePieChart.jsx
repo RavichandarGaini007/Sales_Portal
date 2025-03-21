@@ -52,6 +52,16 @@ const SaleablePieChart = ({ tableData }) => {
         display: false,
         position: 'bottom',
       },
+      datalabels: {
+        color: '#fff', // Set the color of the data labels (white in this case)
+        font: {
+          weight: 'bold',
+          size: 14,
+        },
+        formatter: function (value) {
+          return value + '%'; // Append percentage to the label
+        },
+      },
     },
     maintainAspectRatio: false,
   };
@@ -66,7 +76,7 @@ const SaleablePieChart = ({ tableData }) => {
 
   return (
     // <Col lg="5" md="12" sm="12">
-    <Card className="card-stats" style={{ height: '318px' }}>
+    <Card className="card-stats" style={{ height: '220px' }}>
       {/* <CardHeader className="bg-primary text-white"> */}
       <CardHeader>
         <div className="stats card-title mb-0">

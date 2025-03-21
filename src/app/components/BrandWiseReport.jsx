@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PopupTableModal from '../common/PopupTableModal';
 import { divBrandPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
@@ -33,10 +33,10 @@ function BrandWiseReport({
   };
 
   const handleRowClick = (data) => {
-    if (isDrillEnable === true) {
+    if (isDrillEnable === true && rowData?.brand_code !== data.brand_code) {
       setrowData(data); // Store the clicked row's data
-      toggleModal(); // Open the modal
     }
+    if (isDrillEnable === true) toggleModal(); // Open the modal
   };
 
   const buildRequestParams = useCallback(() => {
@@ -55,14 +55,7 @@ function BrandWiseReport({
     <>
       <PopupTableModal
         url={apiUrls.DivBrandReportData}
-        request={{
-          ...request,
-          tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
-          div: divCode || null, // Check if divCode exists; if not, use div
-          brand: brandCode || null,
-          hq: hqCode || null,
-          plant: plantCode || null,
-        }}
+        request={buildRequestParams()}
         head={divBrandPopupColumns}
         headerName={headerName}
         state={popState.popBrandWise}
@@ -74,8 +67,8 @@ function BrandWiseReport({
           <Modal.Body>
             <ProductWiseReport
               headerName={rowData.brand_name}
-              brandCode={rowData?.brand_code}
-              divCode={divCode}
+              brandCode={rowData.brand_code}
+              divCode={rowData.division1}
             />
           </Modal.Body>
           <Modal.Footer>

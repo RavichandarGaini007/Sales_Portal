@@ -12,7 +12,8 @@ function App() {
     <div className="container-scroller">
       <div className="container-fluid page-body-wrapper">
         <Routes>
-          <Route path="" element={<LoginPage />}></Route>
+          <Route path="/" element={<LoginPage />}></Route>
+          <Route path="/login" element={<LoginPage />}></Route>
           {/* <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/salesdata" element={<SalesPortalData />}></Route>{' '}
           <Route path="/SalesPortal" element={<SalesPortalTable />}></Route> */}

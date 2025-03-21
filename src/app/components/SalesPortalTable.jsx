@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Table,
   Badge,
   Button,
-  FormGroup,
   Progress,
   Row,
   Col,
   Card,
+  Collapse,
+  Navbar,
+  NavbarToggler,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  UncontrolledPopover,
+  PopoverHeader,
+  PopoverBody,
+  ButtonGroup,
+  Popover,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap'; // Import Bootstrap components
 import '../css/SalesPortalTable.css';
@@ -23,7 +33,6 @@ import RegionWiseReport from './RegionWiseReport';
 import Widgets from './Widgets';
 import '../css/widget.css';
 import { useRequest } from '../common/RequestContext';
-import { MdHeight } from 'react-icons/md';
 
 // const salesReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -45,6 +54,12 @@ const SalesPortalTable = () => {
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [tblColsTgl, setTblColumns] = useState([]);
   const { request } = useRequest();
+  const [isOpen, setIsOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  // const [showPopover, setShowPopover] = useState(false);
+  // const popoverTargetRef = useRef(null);
+
+  const toggle = () => setIsOpen(!isOpen);
 
   useEffect(() => {
     //const storedRequest = JSON.parse(localStorage.getItem('commonRequest'));
@@ -57,7 +72,23 @@ const SalesPortalTable = () => {
         }
       }
     })();
+    setPopoverOpen(true);
+    setTimeout(() => {
+      setPopoverOpen(false);
+    }, 2000);
   }, [request]);
+
+  // useEffect(() => {
+  //   if (popoverTargetRef.current) {
+  //     setShowPopover(true);
+  //     const timer = setTimeout(() => {
+  //       setShowPopover(false); // Hide popover after 3 seconds
+  //     }, 3000);
+
+  //     // Clean up the timer
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, []);
 
   //const toggleRowModel = () => setRowModel((prev) => !prev);
 
@@ -118,8 +149,8 @@ const SalesPortalTable = () => {
     setTblColumns(selectedColumns);
   };
 
-  // Toggle the model visibility
-  const toggleModal = () => setShowModal(!showModal);
+  const handleMenuClick = (menuVal) => setDropdownSelection(menuVal);
+  const togglePopover = () => setPopoverOpen(!popoverOpen);
 
   return (
     <>
@@ -129,41 +160,117 @@ const SalesPortalTable = () => {
           <div className="content-wrapper pb-0">
             {/* Row for dropdowns on the same line */}
             <Widgets wdata={data} />
-            <Row className="mb-2">
-              <Col md="4" sm="12">
-                {/* Select dropdown for table type */}
-                <FormGroup>
-                  <label htmlFor="dropdownSelect">Select :-</label>
-                  <select
-                    id="dropdownSelect"
-                    className="form-select"
-                    value={dropdownSelection}
-                    onChange={(e) => setDropdownSelection(e.target.value)}
-                  >
-                    <option value="plantwise">Plant Wise</option>
-                    <option value="hqwise">HQ Wise</option>
-                    <option value="brandwise">Brand Wise</option>
-                    <option value="hwise">Hierarchical Wise</option>
-                    <option value="custwise">Customer Wise</option>
-                    <option value="regionwise">Region Wise</option>
-                  </select>
-                </FormGroup>
-              </Col>
-              <Col md="4" sm="12">
-                <FormGroup>
-                  <label htmlFor="dropdownSelect">Columns :-</label>
-                  <MultiSelectDropdown
-                    options={Salescolumns.map((col) => ({
-                      name: col.header,
-                      id: col.accessorKey,
-                    }))}
-                    displayValue="name"
-                    onSelect={handleTableColToggle}
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
+            <Row>
+              <Navbar expand="md">
+                <NavbarBrand href="#">Filters</NavbarBrand>
+                <NavbarToggler onClick={toggle} />
+                <Collapse isOpen={isOpen} navbar>
+                  <Nav className="me-auto" navbar>
+                    <NavItem>
+                      <ButtonGroup>
+                        <Button
+                          onClick={() => handleMenuClick('plantwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'plantwise'}
+                        >
+                          Plant Wise
+                        </Button>
 
+                        <Button
+                          onClick={() => handleMenuClick('hqwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'hqwise'}
+                        >
+                          HQ Wise
+                        </Button>
+
+                        <Button
+                          onClick={() => handleMenuClick('brandwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'brandwise'}
+                        >
+                          Brand Wise
+                        </Button>
+
+                        <Button
+                          onClick={() => handleMenuClick('hwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'hwise'}
+                        >
+                          Hierarchy Wise
+                        </Button>
+
+                        <Button
+                          onClick={() => handleMenuClick('custwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'custwise'}
+                        >
+                          Customer Wise
+                        </Button>
+
+                        <Button
+                          onClick={() => handleMenuClick('regionwise')}
+                          color="primary"
+                          outline
+                          active={dropdownSelection === 'regionwise'}
+                        >
+                          Region Wise
+                        </Button>
+                        <Button
+                          id="PopoverLegacy"
+                          type="button"
+                          onClick={togglePopover}
+                        >
+                          Columns
+                          <span className="mdi mdi-chevron-down"></span>
+                        </Button>
+                        <Popover
+                          placement="bottom"
+                          target="PopoverLegacy"
+                          isOpen={popoverOpen}
+                          toggle={() => setPopoverOpen(!popoverOpen)}
+                        >
+                          <PopoverHeader>Select Header</PopoverHeader>
+                          <PopoverBody>
+                            <MultiSelectDropdown
+                              options={Salescolumns.map((col) => ({
+                                name: col.header,
+                                id: col.accessorKey,
+                              }))}
+                              displayValue="name"
+                              onSelect={handleTableColToggle}
+                            />
+                          </PopoverBody>
+                        </Popover>
+                        {/* <UncontrolledPopover
+                          placement="bottom"
+                          target="PopoverLegacy"
+                          // trigger="legacy"
+                          trigger={showPopover ? 'focus' : 'legacy'}
+                        >
+                          <PopoverHeader>Select Headers</PopoverHeader>
+                          <PopoverBody>
+                            <MultiSelectDropdown
+                              options={Salescolumns.map((col) => ({
+                                name: col.header,
+                                id: col.accessorKey,
+                              }))}
+                              displayValue="name"
+                              onSelect={handleTableColToggle}
+                            />
+                          </PopoverBody>
+                        </UncontrolledPopover> */}
+                      </ButtonGroup>
+                    </NavItem>
+                  </Nav>
+                </Collapse>
+              </Navbar>
+            </Row>
             <Row className="">
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
               <Col lg="12" md="6" sm="6">
@@ -222,6 +329,7 @@ const SalesPortalTable = () => {
                                     style={{
                                       textAlign: 'left',
                                       cursor: 'pointer',
+                                      textDecoration: 'underline',
                                     }}
                                     onClick={() => handleDivNameClick(row)}
                                   >
@@ -230,6 +338,10 @@ const SalesPortalTable = () => {
                                 ) : col.accessorKey === 'net_amt' ? (
                                   <Badge
                                     color={getLabelColor(row[col.accessorKey])}
+                                    style={{
+                                      fontSize: '12px',
+                                      fontWeight: 'auto',
+                                    }}
                                   >
                                     {row[col.accessorKey].toLocaleString()}
                                   </Badge>

@@ -22,7 +22,7 @@ const SpeedometerCard = ({ data }) => {
     <Row style={{ paddingLeft: '15px' }} className="align-items-center">
       <Col sm="8" className="">
         <ReactSpeedometer
-          value={data?.achv ?? 0}
+          value={Math.min(data?.achv ?? 0, 100)}
           minValue={0}
           maxValue={100}
           needleColor="blue"
@@ -49,23 +49,26 @@ const SpeedometerCard = ({ data }) => {
           id="growthCard"
         >
           <Row className="text-center">
-            <Col>
-              <CardText tag="h6" className="fw-bold">
-                NET AMOUNT (E+H+K):
-              </CardText>
-              <CardText>{data?.net_amt ?? '0'}</CardText>
+            <Col md="12">
+              <p>
+                <b>NET AMOUNT :</b> {data?.net_amt ?? '0'}
+              </p>
+              {/* <CardText className="fw-bold">NET AMOUNT :</CardText>
+              <CardText>{data?.net_amt ?? '0'}</CardText> */}
             </Col>
             <Col>
-              <CardText tag="h6" className="fw-bold">
-                TARGET:
-              </CardText>
-              <CardText>{data?.target ?? '0'}</CardText>
+              <p>
+                <b>TARGET :</b> {data?.target ?? '0'}
+              </p>
+              {/* <CardText className="fw-bold">TARGET:</CardText>
+              <CardText>{data?.target ?? '0'}</CardText> */}
             </Col>
             <Col>
-              <CardText tag="h6" className="fw-bold">
-                ACH (%):
-              </CardText>
-              <CardText>{data?.achv ?? '0'}</CardText>
+              <p>
+                <b>ACH (%) :</b> {data?.achv ?? '0'}
+              </p>
+              {/* <CardText className="fw-bold">ACH (%):</CardText>
+              <CardText>{data?.achv ?? '0'}</CardText> */}
             </Col>
           </Row>
           <div style={{ color: 'rgb(13 59 135)' }}>

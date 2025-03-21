@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'; // Import Chart.js components
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // Register Chart.js components
 ChartJS.register(
@@ -18,7 +19,8 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
 
 const chartOptions = {
@@ -83,7 +85,7 @@ const UnconfirmedOrderChart = ({ tableData }) => {
           <i className="mdi mdi-chart-line menu-icon" /> Unconfirmed Order Chart
         </div>
       </CardHeader>
-      <CardBody>
+      <CardBody style={{ maxHeight: '300px' }}>
         {/* Here we define width and height for the chart  mdi mdi-clipboard-text menu-icon*/}
         <Bar data={data} options={chartOptions} width={300} height={190} />
       </CardBody>

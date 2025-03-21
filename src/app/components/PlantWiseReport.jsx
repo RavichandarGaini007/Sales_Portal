@@ -25,7 +25,9 @@ function PlantWiseReport({ headerName, divCode }) {
   };
 
   const handleRowClick = (data) => {
-    setrowData(data); // Store the clicked row's data
+    if (rowData?.werks !== data.werks) {
+      setrowData(data); // Store the clicked row's data
+    }
     toggleModal(); // Open the modal
   };
   return (

@@ -11,17 +11,15 @@ import {
   TabPane,
   Row,
   Col,
-  // Modal,
-  // ModalHeader,
-  // ModalBody,
-  // ModalFooter,
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
-//import { useFetch } from '../hooks/useFetch';
 import { Modal } from 'react-bootstrap';
 import HqWiseReport from './HqWiseReport';
 import { useRequest } from '../common/RequestContext';
-
+import HierarchyWiseReport from '../components/HierarchyWiseReport';
+import { hierarchyPerformanceHead } from '../lib/tableHead';
+import { downloadCSV } from '../lib/fileDownload';
+import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
 // const hierarReq = {
 //   tbl_name: 'FTP_MAT_VAL_11_2024',
 //   empcode: '041406',
@@ -33,11 +31,9 @@ import { useRequest } from '../common/RequestContext';
 const HierarchicalPerformanceTabs = () => {
   const flags = ['Achieve', 'Not Achieve', 'All'];
   const { request } = useRequest();
-  //const { data: herarData } = useFetch(apiUrls.SalesHierarchyDesg, hierarReq);
 
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
-  //const [selectedData, setSelectedData] = useState(null);
   const [desgVal, setDesgVal] = useState('ME');
   const [rowData, setrowData] = useState(null);
   const [rowModel, setRowModel] = useState(false);
@@ -52,7 +48,6 @@ const HierarchicalPerformanceTabs = () => {
     // Fetch data from API
     (async () => {
       if (request) {
-        //const opData = null;
         const opData = await fetchApi(apiUrls.SalesHierarchyDesg, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
@@ -72,23 +67,6 @@ const HierarchicalPerformanceTabs = () => {
     })();
   }, [request]);
 
-  // const funFillData = () => {
-  //   if (herarData) {
-  //     const achieve = herarData?.data.filter((item) => item.achv >= 100);
-  //     const notAchieve = herarData?.data.filter((item) => item.achv < 100);
-
-  //     setTabData({
-  //       0: { data: achieve, loading: false, error: null },
-  //       1: { data: notAchieve, loading: false, error: null },
-  //       2: { data: herarData?.data, loading: false, error: null },
-  //     });
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   funFillData();
-  // }, [herarData]);
-
   const activeTabData = desgVal
     ? tabData[activeTab]?.data?.filter((item) => item.desg === desgVal)
     : tabData[activeTab]?.data || [];
@@ -107,45 +85,109 @@ const HierarchicalPerformanceTabs = () => {
     setrowData(data);
     setRowModel(true);
   };
-  // const handleRowClick = (data) => {
-  //   setSelectedData(data);
-  //   toggleModal(); // Open the modal when a row is clicked
-  // };
 
   const onDropdownClick = (event) => {
     setDesgVal(event.target.value);
   };
 
+  const downloadExcel = () => {
+    downloadCSV(
+      tabData[activeTab].data,
+      hierarchyPerformanceHead,
+      'HierarchyPerformance.csv'
+    ); ////working excel download
+  };
+
+  const renderTableBody = () => {
+    if (!activeTabData || activeTabData.length === 0) {
+      return (
+        <tr>
+          <td colSpan="5" style={{ textAlign: 'center' }}>
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return activeTabData.map((item, index) => (
+      <tr key={index}>
+        {hierarchyPerformanceHead.map((column) => {
+          const value = item[column.accessorKey];
+          const isAchv = column.accessorKey === 'achv';
+
+          return (
+            <td key={`${item.id}-${column.accessorKey}`}>
+              {column.accessorKey === 'name' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'achv' ? (
+                isAchv && value !== undefined ? (
+                  <span
+                    style={{
+                      color: item.achv >= 100 ? '#00d284' : 'red',
+                    }}
+                  >
+                    {value}%{' '}
+                    {value >= 100 ? (
+                      <i className="mdi mdi-arrow-up"></i>
+                    ) : (
+                      <i className="mdi mdi-arrow-down"></i>
+                    )}
+                  </span>
+                ) : null
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ));
+  };
+
   return (
     <Col lg="12" md="6" sm="6">
-      <Card className="card-stats">
+      <Card className="card-stats com-card-height">
         <CardHeader>
           <div className="d-flex justify-content-between">
-            <div className="stats card-title mb-0">
+            <div
+              className="stats card-title mb-0"
+              style={{ alignContent: 'center' }}
+            >
               <i className="mdi mdi-chart-bar menu-icon" /> Hierarchical
               Performance
             </div>
 
-            <select
-              id="roleSelect"
-              style={{ maxWidth: '200px' }}
-              className="form-control"
-              value={desgVal}
-              onChange={onDropdownClick}
-            >
-              <option value="DSM">DSM</option>
-              <option value="RM">RM</option>
-              <option value="ME">ME</option>
-            </select>
-            <div
-              onClick={toggleModal}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  toggleModal(); // Triggers the modal toggle on Enter or Space
-                }
-              }}
-            >
-              <i className="mdi mdi-view-list" />
+            <div className="card-icons d-flex align-items-center">
+              <span>
+                <select
+                  id="roleSelect"
+                  style={{ maxWidth: '100px' }}
+                  className="form-control"
+                  value={desgVal}
+                  onChange={onDropdownClick}
+                >
+                  <option value="DSM">DSM</option>
+                  <option value="RM">RM</option>
+                  <option value="ME">ME</option>
+                </select>
+              </span>
+              <span
+                className="mdi mdi-view-list icons-style"
+                onClick={toggleModal}
+              />
+              <span
+                className="mdi mdi-file-excel icons-style"
+                onClick={downloadExcel}
+              />
             </div>
           </div>
         </CardHeader>
@@ -166,29 +208,58 @@ const HierarchicalPerformanceTabs = () => {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <CardBody className="com-card-body-height">
+                {/* <Scrollbars
+                  style={{ height: '100%' }} // Define the height of the scrollable area
+                  autoHide // Automatically hide the scrollbar when not scrolling
+                  autoHideTimeout={1000} // Delay before hiding scrollbar
+                  autoHideDuration={200} // Duration of hiding animation
+                  renderThumbVertical={({ style, ...props }) => (
+                    <div
+                      {...props}
+                      style={{
+                        ...style,
+                        backgroundColor: '#6c63ff',
+                        borderRadius: '4px',
+                      }}
+                    />
+                  )}
+                > */}
                 <Row>
                   <Col>
                     <table className="table table-bordered">
                       <thead className="thead-light">
                         <tr>
-                          <th className="txtLeft">Name</th>
+                          {hierarchyPerformanceHead.map((column) => {
+                            const colClass =
+                              column.accessorKey === 'name' ? 'txtLeft' : '';
+
+                            return (
+                              <th key={column.accessorKey} className={colClass}>
+                                {column.header}
+                              </th>
+                            );
+                          })}
+                          {/* <th className="txtLeft">Name</th>
                           <th>Scorecard</th>
                           <th>Net Amount</th>
                           <th>Target</th>
-                          <th>Ach(%)</th>
+                          <th>Ach(%)</th> */}
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody>{renderTableBody()}</tbody>
+                      {/* <tbody>
                         {activeTabData &&
                         Array.isArray(activeTabData) &&
                         activeTabData.length > 0 ? (
                           activeTabData.map((item, index) => (
-                            <tr
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
-                              <td className="txtLeft">{item.name}</td>
+                            <tr key={index}>
+                              <td
+                                className="txtLeft txtLeftCursor"
+                                onClick={() => handleRowClick(item)}
+                              >
+                                {item.name}
+                              </td>
                               <td>{item.scorecard}</td>
                               <td>{item.net_amount}</td>
                               <td>{item.target}</td>
@@ -213,10 +284,11 @@ const HierarchicalPerformanceTabs = () => {
                             </td>
                           </tr>
                         )}
-                      </tbody>
+                      </tbody> */}
                     </table>
                   </Col>
                 </Row>
+                {/* </Scrollbars> */}
               </CardBody>
             </TabPane>
           </TabContent>
@@ -227,6 +299,7 @@ const HierarchicalPerformanceTabs = () => {
             <HqWiseReport
               headerName={rowData?.name}
               misCode={rowData?.fsCode}
+              divCode={rowData?.div}
               isDrillEnable={false}
             />
           </Modal.Body>
@@ -237,38 +310,16 @@ const HierarchicalPerformanceTabs = () => {
           </Modal.Footer>
         </Modal>
 
-        {/*         
-        <Modal isOpen={modalOpen} toggle={toggleModal} fullscreen>
-          <ModalHeader toggle={toggleModal}>Performance Details</ModalHeader>
-          <ModalBody>
-            {selectedData ? (
-              <div>
-                <p>
-                  <strong>Name:</strong> {selectedData.name}
-                </p>
-                <p>
-                  <strong>Scorecard:</strong> {selectedData.scorecard}
-                </p>
-                <p>
-                  <strong>Net Amount:</strong> {selectedData.net_amount}
-                </p>
-                <p>
-                  <strong>Target:</strong> {selectedData.target}
-                </p>
-                <p>
-                  <strong>Achievement:</strong> {selectedData.achv}%
-                </p>
-              </div>
-            ) : (
-              <p>No data available</p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <button className="btn btn-secondary" onClick={toggleModal}>
+        <Modal show={modalOpen} onHide={toggleModal} fullscreen>
+          <Modal.Body>
+            <HierarchyWiseReport headerName="Hq Wise" isDrillEnable={true} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={toggleModal}>
               Close
-            </button>
-          </ModalFooter>
-        </Modal> */}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Card>
     </Col>
   );

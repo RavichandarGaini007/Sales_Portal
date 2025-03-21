@@ -21,7 +21,8 @@ export const fetchApiGet = async (url, config) => {
   }).then((resp) => resp.json());
 };
 
-export const API_REQUEST = "http://192.168.120.64/React_Login_api/api/Sales/";
+//export const API_REQUEST = "https://192.168.120.64/React_Login_api/api/Sales/";
+export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
 
 export const apiUrls = {
   salesdata: API_REQUEST + 'salesdata',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PopupTableModal from '../common/PopupTableModal';
 import { divHqPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
@@ -45,10 +45,13 @@ function HqWiseReport({
   };
 
   const handleRowClick = (data) => {
-    if (isDrillEnable === true) {
+    if (
+      isDrillEnable === true &&
+      (rowData?.vkbur !== data.vkbur || rowData?.division1 !== data.division1)
+    ) {
       setrowData(data); // Store the clicked row's data
-      toggleModal(); // Open the modal
     }
+    if (isDrillEnable === true) toggleModal(); // Open the modal
   };
 
   return (
@@ -69,7 +72,7 @@ function HqWiseReport({
             <CustomerWiseReport
               headerName={rowData.bezei}
               HqCode={rowData?.vkbur}
-              divCode={divCode}
+              divCode={rowData?.division1}
             />
           </Modal.Body>
           <Modal.Footer>

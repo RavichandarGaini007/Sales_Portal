@@ -70,7 +70,7 @@ const OrderTracking = () => {
 
   return (
     <Col lg="5" md="6" sm="6">
-      <Card className="card-stats" style={{ height: '395px' }}>
+      <Card className="card-stats com-card-height">
         <CardHeader>
           <div className="d-flex justify-content-between">
             <div className="stats card-title mb-0">
@@ -122,7 +122,7 @@ const OrderTracking = () => {
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="1">
-            <CardBody>
+            <CardBody className="com-card-body-height">
               <Row>
                 <Col>
                   <table className="table table-bordered">
@@ -150,7 +150,7 @@ const OrderTracking = () => {
         </TabContent>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="2">
-            <CardBody>
+            <CardBody className="com-card-body-height">
               <Row>
                 <Col>
                   <table className="table table-bordered">
@@ -178,7 +178,7 @@ const OrderTracking = () => {
         </TabContent>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="3">
-            <CardBody>
+            <CardBody className="com-card-body-height">
               <Row>
                 <Col>
                   <table className="table table-bordered">

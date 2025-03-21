@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -11,13 +11,17 @@ import {
   TabPane,
   Row,
   Col,
+  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import HqWiseReport from './HqWiseReport';
 import CustomerWiseReport from './CustomerWiseReport';
-import { exportToExcel } from '../lib/fileDownload';
+import { downloadCSV } from '../lib/fileDownload';
 import { useRequest } from '../common/RequestContext';
+import { hqPerformanceHead } from '../lib/tableHead';
+// import Spinner from '../common/Spinner';
+import BouncingLoader from '../common/BouncingLoader';
 
 const HQPerformance = () => {
   const flags = ['Achieve', 'Not Achieve', 'All'];
@@ -39,6 +43,11 @@ const HQPerformance = () => {
     //if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
 
     if (request) {
+      setTabData((prvData) => ({
+        ...prvData,
+        [activeTab]: { ...prvData[activeTab], loading: true },
+      }));
+
       (async () => {
         const opData = await fetchApi(apiUrls.SalesDivHQ, {
           ...request,
@@ -59,42 +68,6 @@ const HQPerformance = () => {
     }
   }, [request]);
 
-  // const fetchData = useCallback(async (tabIndex) => {
-  //   setTabData((prevState) => ({
-  //     ...prevState,
-  //     [tabIndex]: { ...prevState[tabIndex], loading: true },
-  //   }));
-
-  //   try {
-  //     const opData = await fetchApi(apiUrls.SalesDivHQ, req);
-  //     const allData = opData.data;
-  //     const achvGreaterThan100 = allData.filter((item) => item.ach >= 100);
-  //     const achvLessThan100 = allData.filter((item) => item.ach < 100);
-
-  //     setTabData((prevState) => ({
-  //       ...prevState,
-  //       0: { data: achvGreaterThan100, loading: false, error: null },
-  //       1: { data: achvLessThan100, loading: false, error: null },
-  //       2: { data: allData, loading: false, error: null },
-  //     }));
-  //   } catch (error) {
-  //     setTabData((prevState) => ({
-  //       ...prevState,
-  //       [tabIndex]: { ...prevState[tabIndex], loading: false, error },
-  //     }));
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   if (tabData[activeTab]?.data || tabData[activeTab]?.loading) {
-  //     return; // If data is available or loading, do nothing
-  //   }
-
-  //   if (!tabData[activeTab].data && !tabData[activeTab].loading) {
-  //     fetchData(activeTab);
-  //   }
-  // }, []);
-
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
       setActiveTab(tab);
@@ -111,36 +84,105 @@ const HQPerformance = () => {
   };
 
   const downloadExcel = () => {
-    exportToExcel(tabData[activeTab].data); ////working excel download
+    downloadCSV(
+      tabData[activeTab].data,
+      hqPerformanceHead,
+      'HqPerformance.csv'
+    ); ////working excel download
+  };
+
+  const renderTableBody = () => {
+    // if (tabData[activeTab].loading) {
+    //   return <Spinner />;
+    // }
+
+    // {
+    //   tabData[activeTab].loading && (
+    //     <Spinner isLoading={true} color="primary" />
+    //   );
+    // }
+
+    // if (tabData[activeTab].loading) {
+    //   return (
+    //     <tr>
+    //       <td colSpan="8" style={{ textAlign: 'center' }}>
+    //         <Spinner color="primary" />;
+    //       </td>
+    //     </tr>
+    //   );
+    // }
+
+    if (!activeTabData || activeTabData.length === 0) {
+      return (
+        <tr>
+          <td colSpan="5" style={{ textAlign: 'center' }}>
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return activeTabData.map((item, index) => (
+      <tr key={index}>
+        {hqPerformanceHead.map((column) => {
+          const value = item[column.accessorKey];
+          const isAchv = column.accessorKey === 'achv';
+
+          return (
+            <td key={`${item.id}-${column.accessorKey}`}>
+              {column.accessorKey === 'bezei' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'achv' ? (
+                isAchv && value !== undefined ? (
+                  <span
+                    style={{
+                      color: item.achv >= 100 ? '#00d284' : 'red',
+                    }}
+                  >
+                    {value}%{' '}
+                    {value >= 100 ? (
+                      <i className="mdi mdi-arrow-up"></i>
+                    ) : (
+                      <i className="mdi mdi-arrow-down"></i>
+                    )}
+                  </span>
+                ) : null
+              ) : (
+                value
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ));
   };
 
   return (
-    // <Col lg="7" md="6" sm="6">
     <>
-      <Card className="card-stats">
+      <Card className="card-stats com-card-height">
         <CardHeader className="card-header-flex">
-          <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-bar menu-icon" /> HQ Performance
+          <div
+            className="stats card-title mb-0"
+            style={{ alignContent: 'center' }}
+          >
+            <i className="mdi mdi-chart-bar menu-icon " /> HQ Performance
           </div>
-          {/* <div
-            className="icon-container"
-            onClick={toggleModal}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                toggleModal(); // Triggers the modal toggle on Enter or Space
-              }
-            }}
-          ></div> */}
-
-          <div className="card-icons">
+          <div className="card-icons ">
             <span
-              className="mdi mdi-view-list"
-              style={{ cursor: 'pointer', padding: '5px' }}
+              className="mdi mdi-view-list icons-style"
               onClick={toggleModal}
             />
             <span
-              className="mdi mdi-file-excel"
-              style={{ cursor: 'pointer', padding: '5px' }}
+              className="mdi mdi-file-excel icons-style"
               onClick={downloadExcel}
             />
           </div>
@@ -179,63 +221,36 @@ const HQPerformance = () => {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          <th>HQ</th>
-                          <th className="txtLeft">HQ Name</th>
-                          <th>MSR</th>
-                          <th>ScoreCard</th>
-                          <th>Gross Sale</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr
-                              key={index}
-                              onClick={() => handleRowClick(item)}
-                            >
-                              <td>{item.vkbur}</td>
-                              <td className="txtLeft">{item.bezei}</td>
-                              <td>{item.msr}</td>
-                              <td>{item.for_ord}</td>
-                              <td>{item.gross_sale}</td>
-                              <td>{item.net_amt1}</td>
-                              <td>{item.target1}</td>
-                              <td
-                                style={{
-                                  color: item.achv >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.achv}%
-                                {item.achv >= 100 ? (
-                                  <i className="mdi mdi-arrow-up"></i>
-                                ) : (
-                                  <i className="mdi mdi-arrow-down"></i>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
+              <CardBody className="com-card-body-height">
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  // <Spinner color="primary" />
+                  <Row>
+                    <Col>
+                      <table className="table table-bordered">
+                        <thead className="thead-light">
                           <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
+                            {hqPerformanceHead.map((column) => {
+                              const colClass =
+                                column.accessorKey === 'bezei' ? 'txtLeft' : '';
+
+                              return (
+                                <th
+                                  key={column.accessorKey}
+                                  className={colClass}
+                                >
+                                  {column.header}
+                                </th>
+                              );
+                            })}
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </Col>
-                </Row>
+                        </thead>
+                        <tbody>{renderTableBody()}</tbody>
+                      </table>
+                    </Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           </TabContent>
@@ -267,7 +282,6 @@ const HQPerformance = () => {
         </Modal.Footer>
       </Modal>
     </>
-    //</Col >
   );
 };
 

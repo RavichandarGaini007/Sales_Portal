@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PopupTableModal from '../common/PopupTableModal';
 import { divCustPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
@@ -9,7 +9,7 @@ import { useRequest } from '../common/RequestContext';
 
 function CustomerWiseReport({ headerName, HqCode, divCode }) {
   const [modalOpen, setModalOpen] = useState(true);
-  const [customerData, setCustomerData] = useState(null);
+  const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
 
   //   const requestData = {
@@ -26,31 +26,38 @@ function CustomerWiseReport({ headerName, HqCode, divCode }) {
   };
 
   const handleRowClick = (data) => {
-    setCustomerData(data); // Store the clicked row's data
+    if (rowData?.kunnr !== data.kunnr) {
+      setrowData(data); // Store the clicked row's data
+    }
     toggleModal(); // Open the modal
   };
+
+  const buildRequestParams = useCallback(() => {
+    const params = { ...request };
+
+    if (divCode) params.div = divCode;
+    if (HqCode) params.hq = HqCode;
+
+    return params;
+  }, [request, divCode, HqCode]);
 
   return (
     <>
       <PopupTableModal
         url={apiUrls.DivCustReportData}
-        request={{
-          ...request,
-          hq: HqCode || null,
-          div: divCode || null,
-        }}
+        request={buildRequestParams()}
         head={divCustPopupColumns}
         headerName={headerName}
         state={popState.popCustWise}
         //onRowClick={(data) => <CustInvoiceReport headerName={data.mvgr1} />}
         onRowClick={handleRowClick}
       />
-      {customerData && (
+      {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
           <Modal.Body>
             <CustInvoiceReport
-              headerName={customerData.name1}
-              custCode={customerData.kunnr}
+              headerName={rowData.name1}
+              custCode={rowData.kunnr}
             />
           </Modal.Body>
           <Modal.Footer>
