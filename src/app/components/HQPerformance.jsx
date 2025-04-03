@@ -11,7 +11,6 @@ import {
   TabPane,
   Row,
   Col,
-  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
@@ -20,7 +19,6 @@ import CustomerWiseReport from './CustomerWiseReport';
 import { downloadCSV } from '../lib/fileDownload';
 import { useRequest } from '../common/RequestContext';
 import { hqPerformanceHead } from '../lib/tableHead';
-// import Spinner from '../common/Spinner';
 import BouncingLoader from '../common/BouncingLoader';
 
 const HQPerformance = () => {
@@ -225,7 +223,6 @@ const HQPerformance = () => {
                 {tabData[activeTab].loading ? (
                   <BouncingLoader />
                 ) : (
-                  // <Spinner color="primary" />
                   <Row>
                     <Col>
                       <table className="table table-bordered">

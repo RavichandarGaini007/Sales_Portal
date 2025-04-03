@@ -33,6 +33,7 @@ import RegionWiseReport from './RegionWiseReport';
 import Widgets from './Widgets';
 import '../css/widget.css';
 import { useRequest } from '../common/RequestContext';
+import BouncingLoader from '../common/BouncingLoader';
 
 // const salesReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -56,6 +57,7 @@ const SalesPortalTable = () => {
   const { request } = useRequest();
   const [isOpen, setIsOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // const [showPopover, setShowPopover] = useState(false);
   // const popoverTargetRef = useRef(null);
 
@@ -66,9 +68,11 @@ const SalesPortalTable = () => {
     // Fetch data from API
     (async () => {
       if (request) {
+        setIsLoading(true);
         const opData = await fetchApi(apiUrls.salesdata, request);
         if (opData && opData.data) {
           setData(opData.data);
+          setIsLoading(false);
         }
       }
     })();
@@ -151,6 +155,85 @@ const SalesPortalTable = () => {
 
   const handleMenuClick = (menuVal) => setDropdownSelection(menuVal);
   const togglePopover = () => setPopoverOpen(!popoverOpen);
+
+  const renderTableBody = () => {
+    if (!data || data.length === 0) {
+      return (
+        <tr>
+          <td colSpan={tblColsTgl.length} style={{ textAlign: 'center' }}>
+            No data available
+          </td>
+        </tr>
+      );
+    }
+
+    return data.map((row) => (
+      <tr key={row.id}>
+        {Salescolumns.filter((c) =>
+          tblColsTgl.some((s) => s.id === c.accessorKey)
+        ).map((col) => {
+          const colClass =
+            col.accessorKey === 'division' || col.accessorKey === 'name'
+              ? 'sticky-column'
+              : '';
+
+          return (
+            <td key={`${row.id}-${col.accessorKey}`} className={colClass}>
+              {col.accessorKey === 'name' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleDivNameClick(row)}
+                >
+                  {row[col.accessorKey]}
+                </div>
+              ) : col.accessorKey === 'net_amt' ? (
+                <Badge
+                  color={getLabelColor(row[col.accessorKey])}
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 'auto',
+                  }}
+                >
+                  {row[col.accessorKey].toLocaleString()}
+                </Badge>
+              ) : col.accessorKey === 'achv' ? (
+                <div style={{ position: 'relative' }}>
+                  <Progress
+                    value={row[col.accessorKey]}
+                    color={getLabelColor(row[col.accessorKey])}
+                  />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      left: '50%',
+                      transform: 'translate(-50%, 0)',
+                      color: 'black',
+                      fontWeight: 'bold',
+                      paddingTop: '2px',
+                    }}
+                  >
+                    {row[col.accessorKey]}%
+                    {row[col.accessorKey] >= 100 ? (
+                      <i className="mdi mdi-arrow-up"></i>
+                    ) : (
+                      <i className="mdi mdi-arrow-down"></i>
+                    )}
+                  </span>
+                </div>
+              ) : (
+                row[col.accessorKey]
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ));
+  };
 
   return (
     <>
@@ -275,113 +358,44 @@ const SalesPortalTable = () => {
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
               <Col lg="12" md="6" sm="6">
                 <Card className="card-stats" style={{ height: '500px' }}>
-                  <Table
-                    bordered
-                    hover
-                    responsive
-                    className="text-center sticky-table"
-                  >
-                    <thead className="thead-dark">
-                      <tr>
-                        {/* {Salescolumns.map((col) => (
+                  {isLoading ? (
+                    <BouncingLoader />
+                  ) : (
+                    <Table
+                      bordered
+                      hover
+                      responsive
+                      className="text-center sticky-table"
+                    >
+                      <thead className="thead-dark">
+                        <tr>
+                          {/* {Salescolumns.map((col) => (
                           <th key={col.accessorKey}>{col.header}</th>
                         ))} */}
-                        {Salescolumns.filter((c) =>
-                          tblColsTgl.some((s) => s.id === c.accessorKey)
-                        ).map((col) => {
-                          const colClass =
-                            col.accessorKey === 'division' ||
-                            col.accessorKey === 'name'
-                              ? 'sticky-column-twocol'
-                              : '';
-
-                          return (
-                            <th
-                              key={col.accessorKey}
-                              style={{ textAlign: 'left' }}
-                              className={colClass}
-                            >
-                              {col.header}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.map((row) => (
-                        <tr key={row.id}>
                           {Salescolumns.filter((c) =>
                             tblColsTgl.some((s) => s.id === c.accessorKey)
                           ).map((col) => {
                             const colClass =
                               col.accessorKey === 'division' ||
                               col.accessorKey === 'name'
-                                ? 'sticky-column'
+                                ? 'sticky-column-twocol'
                                 : '';
 
                             return (
-                              <td
-                                key={`${row.id}-${col.accessorKey}`}
+                              <th
+                                key={col.accessorKey}
+                                style={{ textAlign: 'left' }}
                                 className={colClass}
                               >
-                                {col.accessorKey === 'name' ? (
-                                  <div
-                                    style={{
-                                      textAlign: 'left',
-                                      cursor: 'pointer',
-                                      textDecoration: 'underline',
-                                    }}
-                                    onClick={() => handleDivNameClick(row)}
-                                  >
-                                    {row[col.accessorKey]}
-                                  </div>
-                                ) : col.accessorKey === 'net_amt' ? (
-                                  <Badge
-                                    color={getLabelColor(row[col.accessorKey])}
-                                    style={{
-                                      fontSize: '12px',
-                                      fontWeight: 'auto',
-                                    }}
-                                  >
-                                    {row[col.accessorKey].toLocaleString()}
-                                  </Badge>
-                                ) : col.accessorKey === 'achv' ? (
-                                  <div style={{ position: 'relative' }}>
-                                    <Progress
-                                      value={row[col.accessorKey]}
-                                      color={getLabelColor(
-                                        row[col.accessorKey]
-                                      )}
-                                    />
-                                    <span
-                                      style={{
-                                        position: 'absolute',
-                                        top: '0',
-                                        left: '50%',
-                                        transform: 'translate(-50%, 0)',
-                                        color: 'black',
-                                        fontWeight: 'bold',
-                                        paddingTop: '2px',
-                                      }}
-                                    >
-                                      {row[col.accessorKey]}%
-                                      {row[col.accessorKey] >= 100 ? (
-                                        <i className="mdi mdi-arrow-up"></i>
-                                      ) : (
-                                        <i className="mdi mdi-arrow-down"></i>
-                                      )}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  row[col.accessorKey]
-                                )}
-                              </td>
+                                {col.header}
+                              </th>
                             );
                           })}
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+                      </thead>
+                      <tbody>{renderTableBody()}</tbody>
+                    </Table>
+                  )}
                 </Card>
               </Col>
             </Row>

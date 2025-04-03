@@ -13,6 +13,7 @@ import {
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
+import BouncingLoader from '../common/BouncingLoader';
 
 // const perfReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -25,9 +26,9 @@ const TopPerformance = () => {
   const flags = ['Customer', 'Barnd', 'Hq'];
   const [activeTab, setActiveTab] = useState(0);
   const [tabData, setTabData] = useState({
-    0: { data: null, loading: false, error: null },
-    1: { data: null, loading: false, error: null },
-    2: { data: null, loading: false, error: null },
+    0: { data: null, loading: false, error: null, request: null },
+    1: { data: null, loading: false, error: null, request: null },
+    2: { data: null, loading: false, error: null, request: null },
   });
   const { request } = useRequest();
 
@@ -36,27 +37,60 @@ const TopPerformance = () => {
   useEffect(() => {
     const currentFlag = flags[activeTab];
 
-    //if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
-
-    if (request) {
-      (async () => {
-        setTabData((prevData) => ({
-          ...prevData,
-          [activeTab]: { ...prevData[activeTab], loading: true },
-        }));
-        const opData = await fetchApi(apiUrls.SalesTopPerformance, {
-          ...request,
-          flag: currentFlag,
-        });
-        if (!tabData[activeTab].data && !tabData[activeTab].loading) {
+    if (
+      request &&
+      (!tabData[activeTab]?.data || tabData[activeTab].request !== request)
+    ) {
+      if (!tabData[activeTab].loading) {
+        (async () => {
           setTabData((prevData) => ({
             ...prevData,
-            [activeTab]: { data: opData.data, loading: false, error: null },
+            [activeTab]: { ...prevData[activeTab], loading: true, request },
           }));
-        }
-      })();
+          const opData = await fetchApi(apiUrls.SalesTopPerformance, {
+            ...request,
+            flag: currentFlag,
+          });
+
+          if (opData && opData.data) {
+            setTabData((prevData) => ({
+              ...prevData,
+              [activeTab]: {
+                data: opData.data,
+                loading: false,
+                error: null,
+                request,
+              },
+            }));
+          }
+        })();
+      }
     }
   }, [activeTab, request]);
+
+  // useEffect(() => {
+  //   const currentFlag = flags[activeTab];
+
+  //   if (!tabData[activeTab].loading && request) {
+  //     (async () => {
+  //       setTabData((prevData) => ({
+  //         ...prevData,
+  //         [activeTab]: { ...prevData[activeTab], loading: true },
+  //       }));
+  //       const opData = await fetchApi(apiUrls.SalesTopPerformance, {
+  //         ...request,
+  //         flag: currentFlag,
+  //       });
+
+  //       if (opData && opData.data) {
+  //         setTabData((prevData) => ({
+  //           ...prevData,
+  //           [activeTab]: { data: opData.data, loading: false, error: null },
+  //         }));
+  //       }
+  //     })();
+  //   }
+  // }, [activeTab, request]);
 
   const toggleTab = (tab) => {
     if (activeTab !== tab) {
@@ -90,53 +124,57 @@ const TopPerformance = () => {
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
               <CardBody className="com-card-body-height">
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          <th className="txtLeft">{tab} Name</th>
-                          <th>Gross Sale</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr key={index}>
-                              <td className="txtLeft">{item.name}</td>
-                              <td>{item.gross_sale}</td>
-                              <td>{item.net_amt}</td>
-                              <td>{item.target}</td>
-                              <td
-                                style={{
-                                  color: item.achv >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.achv}%
-                                {item.achv >= 100 ? (
-                                  <i className="mdi mdi-arrow-up"></i>
-                                ) : (
-                                  <i className="mdi mdi-arrow-down"></i>
-                                )}
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  <Row>
+                    <Col>
+                      <table className="table table-bordered">
+                        <thead className="thead-light">
+                          <tr>
+                            <th className="txtLeft">{tab} Name</th>
+                            <th>Gross Sale</th>
+                            <th>Net Amount</th>
+                            <th>Target</th>
+                            <th>Ach(%)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {activeTabData &&
+                          Array.isArray(activeTabData) &&
+                          activeTabData.length > 0 ? (
+                            activeTabData.map((item, index) => (
+                              <tr key={index}>
+                                <td className="txtLeft">{item.name}</td>
+                                <td>{item.gross_sale}</td>
+                                <td>{item.net_amt}</td>
+                                <td>{item.target}</td>
+                                <td
+                                  style={{
+                                    color: item.achv >= 100 ? '#00d284' : 'red',
+                                  }}
+                                >
+                                  {item.achv}%
+                                  {item.achv >= 100 ? (
+                                    <i className="mdi mdi-arrow-up"></i>
+                                  ) : (
+                                    <i className="mdi mdi-arrow-down"></i>
+                                  )}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan="5" style={{ textAlign: 'center' }}>
+                                No data available
                               </td>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </Col>
-                </Row>
+                          )}
+                        </tbody>
+                      </table>
+                    </Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           </TabContent>

@@ -11,17 +11,15 @@ import {
   TabPane,
   Row,
   Col,
-  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
-//import { useFetch } from '../hooks/useFetch';
 import BrandWiseReport from './BrandWiseReport';
 import ProductWiseReport from './ProductWiseReport';
 import { useRequest } from '../common/RequestContext';
 import { brandPerformanceHead } from '../lib/tableHead';
 import { downloadCSV } from '../lib/fileDownload';
-import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
+import BouncingLoader from '../common/BouncingLoader';
 
 // const brandReq = {
 //   tbl_name: 'FTP_MAT_VAL_11_2024',
@@ -97,16 +95,6 @@ const BrandPerformance = () => {
   };
 
   const renderTableBody = () => {
-    if (tabData[activeTab].loading) {
-      return (
-        <tr>
-          <td colSpan="8" style={{ textAlign: 'center' }}>
-            <Spinner color="primary" />;
-          </td>
-        </tr>
-      );
-    }
-
     if (!activeTabData || activeTabData.length === 0) {
       return (
         <tr>
@@ -198,44 +186,34 @@ const BrandPerformance = () => {
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
               <CardBody className="com-card-body-height">
-                {/* <Scrollbars
-                  style={{ height: '100%' }} // Define the height of the scrollable area
-                  autoHide // Automatically hide the scrollbar when not scrolling
-                  autoHideTimeout={1000} // Delay before hiding scrollbar
-                  autoHideDuration={200} // Duration of hiding animation
-                  renderThumbVertical={({ style, ...props }) => (
-                    <div
-                      {...props}
-                      style={{
-                        ...style,
-                        backgroundColor: '#6c63ff',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  )}
-                > */}
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          {brandPerformanceHead.map((column) => {
-                            const colClass =
-                              column.accessorKey === 'brand' ? 'txtLeft' : '';
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  <Row>
+                    <Col>
+                      <table className="table table-bordered">
+                        <thead className="thead-light">
+                          <tr>
+                            {brandPerformanceHead.map((column) => {
+                              const colClass =
+                                column.accessorKey === 'brand' ? 'txtLeft' : '';
 
-                            return (
-                              <th key={column.accessorKey} className={colClass}>
-                                {column.header}
-                              </th>
-                            );
-                          })}
-                        </tr>
-                      </thead>
-                      <tbody>{renderTableBody()}</tbody>
-                    </table>
-                  </Col>
-                </Row>
-                {/* </Scrollbars> */}
+                              return (
+                                <th
+                                  key={column.accessorKey}
+                                  className={colClass}
+                                >
+                                  {column.header}
+                                </th>
+                              );
+                            })}
+                          </tr>
+                        </thead>
+                        <tbody>{renderTableBody()}</tbody>
+                      </table>
+                    </Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           </TabContent>

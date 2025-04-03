@@ -19,7 +19,8 @@ import { useRequest } from '../common/RequestContext';
 import HierarchyWiseReport from '../components/HierarchyWiseReport';
 import { hierarchyPerformanceHead } from '../lib/tableHead';
 import { downloadCSV } from '../lib/fileDownload';
-import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
+import BouncingLoader from '../common/BouncingLoader';
+
 // const hierarReq = {
 //   tbl_name: 'FTP_MAT_VAL_11_2024',
 //   empcode: '041406',
@@ -48,6 +49,11 @@ const HierarchicalPerformanceTabs = () => {
     // Fetch data from API
     (async () => {
       if (request) {
+        setTabData((prvData) => ({
+          ...prvData,
+          [activeTab]: { ...prvData[activeTab], loading: true },
+        }));
+
         const opData = await fetchApi(apiUrls.SalesHierarchyDesg, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
@@ -209,46 +215,36 @@ const HierarchicalPerformanceTabs = () => {
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
               <CardBody className="com-card-body-height">
-                {/* <Scrollbars
-                  style={{ height: '100%' }} // Define the height of the scrollable area
-                  autoHide // Automatically hide the scrollbar when not scrolling
-                  autoHideTimeout={1000} // Delay before hiding scrollbar
-                  autoHideDuration={200} // Duration of hiding animation
-                  renderThumbVertical={({ style, ...props }) => (
-                    <div
-                      {...props}
-                      style={{
-                        ...style,
-                        backgroundColor: '#6c63ff',
-                        borderRadius: '4px',
-                      }}
-                    />
-                  )}
-                > */}
-                <Row>
-                  <Col>
-                    <table className="table table-bordered">
-                      <thead className="thead-light">
-                        <tr>
-                          {hierarchyPerformanceHead.map((column) => {
-                            const colClass =
-                              column.accessorKey === 'name' ? 'txtLeft' : '';
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  <Row>
+                    <Col>
+                      <table className="table table-bordered">
+                        <thead className="thead-light">
+                          <tr>
+                            {hierarchyPerformanceHead.map((column) => {
+                              const colClass =
+                                column.accessorKey === 'name' ? 'txtLeft' : '';
 
-                            return (
-                              <th key={column.accessorKey} className={colClass}>
-                                {column.header}
-                              </th>
-                            );
-                          })}
-                          {/* <th className="txtLeft">Name</th>
+                              return (
+                                <th
+                                  key={column.accessorKey}
+                                  className={colClass}
+                                >
+                                  {column.header}
+                                </th>
+                              );
+                            })}
+                            {/* <th className="txtLeft">Name</th>
                           <th>Scorecard</th>
                           <th>Net Amount</th>
                           <th>Target</th>
                           <th>Ach(%)</th> */}
-                        </tr>
-                      </thead>
-                      <tbody>{renderTableBody()}</tbody>
-                      {/* <tbody>
+                          </tr>
+                        </thead>
+                        <tbody>{renderTableBody()}</tbody>
+                        {/* <tbody>
                         {activeTabData &&
                         Array.isArray(activeTabData) &&
                         activeTabData.length > 0 ? (
@@ -285,10 +281,10 @@ const HierarchicalPerformanceTabs = () => {
                           </tr>
                         )}
                       </tbody> */}
-                    </table>
-                  </Col>
-                </Row>
-                {/* </Scrollbars> */}
+                      </table>
+                    </Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           </TabContent>

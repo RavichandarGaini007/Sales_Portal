@@ -11,17 +11,14 @@ import {
   TabPane,
   Row,
   Col,
-  Spinner,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
-//import { useFetch } from '../hooks/useFetch';
 import RegionWiseReport from './RegionWiseReport';
 import HqWiseReport from './HqWiseReport';
 import { useRequest } from '../common/RequestContext';
 import { downloadCSV } from '../lib/fileDownload';
 import { regioPerformanceHead } from '../lib/tableHead';
-import { Scrollbars } from 'react-custom-scrollbars-2'; // Import slim scroll component
 import BouncingLoader from '../common/BouncingLoader';
 
 // const regionReq = {
@@ -203,7 +200,6 @@ function RegionPerformance() {
                 {tabData[activeTab].loading ? (
                   <BouncingLoader />
                 ) : (
-                  // <Spinner color="primary" />
                   <Row>
                     <Col>
                       <table className="table table-bordered">
@@ -224,54 +220,9 @@ function RegionPerformance() {
                                 </th>
                               );
                             })}
-
-                            {/* <th>Region</th>
-                          <th className="txtLeft ">Region Name</th>
-                          <th>Net Sale</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th> */}
                           </tr>
                         </thead>
                         <tbody>{renderTableBody()}</tbody>
-                        {/* <tbody>
-                        {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr key={index}>
-                              <td>{item.regio}</td>
-                              <td
-                                className="txtLeft txtLeftCursor"
-                                onClick={() => handleRowClick(item)}
-                              >
-                                {item.region_desc}
-                              </td>
-                              <td>{item.netsales1}</td>
-                              <td>{item.net_amt1}</td>
-                              <td>{item.target1}</td>
-                              <td
-                                style={{
-                                  color: item.achv >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.achv}%
-                                {item.achv >= 100 ? (
-                                  <i className="mdi mdi-arrow-up"></i>
-                                ) : (
-                                  <i className="mdi mdi-arrow-down"></i>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody> */}
                       </table>
                     </Col>
                   </Row>
