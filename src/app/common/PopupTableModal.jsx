@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-//import { useFetch } from '../hooks/useFetch';
 import { fetchApi } from '../lib/fetchApi';
 import {
   Button,
@@ -13,22 +12,22 @@ import {
   TabPane,
   Row,
   Col,
-  Spinner,
 } from 'reactstrap';
 import { exportToExcel } from '../lib/fileDownload';
+import BouncingLoader from '../common/BouncingLoader';
+import '../css/PopupCard.css';
 
 const PopupTableModal = ({
   url,
   request,
   head,
   headerName,
-  state,
+  state, //// further use for download file name
   onRowClick,
-  modalState,
+  onCloseClick,
 }) => {
   const [activeTab, setActiveTab] = useState(2);
   const [renderComp, setRenderComp] = useState(null);
-  //const [modalOpen, setModalOpen] = useState(true);
 
   const flags = ['Achieve', 'Not Achieve', 'All'];
 
@@ -40,6 +39,11 @@ const PopupTableModal = ({
 
   useEffect(() => {
     (async () => {
+      setTabData((prvData) => ({
+        ...prvData,
+        [activeTab]: { ...prvData[activeTab], loading: true },
+      }));
+
       const opData = await fetchApi(url, request);
       if (opData && opData.data) {
         const achvGreaterThan100 = opData.data.filter(
@@ -60,12 +64,6 @@ const PopupTableModal = ({
     if (activeTab !== tab) setActiveTab(tab);
   };
 
-  // const toggleModal = () => {
-  //   //setModalOpen((prev) => !prev);
-  //   setModalOpen(false);
-  //   //modalState = 'false';
-  // }
-
   const handleRowClick = (data) => {
     if (onRowClick && typeof onRowClick === 'function') {
       const comp = onRowClick(data);
@@ -73,57 +71,72 @@ const PopupTableModal = ({
     }
   };
 
+  // const renderTable = (data) => {
+  //   return (
+  //     <table className="table table-bordered">
+  //       {data && Array.isArray(data) && data.length > 0 ? (
+  //         <>
+  //           <thead className="thead-light">
+  //             <tr>
+  //               {head.map((column) => (
+  //                 <th key={column.accessorKey}>{column.header}</th>
+  //               ))}
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             {data.map((item, index) => (
+  //               <tr
+  //                 // key={index}
+  //                 key={`${item.id}-${index}`}
+  //                 onClick={() => {
+  //                   handleRowClick(item);
+  //                 }}
+  //               >
+  //                 {head.map((column) => {
+  //                   const value = item[column.accessorKey];
+  //                   const isAchv = column.accessorKey === 'achv';
+  //                   return (
+  //                     <td
+  //                       key={`${item.id}-${column.accessorKey}`}
+  //                       style={{
+  //                         color:
+  //                           isAchv && value >= 100
+  //                             ? '#00d284'
+  //                             : isAchv
+  //                               ? 'red'
+  //                               : undefined,
+  //                       }}
+  //                     >
+  //                       {value}
+  //                       {isAchv && value >= 100 ? (
+  //                         <i className="mdi mdi-arrow-up"></i>
+  //                       ) : isAchv && value ? (
+  //                         <i className="mdi mdi-arrow-down"></i>
+  //                       ) : undefined}
+  //                     </td>
+  //                   );
+  //                 })}
+  //               </tr>
+  //             ))}
+  //           </tbody>
+  //         </>
+  //       ) : (
+  //         <tbody>
+  //           <tr>
+  //             <td colSpan="5" style={{ textAlign: 'center' }}>
+  //               No data available
+  //             </td>
+  //           </tr>
+  //         </tbody>
+  //       )}
+  //     </table>
+  //   );
+  // };
+
   const renderTable = (data) => {
-    return (
-      <table className="table table-bordered">
-        {data && Array.isArray(data) && data.length > 0 ? (
-          <>
-            <thead className="thead-light">
-              <tr>
-                {head.map((column) => (
-                  <th key={column.accessorKey}>{column.header}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, index) => (
-                <tr
-                  // key={index}
-                  key={`${item.id}-${index}`}
-                  onClick={() => {
-                    handleRowClick(item);
-                  }}
-                >
-                  {head.map((column) => {
-                    const value = item[column.accessorKey];
-                    const isAchv = column.accessorKey === 'achv';
-                    return (
-                      <td
-                        // key={column.accessorKey}
-                        key={`${item.id}-${column.accessorKey}`}
-                        style={{
-                          color:
-                            isAchv && value >= 100
-                              ? '#00d284'
-                              : isAchv
-                                ? 'red'
-                                : undefined,
-                        }}
-                      >
-                        {value}
-                        {isAchv && value >= 100 ? (
-                          <i className="mdi mdi-arrow-up"></i>
-                        ) : isAchv && value ? (
-                          <i className="mdi mdi-arrow-down"></i>
-                        ) : undefined}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </>
-        ) : (
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return (
+        <table className="table table-bordered">
           <tbody>
             <tr>
               <td colSpan="5" style={{ textAlign: 'center' }}>
@@ -131,13 +144,85 @@ const PopupTableModal = ({
               </td>
             </tr>
           </tbody>
-        )}
+        </table>
+      );
+    }
+
+    const isClickableColumn = (accessorKey) =>
+      ['name', 'bezei', 'plant', 'name1'].includes(accessorKey);
+
+    const getColorStyle = (isAchv, value) => {
+      if (isAchv) {
+        return value >= 100 ? '#00d284' : 'red';
+      }
+      return undefined;
+    };
+
+    const renderCellContent = (column, value, item, isAchv, isTotal) => {
+      return (
+        <div
+          style={{
+            textAlign: 'left',
+            cursor: isClickableColumn(column.accessorKey)
+              ? 'pointer'
+              : 'default',
+            textDecoration: isClickableColumn(column.accessorKey)
+              ? 'underline'
+              : 'default',
+          }}
+          onClick={
+            isTotal || !isClickableColumn(column.accessorKey)
+              ? null
+              : () => handleRowClick(item)
+          }
+        >
+          {value}
+          {isAchv && value >= 100 ? (
+            <i className="mdi mdi-arrow-up"></i>
+          ) : isAchv && value ? (
+            <i className="mdi mdi-arrow-down"></i>
+          ) : undefined}
+        </div>
+      );
+    };
+
+    return (
+      <table className="table table-bordered">
+        <thead className="thead-light">
+          <tr>
+            {head.map((column) => (
+              <th key={column.accessorKey}>{column.header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={`${item.id}-${index}`}>
+              {head.map((column) => {
+                const value = item[column.accessorKey];
+                const isAchv = column.accessorKey === 'achv';
+                const colorStyle = getColorStyle(isAchv, value);
+                const isTotal =
+                  item[column.accessorKey] === 'Grand Total' ?? false;
+
+                return (
+                  <td
+                    key={`${item.id}-${column.accessorKey}`}
+                    style={{ color: colorStyle }}
+                  >
+                    {renderCellContent(column, value, item, isAchv, isTotal)}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
       </table>
     );
   };
 
   const downloadExcel = () => {
-    exportToExcel(tabData[activeTab].data);
+    exportToExcel(tabData[activeTab].data, head, state + '.xlsx');
   };
 
   return (
@@ -147,15 +232,20 @@ const PopupTableModal = ({
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
           </div>
-          <div className="card-icons">
+          <div className="card-icons"></div>
+          <div>
             <span
               className="mdi mdi-download"
-              style={{ cursor: 'pointer', padding: '5px' }}
+              style={{ cursor: 'pointer', padding: '5px', fontSize: 'x-large' }}
               onClick={downloadExcel}
+            />
+            <span
+              className="mdi mdi-close"
+              style={{ cursor: 'pointer', padding: '5px', fontSize: 'x-large' }}
+              onClick={onCloseClick}
             />
           </div>
         </CardHeader>
-
         <Nav tabs>
           {flags.map((flag, index) => (
             <NavItem key={index}>
@@ -169,14 +259,17 @@ const PopupTableModal = ({
             </NavItem>
           ))}
         </Nav>
-
         <TabContent activeTab={activeTab}>
           {flags.map((_, index) => (
             <TabPane tabId={index} key={index}>
-              <CardBody style={{ overflowY: 'auto' }}>
-                <Row>
-                  <Col>{renderTable(tabData[index].data)}</Col>
-                </Row>
+              <CardBody className="popCardBody">
+                {tabData[activeTab].loading ? (
+                  <BouncingLoader />
+                ) : (
+                  <Row>
+                    <Col>{renderTable(tabData[index].data)}</Col>
+                  </Row>
+                )}
               </CardBody>
             </TabPane>
           ))}

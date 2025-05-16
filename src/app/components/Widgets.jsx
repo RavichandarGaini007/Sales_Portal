@@ -114,7 +114,7 @@ const Widgets = ({ wdata }) => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">
@@ -153,7 +153,7 @@ const Widgets = ({ wdata }) => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 stretch-card">
+        <div className="col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6 stretch-card">
           <div className="card card-statistics">
             <div className="card-body">
               <div className="clearfix">

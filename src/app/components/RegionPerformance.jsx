@@ -131,7 +131,9 @@ function RegionPerformance() {
                     cursor: 'pointer',
                     textDecoration: 'underline',
                   }}
-                  onClick={() => handleRowClick(item)}
+                  onClick={
+                    value.includes('total') ? null : () => handleRowClick(item)
+                  }
                 >
                   {value}
                 </div>
@@ -239,24 +241,15 @@ function RegionPerformance() {
             headerName={rowData?.region_desc}
             regionCode={rowData?.regio}
             isDrillEnable={false}
+            onClose={toggleRowModel}
           />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleRowModel}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       <Modal show={modalOpen} onHide={toggleModal} fullscreen>
         <Modal.Body>
-          <RegionWiseReport headerName="Region Wise" />
+          <RegionWiseReport headerName="Region Wise" onClose={toggleModal} />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleModal}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
     // </Col >

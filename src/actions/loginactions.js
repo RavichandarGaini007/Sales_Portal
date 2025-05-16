@@ -9,10 +9,11 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post(API_REQUEST + 'login', {
         emailid: page.emailid,
         password: page.password,
+        keepSignIn: page.keepSignIn
       });
       const result = await response.data;
       if (result.token) {
-        localStorage.setItem('token', JSON.stringify(result.token));
+        localStorage.setItem('token', result.token);
       }
       // else{
       //   return rejectWithValue(result.message);

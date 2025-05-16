@@ -4,21 +4,13 @@ import { divPlantPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import HqWiseReport from './HqWiseReport';
 import { Modal } from 'react-bootstrap';
-import { Button } from 'reactstrap';
+// import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
-function PlantWiseReport({ headerName, divCode }) {
+function PlantWiseReport({ headerName, divCode, onClose }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
-
-  // const requestData = {
-  //   tbl_name: 'FTP_11_2024',
-  //   empcode: '041406',
-  //   div: '23',
-  //   month: '11',
-  //   year: '2024',
-  // };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -32,8 +24,6 @@ function PlantWiseReport({ headerName, divCode }) {
   };
   return (
     <>
-      {/* <Modal show={modalOpen} fullscreen>
-        <Modal.Body> */}
       <PopupTableModal
         url={apiUrls.DivPlantReportData}
         request={{ ...request, div: divCode }}
@@ -41,6 +31,7 @@ function PlantWiseReport({ headerName, divCode }) {
         headerName={headerName}
         state={popState.popPlantWise}
         onRowClick={handleRowClick}
+        onCloseClick={onClose}
       />
       {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
@@ -50,13 +41,14 @@ function PlantWiseReport({ headerName, divCode }) {
               isDrillEnable={true}
               plantCode={rowData.werks}
               divCode={divCode}
+              onClose={toggleModal}
             />
           </Modal.Body>
-          <Modal.Footer>
+          {/* <Modal.Footer>
             <Button variant="secondary" onClick={toggleModal}>
               Close
             </Button>
-          </Modal.Footer>
+          </Modal.Footer> */}
         </Modal>
       )}
     </>

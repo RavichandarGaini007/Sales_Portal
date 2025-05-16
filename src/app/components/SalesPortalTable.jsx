@@ -110,6 +110,7 @@ const SalesPortalTable = () => {
             headerName={rowData.name}
             divCode={rowData.division}
             isDrillEnable={true}
+            onClose={handleHideModel}
           />
         ),
         brandwise: (
@@ -117,32 +118,40 @@ const SalesPortalTable = () => {
             headerName={rowData.name}
             divCode={rowData.division}
             isDrillEnable={true}
+            onClose={handleHideModel}
           />
         ),
         hwise: (
           <HierarchyWiseReport
             headerName={rowData.name}
             divCode={rowData.division}
+            onClose={handleHideModel}
           />
         ),
         plantwise: (
           <PlantWiseReport
             headerName={rowData.name}
             divCode={rowData.division}
+            onClose={handleHideModel}
           />
         ),
         custwise: (
           <CustomerWiseReport
             headerName={rowData.name}
             divCode={rowData.division}
+            onClose={handleHideModel}
           />
         ),
         regionwise: (
           <RegionWiseReport
             headerName={rowData.name}
             divCode={rowData.division}
+            onClose={handleHideModel}
           />
         ),
+        // dashboard: (
+        //   // open new tab to display div wise dashboard
+        // ),
       };
 
       return components[dropdownSelection] || null;
@@ -151,6 +160,10 @@ const SalesPortalTable = () => {
 
   const handleTableColToggle = (selectedColumns) => {
     setTblColumns(selectedColumns);
+  };
+
+  const handleHideModel = () => {
+    setShowModal(false);
   };
 
   const handleMenuClick = (menuVal) => setDropdownSelection(menuVal);
@@ -185,6 +198,7 @@ const SalesPortalTable = () => {
                     textAlign: 'left',
                     cursor: 'pointer',
                     textDecoration: 'underline',
+                    fontStyle: 'bold',
                   }}
                   onClick={() => handleDivNameClick(row)}
                 >
@@ -212,7 +226,7 @@ const SalesPortalTable = () => {
                       top: '0',
                       left: '50%',
                       transform: 'translate(-50%, 0)',
-                      color: 'black',
+                      color: row[col.accessorKey] < 50 ? 'black' : 'white',
                       fontWeight: 'bold',
                       paddingTop: '2px',
                     }}
@@ -249,88 +263,98 @@ const SalesPortalTable = () => {
                 <NavbarToggler onClick={toggle} />
                 <Collapse isOpen={isOpen} navbar>
                   <Nav className="me-auto" navbar>
-                    <NavItem>
-                      <ButtonGroup>
-                        <Button
-                          onClick={() => handleMenuClick('plantwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'plantwise'}
-                        >
-                          Plant Wise
-                        </Button>
+                    <NavItem className="w-100">
+                      <div className="responsive-button-group">
+                        <ButtonGroup className="flex-wrap d-flex">
+                          <Button
+                            onClick={() => handleMenuClick('plantwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'plantwise'}
+                          >
+                            Plant Wise
+                          </Button>
 
-                        <Button
-                          onClick={() => handleMenuClick('hqwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'hqwise'}
-                        >
-                          HQ Wise
-                        </Button>
+                          <Button
+                            onClick={() => handleMenuClick('hqwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'hqwise'}
+                          >
+                            HQ Wise
+                          </Button>
 
-                        <Button
-                          onClick={() => handleMenuClick('brandwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'brandwise'}
-                        >
-                          Brand Wise
-                        </Button>
+                          <Button
+                            onClick={() => handleMenuClick('brandwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'brandwise'}
+                          >
+                            Brand Wise
+                          </Button>
 
-                        <Button
-                          onClick={() => handleMenuClick('hwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'hwise'}
-                        >
-                          Hierarchy Wise
-                        </Button>
+                          <Button
+                            onClick={() => handleMenuClick('hwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'hwise'}
+                          >
+                            Hierarchy Wise
+                          </Button>
 
-                        <Button
-                          onClick={() => handleMenuClick('custwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'custwise'}
-                        >
-                          Customer Wise
-                        </Button>
+                          <Button
+                            onClick={() => handleMenuClick('custwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'custwise'}
+                          >
+                            Customer Wise
+                          </Button>
 
-                        <Button
-                          onClick={() => handleMenuClick('regionwise')}
-                          color="primary"
-                          outline
-                          active={dropdownSelection === 'regionwise'}
-                        >
-                          Region Wise
-                        </Button>
-                        <Button
-                          id="PopoverLegacy"
-                          type="button"
-                          onClick={togglePopover}
-                        >
-                          Columns
-                          <span className="mdi mdi-chevron-down"></span>
-                        </Button>
-                        <Popover
-                          placement="bottom"
-                          target="PopoverLegacy"
-                          isOpen={popoverOpen}
-                          toggle={() => setPopoverOpen(!popoverOpen)}
-                        >
-                          <PopoverHeader>Select Header</PopoverHeader>
-                          <PopoverBody>
-                            <MultiSelectDropdown
-                              options={Salescolumns.map((col) => ({
-                                name: col.header,
-                                id: col.accessorKey,
-                              }))}
-                              displayValue="name"
-                              onSelect={handleTableColToggle}
-                            />
-                          </PopoverBody>
-                        </Popover>
-                        {/* <UncontrolledPopover
+                          <Button
+                            onClick={() => handleMenuClick('regionwise')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'regionwise'}
+                          >
+                            Region Wise
+                          </Button>
+
+                          <Button
+                            onClick={() => handleMenuClick('dashboard')}
+                            color="primary"
+                            outline
+                            active={dropdownSelection === 'dashboard'}
+                          >
+                            Dashboard View
+                          </Button>
+                          <Button
+                            id="PopoverLegacy"
+                            type="button"
+                            onClick={togglePopover}
+                          >
+                            Columns
+                            <span className="mdi mdi-chevron-down"></span>
+                          </Button>
+                          <Popover
+                            placement="bottom"
+                            target="PopoverLegacy"
+                            isOpen={popoverOpen}
+                            toggle={() => setPopoverOpen(!popoverOpen)}
+                          >
+                            <PopoverHeader>Select Header</PopoverHeader>
+                            <PopoverBody>
+                              <MultiSelectDropdown
+                                options={Salescolumns.map((col) => ({
+                                  name: col.header,
+                                  id: col.accessorKey,
+                                }))}
+                                displayValue="name"
+                                onSelect={handleTableColToggle}
+                              />
+                            </PopoverBody>
+                          </Popover>
+                          {/* <UncontrolledPopover
                           placement="bottom"
                           target="PopoverLegacy"
                           // trigger="legacy"
@@ -348,7 +372,8 @@ const SalesPortalTable = () => {
                             />
                           </PopoverBody>
                         </UncontrolledPopover> */}
-                      </ButtonGroup>
+                        </ButtonGroup>
+                      </div>
                     </NavItem>
                   </Nav>
                 </Collapse>
@@ -356,7 +381,7 @@ const SalesPortalTable = () => {
             </Row>
             <Row className="">
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
-              <Col lg="12" md="6" sm="6">
+              <Col lg="12" md="12" sm="12">
                 <Card className="card-stats" style={{ height: '500px' }}>
                   {isLoading ? (
                     <BouncingLoader />
@@ -403,8 +428,6 @@ const SalesPortalTable = () => {
         </div>
       </div>
 
-      {/* {rowModel && modelComp()} */}
-
       {/* Modal for displaying the selected data */}
       <Modal
         show={showModal}
@@ -412,11 +435,11 @@ const SalesPortalTable = () => {
         fullscreen={true} // Enables full-window modal
       >
         <Modal.Body>{modelComp()}</Modal.Body>
-        <Modal.Footer>
+        {/* <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
       </Modal>
     </>
   );

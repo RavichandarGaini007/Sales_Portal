@@ -297,24 +297,19 @@ const HierarchicalPerformanceTabs = () => {
               misCode={rowData?.fsCode}
               divCode={rowData?.div}
               isDrillEnable={false}
+              onClose={toggleRowModel}
             />
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={toggleRowModel}>
-              Close
-            </Button>
-          </Modal.Footer>
         </Modal>
 
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
           <Modal.Body>
-            <HierarchyWiseReport headerName="Hq Wise" isDrillEnable={true} />
+            <HierarchyWiseReport
+              headerName="Hq Wise"
+              isDrillEnable={true}
+              onClose={toggleModal}
+            />
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={toggleModal}>
-              Close
-            </Button>
-          </Modal.Footer>
         </Modal>
       </Card>
     </Col>

@@ -6,7 +6,7 @@ import { Modal } from 'react-bootstrap';
 import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
-function ProductWiseReport({ headerName, brandCode, divCode }) {
+function ProductWiseReport({ headerName, brandCode, divCode, onClose }) {
   const { request } = useRequest();
 
   //   const requestData = {
@@ -37,6 +37,7 @@ function ProductWiseReport({ headerName, brandCode, divCode }) {
         head={ProductReportColumns}
         headerName={headerName}
         state={popState.popProductWise}
+        onCloseClick={onClose}
       />
     </>
   );

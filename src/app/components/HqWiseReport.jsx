@@ -4,7 +4,7 @@ import { divHqPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import CustomerWiseReport from './CustomerWiseReport';
 import { Modal } from 'react-bootstrap';
-import { Button } from 'reactstrap';
+// import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
 function HqWiseReport({
@@ -15,6 +15,7 @@ function HqWiseReport({
   divCode,
   regionCode,
   misCode,
+  onClose,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
@@ -31,14 +32,6 @@ function HqWiseReport({
 
     return params;
   }, [request, plantCode, divCode, hqCode, regionCode, misCode]);
-
-  // const requestData = {
-  //   tbl_name: 'FTP_11_2024',
-  //   empcode: '041406',
-  //   div: '23',
-  //   month: '11',
-  //   year: '2024',
-  // };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -62,9 +55,8 @@ function HqWiseReport({
         head={divHqPopupColumns}
         headerName={headerName}
         state={popState.popHqWise}
-        // onRowClick={(data) => <CustomerWiseReport headerName={data.bezei} />}
         onRowClick={handleRowClick}
-        modalState={true}
+        onCloseClick={onClose}
       />
       {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
@@ -73,13 +65,14 @@ function HqWiseReport({
               headerName={rowData.bezei}
               HqCode={rowData?.vkbur}
               divCode={rowData?.division1}
+              onClose={toggleModal}
             />
           </Modal.Body>
-          <Modal.Footer>
+          {/* <Modal.Footer>
             <Button variant="secondary" onClick={toggleModal}>
               Close
             </Button>
-          </Modal.Footer>
+          </Modal.Footer> */}
         </Modal>
       )}
     </>

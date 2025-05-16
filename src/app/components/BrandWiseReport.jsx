@@ -4,7 +4,7 @@ import { divBrandPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import ProductWiseReport from './ProductWiseReport';
 import { Modal } from 'react-bootstrap';
-import { Button } from 'reactstrap';
+//import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
 function BrandWiseReport({
@@ -14,19 +14,11 @@ function BrandWiseReport({
   hqCode,
   plantCode,
   divCode,
+  onClose,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
-
-  //   const requestData = {
-  //     tbl_name: 'FTP_MAT_VAL_11_2024',
-  //     empcode: '041406',
-  //     div: '23',
-  //     month: '11',
-  //     year: '2024',
-  //     brand: BrandCode,
-  //   };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -59,8 +51,8 @@ function BrandWiseReport({
         head={divBrandPopupColumns}
         headerName={headerName}
         state={popState.popBrandWise}
-        //onRowClick={(data) => <ProductWiseReport headerName={data.brand_name} />}
         onRowClick={handleRowClick}
+        onCloseClick={onClose}
       />
       {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
@@ -69,13 +61,14 @@ function BrandWiseReport({
               headerName={rowData.brand_name}
               brandCode={rowData.brand_code}
               divCode={rowData.division1}
+              onClose={toggleModal}
             />
           </Modal.Body>
-          <Modal.Footer>
+          {/* <Modal.Footer>
             <Button variant="secondary" onClick={toggleModal}>
               Close
             </Button>
-          </Modal.Footer>
+          </Modal.Footer> */}
         </Modal>
       )}
     </>

@@ -5,38 +5,38 @@ const initialState = {
   data: [],
   isLoading: false,
   errorMessage: "",
-  isAuthorized:false
+  isAuthorized: false
 };
 export const loginSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     logout: (state) => {
-      localStorage.removeItem('token') // deletes token from storage
+      //localStorage.removeItem('token') // deletes token from storage
       state.isLoading = false
       // state.data = []
       state.errorMessage = ""
-      state.isAuthorized=false
+      state.isAuthorized = false
     },
   },
   extraReducers: (builder) => {
-    builder 
-       .addCase(loginUser.pending, (state, action) => {
+    builder
+      .addCase(loginUser.pending, (state, action) => {
         state.isLoading = true;
-        state.isAuthorized=false;
+        state.isAuthorized = false;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.data=action.payload;
-        state.isAuthorized=true;
+        state.data = action.payload;
+        state.isAuthorized = true;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.errorMessage = action.payload;
-        state.isAuthorized=false;
+        state.isAuthorized = false;
       });
   },
 });
 export const { logout } = loginSlice.actions
 
-  export default loginSlice.reducer;
+export default loginSlice.reducer;

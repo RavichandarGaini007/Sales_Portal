@@ -70,6 +70,8 @@ const Navbar = () => {
           data?.data[0]?.enetsale === 'ALL'
         ) {
           setAllDivs([...resdata, { div: 'ALL', name: 'ALL' }]);
+        } else {
+          setAllDivs(resdata);
         }
       })
       .catch((error) => {
@@ -121,16 +123,31 @@ const Navbar = () => {
   };
 
   const genRequest = () => {
+    const today = new Date();
+    let mnth = month;
+    let yr = year;
+
+    if (today.getDate() < 5) {
+      mnth -= 1;
+      if (mnth === 0) {
+        mnth = 12;
+        yr -= 1;
+      }
+
+      setMonth(mnth);
+      setYear(yr);
+    }
+
     const comReq = {
-      tbl_name: 'FTP_' + month + '_' + year,
+      tbl_name: 'FTP_' + mnth + '_' + yr,
       empcode: data?.data[0]?.userid,
       div:
         selected.length === divisions.length &&
         data?.data[0]?.enetsale === 'ALL'
           ? data?.data[0]?.enetsale
           : Array(selected.map((items) => items.value)).join(','),
-      month: month.toString(),
-      year: year.toString(),
+      month: mnth.toString(),
+      year: yr.toString(),
       flag: 'monthly',
     };
     //console.log(comReq);

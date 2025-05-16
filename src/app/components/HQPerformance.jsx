@@ -259,24 +259,19 @@ const HQPerformance = () => {
           <CustomerWiseReport
             headerName={rowData?.bezei}
             HqCode={rowData?.vkbur}
+            onClose={toggleRowModel}
           />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleRowModel}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       <Modal show={modalOpen} onHide={toggleModal} fullscreen>
         <Modal.Body>
-          <HqWiseReport headerName="Hq Wise" isDrillEnable={true} />
+          <HqWiseReport
+            headerName="Hq Wise"
+            isDrillEnable={true}
+            onClose={toggleModal}
+          />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleModal}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
   );

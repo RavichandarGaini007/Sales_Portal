@@ -227,24 +227,15 @@ const BrandPerformance = () => {
           <ProductWiseReport
             headerName={rowData?.brand}
             brandCode={rowData?.mvgr1}
+            onClose={toggleRowModel}
           />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleRowModel}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       <Modal show={modalOpen} onHide={toggleModal} fullscreen>
         <Modal.Body>
-          <BrandWiseReport headerName="Brand Wise" />
+          <BrandWiseReport headerName="Brand Wise" onClose={toggleModal} />
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={toggleModal}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     </>
     // </Col>

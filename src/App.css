@@ -22873,7 +22873,7 @@ dl li {
 
 @media (max-width: 991px) {
   .page-body-wrapper {
-    padding-top: 70px;
+    padding-top: 20px;
   }
 }
 
@@ -25159,8 +25159,13 @@ dl li {
 
 @media (min-width: 1200px) {
   .content-wrapper {
-    max-width: 1200px;
+    max-width: 1335px;
   }
+  /* added by rg for menu width */
+  .container {
+    max-width: 1310px !important;
+  }
+
   /* hide bottom filter for desktop view */
   .bottom-filter {
     display: none !important;
@@ -25174,7 +25179,7 @@ dl li {
 
 @media (max-width: 991px) {
   .page-body-wrapper {
-    padding-top: 70px;
+    padding-top: 30px;
     /* Assuming $horizontal-top-navbar-height is 70px */
   }
   /* display bottom filter for mobile view */

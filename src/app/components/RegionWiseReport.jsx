@@ -4,22 +4,13 @@ import { RegionReportColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import HqWiseReport from './HqWiseReport';
 import { Modal } from 'react-bootstrap';
-import { Button } from 'reactstrap';
+// import { Button } from 'reactstrap';
 import { useRequest } from '../common/RequestContext';
 
-function RegionWiseReport({ headerName, divCode }) {
+function RegionWiseReport({ headerName, divCode, onClose }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
-
-  // const requestData = {
-  //   tbl_name: 'FTP_MAT_VAL_11_2024',
-  //   empcode: '041406',
-  //   div: '01',
-  //   month: '11',
-  //   year: '2024',
-  //   // brand: '231',
-  // };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -53,6 +44,7 @@ function RegionWiseReport({ headerName, divCode }) {
         headerName={headerName}
         state={popState.popRegionWise}
         onRowClick={handleRowClick}
+        onCloseClick={onClose}
       />
       {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
@@ -62,13 +54,14 @@ function RegionWiseReport({ headerName, divCode }) {
               regionCode={rowData?.regio}
               divCode={divCode}
               isDrillEnable={false}
+              onClose={toggleModal}
             />
           </Modal.Body>
-          <Modal.Footer>
+          {/* <Modal.Footer>
             <Button variant="secondary" onClick={toggleModal}>
               Close
             </Button>
-          </Modal.Footer>
+          </Modal.Footer> */}
         </Modal>
       )}
     </>

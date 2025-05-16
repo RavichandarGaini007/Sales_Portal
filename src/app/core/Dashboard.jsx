@@ -20,24 +20,6 @@ import { useRequest } from '../common/RequestContext';
 import SalesDivs from '../components/SalesDivs';
 import Spinner from '../common/Spinner';
 
-//@TODO : move this request code out of component
-// const scoreCardReq = {
-//   tbl_name: 'FTP_MAT_VAL_11_2024',
-//   empcode: '041406',
-//   div: '23',
-//   month: '11',
-//   year: '2024',
-// };
-
-// const salableNonSaleReq = {
-//   tbl_name: 'FTP_11_2024',
-//   empcode: '041406',
-//   div: '23,01,07,49,28',
-//   month: '11',
-//   year: '2024',
-//   flag: 'monthly',
-// };
-
 const Dashboard = () => {
   const [scData, setscData] = useState([]);
   const [salableData, setsalableData] = useState([]);

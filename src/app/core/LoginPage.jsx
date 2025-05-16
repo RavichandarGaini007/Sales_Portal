@@ -18,6 +18,7 @@ import { loginUser } from '../../../src/actions/loginactions';
 const initialValues = {
   emailid: '',
   password: '',
+  keepSignIn: false,
 };
 
 const LoginPage = () => {
@@ -67,7 +68,6 @@ const LoginPage = () => {
               } else {
                 navigate('/mainLayout/dashboard');
               }
-              //navigate("/dashboard");
             } else {
               alert(f.message);
             }
@@ -110,10 +110,6 @@ const LoginPage = () => {
     setKeepSignedIn(e.target.checked);
   };
 
-  // const loginClick = () => {
-  //   navigate('/dashboard');
-  // }
-
   return (
     <Container fluid className="login-page vh-100 d-flex align-items-center">
       <Row className="w-100 clsportal">
@@ -124,7 +120,7 @@ const LoginPage = () => {
         >
           <div className="text-center mb-4">
             <img
-              src={alkemLogo}
+              src={`${process.env.PUBLIC_URL}/logo.png`}
               alt="Company Logo"
               className="mb-3"
               style={{ width: '120px' }}
@@ -167,6 +163,7 @@ const LoginPage = () => {
             <Form.Group className="mb-3" controlId="formCheckbox">
               <Form.Check
                 type="checkbox"
+                name="keepSignIn"
                 label="Keep me signed in"
                 onChange={handleCheckboxChange}
               />
@@ -178,9 +175,6 @@ const LoginPage = () => {
               <Button className="w-100 mb-2 btn-onelogin flex-grow">
                 Login with onelogin
               </Button>
-              {/* <Button variant="outline-danger" className="w-100">
-                Login with Google
-              </Button> */}
             </div>
           </Form>
         </Col>

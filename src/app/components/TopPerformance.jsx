@@ -103,7 +103,7 @@ const TopPerformance = () => {
       <Card className="card-stats com-card-height">
         <CardHeader>
           <div className="stats card-title mb-0">
-            <i className="mdi mdi-chart-bar menu-icon" /> Top Performance
+            <i className="mdi mdi-chart-bar menu-icon" /> Top 5 Performance
           </div>
         </CardHeader>
         <Nav tabs>

@@ -1,0 +1,40 @@
+@media (min-width: 1200px) {
+  .popCardBody {
+    height: 460px;
+    overflow: auto;
+  }
+}
+
+@media (max-width: 991px) {
+  .popCardBody {
+    height: 860px;
+    overflow: auto;
+  }
+}
+
+@media (min-width: 576px) {
+  .popCardBody {
+    height: 520px;
+    overflow: auto;
+  }
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  /* Space out the title and the icon */
+  align-items: center;
+  /* Vertically center both items */
+}
+
+.icon-container {
+  display: flex;
+  justify-content: flex-end;
+  /* Align the icon to the right */
+}
+
+.icons-style {
+  cursor: pointer;
+  font-size: 20px;
+  padding-left: 10px;
+}

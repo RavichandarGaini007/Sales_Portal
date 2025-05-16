@@ -1,28 +1,28 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Dashboard from './app/core/Dashboard';
 import { Route, Routes } from 'react-router-dom';
-//import SalesPortalData from './app/notUsedComponents/SalesPortalData';
-import SalesPortalTable from './app/components/SalesPortalTable';
-import LoginPage from './app/core/LoginPage';
-import MainLayout from './app/core/MainLayout';
+import { Suspense, lazy } from 'react';
+
+const Dashboard = lazy(() => import('./app/core/Dashboard'));
+const SalesPortalTable = lazy(() => import('./app/components/SalesPortalTable'));
+const LoginPage = lazy(() => import('./app/core/LoginPage'));
+const MainLayout = lazy(() => import('./app/core/MainLayout'));
 
 function App() {
   return (
     <div className="container-scroller">
       <div className="container-fluid page-body-wrapper">
-        <Routes>
-          <Route path="/" element={<LoginPage />}></Route>
-          <Route path="/login" element={<LoginPage />}></Route>
-          {/* <Route path="/dashboard" element={<Dashboard />}></Route>
-          <Route path="/salesdata" element={<SalesPortalData />}></Route>{' '}
-          <Route path="/SalesPortal" element={<SalesPortalTable />}></Route> */}
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/mainLayout" element={<MainLayout />}>
-            <Route path="/mainLayout/dashboard" element={<Dashboard />} />
-            <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
-          </Route>
-        </Routes>
+            <Route path="/mainLayout" element={<MainLayout />}>
+              <Route path="/mainLayout/dashboard" element={<Dashboard />} />
+              <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );
