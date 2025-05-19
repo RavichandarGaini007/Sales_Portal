@@ -167,7 +167,8 @@ const Navbar = () => {
                 style={{ width: '50px' }}
               >
                 <img
-                  src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
+                  //src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
+                  src={process.env.PUBLIC_URL + '/logo.png'}
                   alt="logo"
                 />
               </a>

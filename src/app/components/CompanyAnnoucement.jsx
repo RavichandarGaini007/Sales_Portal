@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../css/CompanyAnnoucement.css';
 import { Modal } from 'react-bootstrap';
 import { Button } from 'reactstrap';
-const CompanyAnnoucement = ({ show,url }) => {
+const CompanyAnnoucement = ({ show, url }) => {
   const [show1, setShow] = useState(show);
   const handleClose = () => setShow(false);
   return (
@@ -16,10 +16,13 @@ const CompanyAnnoucement = ({ show,url }) => {
       centered
     >
       <Modal.Header closeButton></Modal.Header>
-      <Modal.Body>
+
       <Modal.Body className="text-center">
-        <img src={`${process.env.PUBLIC_URL}/commimage/${url}`} alt="Preview" className="img-fluid rounded" />
-      </Modal.Body>
+        <img
+          src={`${process.env.PUBLIC_URL}/commimage/${url}`}
+          alt="Preview"
+          className="img-fluid rounded"
+        />
       </Modal.Body>
     </Modal>
   );

@@ -120,7 +120,8 @@ const LoginPage = () => {
         >
           <div className="text-center mb-4">
             <img
-              src={`${process.env.PUBLIC_URL}/logo.png`}
+              //src={`${process.env.PUBLIC_URL}/logo.png`}
+              src={process.env.PUBLIC_URL + '/logo.png'}
               alt="Company Logo"
               className="mb-3"
               style={{ width: '120px' }}
