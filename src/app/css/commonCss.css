@@ -24,7 +24,7 @@
 }
 /* styles.css */
 .dropdown-content {
-  z-index: 9999; /* Adjust this value as needed */
+  z-index: 9999 !important; /* Adjust this value as needed */
 }
 
 .com-card-height {

@@ -15,7 +15,30 @@ const CompanyAnnoucement = ({ show, url }) => {
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
-      <Modal.Header closeButton></Modal.Header>
+      <Modal.Header
+        style={{
+          padding: '2px 2px 2px 2px',
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          <span
+            className="mdi mdi-close"
+            style={{
+              cursor: 'pointer',
+              fontSize: 'x-large',
+              marginRight: '12px',
+            }}
+            onClick={handleClose}
+          />
+        </div>
+      </Modal.Header>
 
       <Modal.Body className="text-center">
         <img

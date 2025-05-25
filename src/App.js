@@ -9,6 +9,7 @@ const LoginPage = lazy(() => import('./app/core/LoginPage'));
 const MainLayout = lazy(() => import('./app/core/MainLayout'));
 
 function App() {
+
   return (
     <div className="container-scroller">
       <div className="container-fluid page-body-wrapper">

@@ -41,3 +41,7 @@
   text-align: center;
   color: #999;
 }
+
+.dropdown-content {
+  z-index: 1000;
+}

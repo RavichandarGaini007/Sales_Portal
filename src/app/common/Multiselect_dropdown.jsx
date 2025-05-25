@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MultiSelect } from 'react-multi-select-component';
+import '../css/commonCss.css';
 
 const Multiselect_dropdown = ({ options, selectedList, setSelected }) => {
   return (

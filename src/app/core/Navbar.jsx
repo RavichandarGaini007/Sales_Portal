@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import facejpg from '../../assets/images/faces/face1.jpg';
 //import '@mdi/font/css/materialdesignicons.min.css';
 import { Link } from 'react-router-dom';
-import MultiSelectDropdown from '../common/MultiSelectDropdown';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
@@ -34,25 +32,53 @@ const Navbar = () => {
   const [selected, setSelected] = useState([]);
 
   useEffect(() => {
-    const storedReqValue = localStorage.getItem('commonRequest');
+    // Check for 'div' parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const divParam = params.get('div');
 
-    if (storedReqValue?.div) {
-      divisions.forEach((col) => {
-        storedReqValue.div.forEach((item) => {
-          if (item.div === col.div) {
-            setSelected(col);
-          }
-        });
-      });
-    } else if (divisions?.length) {
-      setSelected(
-        divisions.map((col) => ({
-          label: col.name,
-          value: col.div,
-        }))
-      );
+    if (divParam && divisions?.length) {
+      // Support comma-separated divs
+      const divList = divParam.split(',');
+      const selectedDivs = divisions
+        .filter((col) => divList.includes(col.div))
+        .map((col) => ({ label: col.name, value: col.div }));
+      setSelected(selectedDivs);
+    } else {
+      const storedReqValue = localStorage.getItem('commonRequest');
+      let storedDivs = [];
+      if (storedReqValue) {
+        try {
+          const parsed = JSON.parse(storedReqValue);
+          storedDivs = parsed.div;
+        } catch {}
+      }
+      if (storedDivs && Array.isArray(storedDivs) && storedDivs.length) {
+        const selectedDivs = divisions
+          .filter((col) => storedDivs.includes(col.div))
+          .map((col) => ({ label: col.name, value: col.div }));
+        setSelected(selectedDivs);
+      } else if (divisions?.length) {
+        setSelected(
+          divisions.map((col) => ({
+            label: col.name,
+            value: col.div,
+          }))
+        );
+      }
     }
   }, [divisions]);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = `${process.env.PUBLIC_URL}/settings.js`; // Loads from public/
+    script.async = true;
+    document.body.appendChild(script);
+
+    // Optional cleanup
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     // Fetch data from API
@@ -80,18 +106,6 @@ const Navbar = () => {
 
     genRequest();
   }, []);
-
-  // useEffect(() => {
-  //   var navItemClicked = $('.horizontal-menu .page-navigation >.nav-item');
-  //   navItemClicked.on('click', function (event) {
-  //     if (window.matchMedia('(max-width: 991px)').matches) {
-  //       if (!$(this).hasClass('show-submenu')) {
-  //         navItemClicked.removeClass('show-submenu');
-  //       }
-  //       $(this).toggleClass('show-submenu');
-  //     }
-  //   });
-  // }, [menuItems]);
 
   // Handle change for Division dropdown
   const handleDivisionChange = (selectedColumns) => {
@@ -123,6 +137,9 @@ const Navbar = () => {
   };
 
   const genRequest = () => {
+    // Check for 'div' parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const divParam = params.get('div');
     const today = new Date();
     let mnth = month;
     let yr = year;
@@ -133,24 +150,29 @@ const Navbar = () => {
         mnth = 12;
         yr -= 1;
       }
-
       setMonth(mnth);
       setYear(yr);
+    }
+
+    let divValue;
+    if (divParam) {
+      divValue = divParam;
+    } else {
+      divValue =
+        selected.length === divisions.length &&
+        data?.data[0]?.enetsale === 'ALL'
+          ? data?.data[0]?.enetsale
+          : Array(selected.map((items) => items.value)).join(',');
     }
 
     const comReq = {
       tbl_name: 'FTP_' + mnth + '_' + yr,
       empcode: data?.data[0]?.userid,
-      div:
-        selected.length === divisions.length &&
-        data?.data[0]?.enetsale === 'ALL'
-          ? data?.data[0]?.enetsale
-          : Array(selected.map((items) => items.value)).join(','),
+      div: divValue,
       month: mnth.toString(),
       year: yr.toString(),
       flag: 'monthly',
     };
-    //console.log(comReq);
     updateRequest(comReq);
     localStorage.setItem('commonRequest', JSON.stringify(comReq));
   };
@@ -169,7 +191,7 @@ const Navbar = () => {
                 <img
                   //src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
                   src={process.env.PUBLIC_URL + '/logo.png'}
-                  alt="logo"
+                  alt="logo1"
                 />
               </a>
               <span
@@ -188,7 +210,8 @@ const Navbar = () => {
                 href="/mainLayout/dashboard"
               >
                 <img
-                  src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
+                  //src="https://sales.alkemcrm.com/sd_new/images/ALKEM.png"
+                  src={process.env.PUBLIC_URL + '/logo.png'}
                   alt="logo"
                 />
               </a>
@@ -197,16 +220,6 @@ const Navbar = () => {
               <ul className="navbar-nav mr-lg-2">
                 <li className="nav-item nav-search d-none d-lg-block">
                   <div className="input-group">
-                    {/* Division Dropdown */}
-                    {/* <MultiSelectDropdown
-                    className="mx-3"
-                    options={divisions.map((col) => ({
-                      name: col.name,
-                      id: col.div,
-                    }))}
-                    displayValue="name"
-                    onSelect={handleDivisionChange}
-                  /> */}
                     <Multiselect_dropdown
                       className="mx-3"
                       options={divisions.map((col) => ({
@@ -271,10 +284,7 @@ const Navbar = () => {
                     aria-expanded="false"
                   >
                     <div className="nav-profile-img">
-                      <img
-                        src={data?.data[0]?.userprofile}
-                        alt="profile card"
-                      />
+                      <img src={data.data[0].userprofile} alt="profile card" />
                     </div>
                     <div className="nav-profile-text">
                       <p className="text-black font-weight-semibold m-0">
@@ -303,8 +313,12 @@ const Navbar = () => {
                 className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
                 type="button"
                 data-toggle="horizontal-menu-toggle"
+                style={{ border: 'none', background: 'none', padding: 0 }}
               >
-                <span className="mdi mdi-menu"></span>
+                <span
+                  className="mdi mdi-menu"
+                  style={{ fontSize: '2rem', color: '#333' }}
+                ></span>
               </button>
             </div>
           </div>
@@ -339,86 +353,15 @@ const Navbar = () => {
                     )}
                 </li>
               ))}
-              {/* <li className="nav-item">
-              <Link className="nav-link" to="/dashboard">
-                <i className="mdi mdi-compass-outline menu-icon"></i>
-                <span className="menu-title">Dashboard</span>
-              </Link>
-            </li>
-            <li className="nav-item">
-              <a href="/" className="nav-link">
-                <i className="mdi mdi-monitor-dashboard menu-icon"></i>
-                <span className="menu-title">Reports</span>
-                <i className="menu-arrow"></i>
-              </a>
-              <div className="submenu">
-                <ul className="submenu-item">
-                  <li className="nav-item">
-                    <a
-                      className="nav-link"
-                      href="pages/ui-features/buttons.html"
-                    >
-                      Div+HQ
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a
-                      className="nav-link"
-                      href="pages/ui-features/dropdowns.html"
-                    >
-                      Previous Date Sales Reports
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a
-                      className="nav-link"
-                      href="pages/ui-features/typography.html"
-                    >
-                      Brand+Region+Material
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="pages/forms/basic_elements.html">
-                <i className="mdi mdi-clipboard-text menu-icon"></i>
-                <span className="menu-title">Tools</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="pages/icons/mdi.html">
-                <i className="mdi mdi-contacts menu-icon"></i>
-                <span className="menu-title">Other Portals</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="pages/charts/chartjs.html">
-                <i className="mdi mdi-chart-bar menu-icon"></i>
-                <span className="menu-title">Secondary</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="pages/tables/basic-table.html">
-                <i className="mdi mdi-table-large menu-icon"></i>
-                <span className="menu-title">Pend Orders</span>
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="pages/forms/basic_elements.html">
-                <i className="mdi mdi-clipboard-text menu-icon"></i>
-                <span className="menu-title">Help</span>
-              </a>
-            </li> */}
             </ul>
           </div>
         </nav>
       </div>
-      <ul className="navbar-nav mr-lg-2 bottom-filter">
-        <li className="nav-item nav-search d-none d-lg-block">
-          <div className="input-group">
+      <ul className="navbar-nav mr-lg-2 bottom-filter d-md-none">
+        <li className="nav-item nav-search">
+          <div className="input-group flex-column flex-md-row">
             <Multiselect_dropdown
-              className="mx-3"
+              className="mx-3 mb-2 mb-md-0"
               options={divisions.map((col) => ({
                 label: col.name,
                 value: col.div,
@@ -427,10 +370,11 @@ const Navbar = () => {
               setSelected={setSelected}
             ></Multiselect_dropdown>
 
+            {/* Month Dropdown */}
             <select
               value={month}
               onChange={handleMonthChange}
-              className="form-select form-select-sm me-2"
+              className="form-select form-select-sm me-2 mb-2 mb-md-0"
               aria-label="Select Month"
             >
               <option value="">Select Month</option>
@@ -452,7 +396,7 @@ const Navbar = () => {
             <select
               value={year}
               onChange={handleYearChange}
-              className="form-select form-select-sm"
+              className="form-select form-select-sm mb-2 mb-md-0"
               aria-label="Select Year"
             >
               <option value="">Select Year</option>
@@ -461,7 +405,10 @@ const Navbar = () => {
               <option value="2025">2025</option>
               <option value="2026">2026</option>
             </select>
-            <Button className="me-2 btn btn-primary" onClick={handleSearch}>
+            <Button
+              className="me-2 btn btn-primary mb-2 mb-md-0"
+              onClick={handleSearch}
+            >
               Search
             </Button>
           </div>

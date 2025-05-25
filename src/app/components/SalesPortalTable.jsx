@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   Table,
   Badge,
@@ -49,6 +49,7 @@ const getLabelColor = (value) => {
   return 'danger'; // Red
 };
 const SalesPortalTable = () => {
+  const { updateRequest } = useRequest();
   const [data, setData] = useState([]);
   const [dropdownSelection, setDropdownSelection] = useState('plantwise'); // Default selection
   const [rowData, setrowData] = useState(null);
@@ -81,6 +82,22 @@ const SalesPortalTable = () => {
       setPopoverOpen(false);
     }, 2000);
   }, [request]);
+
+  // Open dashboard in new tab only once when needed
+  useEffect(() => {
+    if (
+      dropdownSelection === 'dashboard' &&
+      showModal &&
+      rowData &&
+      rowData.division
+    ) {
+      window.open(
+        `/sales_portal_new/mainLayout/dashboard?div=${rowData.division}`,
+        '_blank'
+      );
+      setShowModal(false); // close the modal after opening new tab
+    }
+  }, [dropdownSelection, showModal, rowData]);
 
   // useEffect(() => {
   //   if (popoverTargetRef.current) {
@@ -149,10 +166,11 @@ const SalesPortalTable = () => {
             onClose={handleHideModel}
           />
         ),
-        // dashboard: (
-        //   // open new tab to display div wise dashboard
-        // ),
       };
+
+      if (dropdownSelection === 'dashboard') {
+        return null;
+      }
 
       return components[dropdownSelection] || null;
     }
@@ -260,7 +278,12 @@ const SalesPortalTable = () => {
             <Row>
               <Navbar expand="md">
                 <NavbarBrand href="#">Filters</NavbarBrand>
-                <NavbarToggler onClick={toggle} />
+                <NavbarToggler onClick={toggle}>
+                  <span
+                    className="d-md-none mdi mdi-menu"
+                    style={{ fontSize: '2rem', color: '#333' }}
+                  ></span>
+                </NavbarToggler>
                 <Collapse isOpen={isOpen} navbar>
                   <Nav className="me-auto" navbar>
                     <NavItem className="w-100">
