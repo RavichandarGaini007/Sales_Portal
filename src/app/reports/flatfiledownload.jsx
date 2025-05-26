@@ -77,10 +77,10 @@
 
 //     genRequest();
 
-    
+
 //   }, []);
 
- 
+
 // const handleChange = (e) => {
 //     setSelectedOption(e.target.value);
 //   };
@@ -110,7 +110,7 @@
 //     );
 //     const data = await response.data.data;
 //     setMenuItems(data);
-    
+
 //   };
 
 //     const getbrandcode = async (strdiv,stryear) => {
@@ -126,7 +126,7 @@
 //     const data = await response.data.data;
 //      setbrandcode(data);
 //      setLoading(false);
-     
+
 //   };
 
 //   const handleSearch = () => {
@@ -202,7 +202,7 @@
 //               selectedList={selected}
 //               setSelected={setSelected}
 
-      
+
 //             />
 //           </div>
 //         </div>
@@ -248,17 +248,10 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import facejpg from '../../assets/images/faces/face1.jpg';
-import { Link } from 'react-router-dom';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
-import { useSelector } from 'react-redux';
-import { Button } from 'reactstrap';
 import { apiUrls } from '../lib/fetchApi';
-import { useRequest } from '../common/RequestContext';
-import { event } from 'jquery';
-import * as XLSX from 'xlsx';  // Import xlsx library
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import XlsxPopulate from "xlsx-populate/browser/xlsx-populate";
 // import XlsxPopulate from 'xlsx-populate';
@@ -270,52 +263,51 @@ const FlatFileDownload = () => {
     { label: '2024-2025', value: 2024 },
     { label: '2025-2026', value: 2025 },
   ]);
-  const [companies, setCompanies] = useState([]);
+  const [divison, setdivison] = useState([]);
   const [brands, setBrands] = useState([]);
-
   const [selectedYear, setSelectedYear] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState([]);
+  const [selectedDivison, setSelectedDivison] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState([]);
-  const [flatfiledata, setflatfiledata] = useState([]);
-  // Fetch companies on load
+
+  // Fetch divison on load
   useEffect(() => {
 
-      const currentYear = new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
     const defaultYear = years.find(year => year.value === currentYear) || years[0];  // Fall back to the first year if current year is not in the list
     setSelectedYear([defaultYear]);
-    
-    async function fetchCompanies() {
+
+    async function fetchDivision() {
       try {
- 
-        // const response = await axios.get('/api/companies');
-         let empCode = '41406';
-    let role = 'Admin';
-    const response = await axios.get(
-      apiUrls.SalesDiv  + `?strEmpCode=${empCode}`
-    );
+
+        // const response = await axios.get('/api/divison');
+        let empCode = '041406';
+        let role = 'Admin';
+        const response = await axios.get(
+          apiUrls.SalesDiv + `?strEmpCode=${empCode}`
+        );
         const formatted = response.data.data.map((item) => ({
           label: item.name,
           value: item.div,
         }));
-        setCompanies(formatted);
+        setdivison(formatted);
       } catch (error) {
-        console.error('Error fetching companies:', error);
+        console.error('Error fetching divison:', error);
       }
     }
 
-    fetchCompanies();
+    fetchDivision();
   }, []);
 
-  // Fetch brands when both year and company are selected
+  // Fetch brands when both year and Divison are selected
   useEffect(() => {
-    if (selectedYear.length > 0 && selectedCompany.length > 0) {
+    if (selectedYear.length > 0 && selectedDivison.length > 0) {
       async function fetchBrands() {
         try {
-          const companyIds = selectedCompany.map((company) => company.value);  // Collect all selected companies
+          const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
 
           const response = await axios.get(apiUrls.GetBrandCodeData, {
             params: {
-              div:  companyIds.join(','),
+              div: DivisonIds.join(','),
               year: selectedYear[0].value,
             },
           });
@@ -334,87 +326,70 @@ const FlatFileDownload = () => {
       setBrands([]);
       setSelectedBrand([]);
     }
-  }, [selectedYear, selectedCompany]);
+  }, [selectedYear, selectedDivison]);
 
-  useEffect(()=>{
-
-    if (selectedYear.length > 0 && selectedCompany.length > 0 && selectedBrand.length > 0 ) {
-      async function getData() {
-      try {
- 
-        
-          const companyIds = selectedCompany.map((company) => company.value);  // Collect all selected companies
-
-          const response = await axios.get(apiUrls.GetFlatFileDataPrimary, {
-            params: {
-              div:  companyIds.join(','),
-              brand_code: selectedBrand[0].value,
-            },
-          });
-          const formatted = response.data.data;
-          setflatfiledata(formatted);
-      } catch (error) {
-        console.error('Error fetching flat file data:', error);
+  const generateExcel = async () => {
+    var Data;
+    var errrmsg = "";
+    debugger;
+    if (selectedYear.length > 0 && selectedDivison.length > 0 && selectedBrand.length > 0) {
+      var DivisonIds;
+      var strbrand;
+      if (selectedDivison.length == divison.length) {
+        DivisonIds = "ALL"
       }
-    }
-
-       getData();
-    }
-  },[selectedYear, selectedCompany,selectedBrand])
-
-    const generateExcel = async () => {
-      debugger;
-    // Create a worksheet from the data
-    // const ws = XLSX.utils.json_to_sheet(flatfiledata);
-
-    // // Create a workbook with the worksheet
-    // const wb = XLSX.utils.book_new();
-    // XLSX.utils.book_append_sheet(wb, ws, 'BASE DATA');
-
-    // // Generate the Excel file and trigger download
-    // XLSX.writeFile(wb, 'Flat File Primary Sales.xlsx');
-
-     // Step 1: Load the template file
-
-     const response1 =await fetch('/test.xlsx')
-      .then(response1 =>  response1.arrayBuffer())
-      .then(arrayBuffer => {
-        debugger;
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-
-        // Get first worksheet
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-
-        // Convert to JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-
-        // Show data in alert (stringify first few rows to avoid overflow)
-        alert(JSON.stringify(jsonData.slice(0, 5), null, 2));
-      })
-      .catch(error => {
-        console.error('Error reading Excel file:', error);
-        alert('Failed to read Excel file.');
+      else {
+        DivisonIds = (selectedDivison.map((Divison) => Divison.value)).join(',');  // Collect all selected divison
+      }
+      if (selectedBrand.length == brands.length) {
+        strbrand = "ALL"
+      }
+      else {
+        strbrand = (selectedBrand.map((brand) => brand.value)).join(',');  // Collect all selected divison
+      }
+      const response1 = await axios.get(apiUrls.GetFlatFileDataPrimary, {
+        params: {
+          DownloadFor: "D",
+          year: selectedYear[0].label,
+          empcode: "041406",
+          div: DivisonIds,
+          brand_code: strbrand,
+        },
       });
+      const formatted = response1.data.data;
+      Data = formatted;
 
+      if (!Data) {
+        alert('No Data Found')
+        return
+      }
+      const response = await fetch("/sales_portal_new/template.xlsx");
+      const arrayBuffer = await response.arrayBuffer();
 
-    const response = await fetch("/template.xlsx");
-    const arrayBuffer = await response.arrayBuffer();
+      // Step 2: Populate with data
+      const workbook = await XlsxPopulate.fromDataAsync(arrayBuffer);
+      // Insert data starting from cell A2
+      //sheet.cell("A1").value(data);
 
-    // Step 2: Populate with data
-    const workbook = await XlsxPopulate.fromDataAsync(arrayBuffer);
+      const sheet = workbook.sheet(2);
 
-    const sheet = workbook.sheet(2);
-    
-     const headers = Object.keys(flatfiledata[0]);
+      const headers = Object.keys(Data[0]);
 
-     // Set headers in A1, B1, etc.
+      // Set headers in A1, B1, etc.
+      // headers.forEach((header, colIndex) => {
+      //   sheet.cell(1, colIndex + 1).value(header); // Row 1, Columns start at 1
+      // });
       headers.forEach((header, colIndex) => {
-        sheet.cell(1, colIndex + 1).value(header); // Row 1, Columns start at 1
+        const cell = sheet.cell(1, colIndex + 1);
+        cell.value(header);
+        cell.style({
+          bold: true,
+          fill: "CCCCFF", // Light blue background
+          horizontalAlignment: "center"
+        });
       });
-
       // Write data starting from row 2
-      data.forEach((row, rowIndex) => {
+      Data.forEach((row, rowIndex) => {
         headers.forEach((header, colIndex) => {
           sheet
             .cell(rowIndex + 2, colIndex + 1) // Row 2 onward
@@ -422,73 +397,112 @@ const FlatFileDownload = () => {
         });
       });
 
-    // Insert data starting from cell A2
-    //sheet.cell("A1").value(data);
 
-    // Step 3: Export and download
-    const blob = await workbook.outputAsync();
-    saveAs(blob, "Flat File Primary Sales.xlsx");
+      // Step 3: Export and download
+      const blob = await workbook.outputAsync();
+      saveAs(blob, "Flat File Primary Sales.xlsx");
+    }
+    if (selectedDivison.length == 0) {
+      errrmsg += "Please Select Divison. \n";
+    }
+    if (selectedBrand.length == 0) {
+      errrmsg += "Please Select Brand."
+    }
+    if (errrmsg != "") {
+      alert(errrmsg);
+    }
+  }
 
-  };
+
+  const downloadfile = async (filename) => {
+    try {
+
+      const response = await axios.get(apiUrls.DownloadFileFromFTP, {
+        params: {
+          fileName: filename
+
+        },
+      }, {
+        responseType: 'blob',
+      });
+      if ((response.data)) {
+        saveAs(response.data, filename);
+      }
+      else {
+        alert("File not found")
+      }
+
+    } catch (error) {
+      console.error('Download failed', error);
+    }
+  }
 
   return (
-  <div className="container-fluid py-4" style={{ height: '100vh' }}>
-    <div className="row gx-4">
-<h2 className='p-4 mb-lg-4'>Flat File Download</h2>
-      {/* Year Dropdown */}
-      <div className="col-auto d-flex align-items-center gap-2">
-        <label htmlFor="yearDropdown" className="form-label mb-0">Year:</label>
-        <select
-          id="yearDropdown"
-          className="form-select form-select-sm"
-          style={{ width: '150px' }}
-          value={selectedYear[0]?.value || ''}
-          onChange={(e) => {
-            const selected = years.find((y) => y.value === parseInt(e.target.value));
-            setSelectedYear(selected ? [selected] : []);
-          }}
-        >
-          <option value="">Select Year</option>
-          {years.map((year) => (
-            <option key={year.value} value={year.value}>
-              {year.label}
-            </option>
-          ))}
-        </select>
-      </div>
+    <div className="container-fluid py-4" style={{ height: '100vh' }}>
+      <div className="row gx-4">
 
-      {/* Division (Company) Dropdown */}
-      <div className="col-auto d-flex align-items-center gap-2">
-        <label className="form-label mb-0">Division:</label>
-        <div style={{ width: '200px' }}>
-          <Multiselect_dropdown
-            options={companies}
-            selectedList={selectedCompany}
-            setSelected={setSelectedCompany}
-          />
+        <h2 className='p-4 mb-lg-4'>Flat File Download</h2>
+        {/* Year Dropdown */}
+        <div className="col-auto d-flex align-items-center gap-2">
+          <label htmlFor="yearDropdown" className="form-label mb-0">Year:</label>
+          <select
+            id="yearDropdown"
+            className="form-select form-select-sm"
+            style={{ width: '150px' }}
+            value={selectedYear[0]?.value || ''}
+            onChange={(e) => {
+              const selected = years.find((y) => y.value === parseInt(e.target.value));
+              setSelectedYear(selected ? [selected] : []);
+            }}
+          >
+            <option value="">Select Year</option>
+            {years.map((year) => (
+              <option key={year.value} value={year.value}>
+                {year.label}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
 
-      {/* Brand Dropdown */}
-      <div className="col-auto d-flex align-items-center gap-2">
-        <label className="form-label mb-0">Brand:</label>
-        <div style={{ width: '200px' }}>
-          <Multiselect_dropdown
-            options={brands}
-            selectedList={selectedBrand}
-            setSelected={setSelectedBrand}
-          />
+        {/* Division (Divison) Dropdown */}
+        <div className="col-auto d-flex align-items-center gap-2">
+          <label className="form-label mb-0">Division:</label>
+          <div style={{ width: '200px' }}>
+            <Multiselect_dropdown
+              options={divison}
+              selectedList={selectedDivison}
+              setSelected={setSelectedDivison}
+            />
+          </div>
         </div>
-      </div>
-       <div className="col-auto">
+
+        {/* Brand Dropdown */}
+        <div className="col-auto d-flex align-items-center gap-2">
+          <label className="form-label mb-0">Brand:</label>
+          <div style={{ width: '200px' }}>
+            <Multiselect_dropdown
+              options={brands}
+              selectedList={selectedBrand}
+              setSelected={setSelectedBrand}
+            />
+          </div>
+        </div>
+        <div className="col-auto">
           <button onClick={generateExcel} className="btn btn-primary">
             Download Excel
           </button>
         </div>
+      </div>
+      <br></br><br></br>
+      <div>
+        <button onClick={() => downloadfile("MIS_FLAT_FILE_2025_ANTIBIOTIC.csv")} className="btn btn-primary">MIS_FLAT_FILE_2025_ANTIBIOTIC</button> &nbsp;&nbsp;
+        <button onClick={() => downloadfile("MIS_FLAT_FILE_2025_CALCIUM.csv")} className="btn btn-primary">MIS_FLAT_FILE_2025_CALCIUM</button>&nbsp;&nbsp;
+        <button onClick={() => downloadfile("MIS_FLAT_FILE_2025_CRONIC I.csv")} className="btn btn-primary">MIS_FLAT_FILE_2025_CRONIC I</button>&nbsp;&nbsp;
+        <button onClick={() => downloadfile("MIS_FLAT_FILE_2025_GENERIC.csv")} className="btn btn-primary">MIS_FLAT_FILE_2025_GENERIC</button>&nbsp;&nbsp;
+        <button onClick={() => downloadfile("MIS_FLAT_FILE_2025_CRONIC II.csv")} className="btn btn-primary">MIS_FLAT_FILE_2025_CRONIC II</button>
+      </div>
     </div>
-  </div>
-);
-
+  );
 
 
 };
