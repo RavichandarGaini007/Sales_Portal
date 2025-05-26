@@ -85,6 +85,7 @@ export const apiUrls = {
   GetFlatFileDataPrimary: API_REQUEST + 'GetFlatFilePrimarySales',
   SalesDiv: API_REQUEST + 'SalesDiv',
   userEmailId: API_REQUEST + 'userEmailId',
+  DownloadFileFromFTP : API_REQUEST + 'download',
 };
 
 export const popState = {
