@@ -9,7 +9,6 @@ const LoginPage = lazy(() => import('./app/core/LoginPage'));
 const MainLayout = lazy(() => import('./app/core/MainLayout'));
 const FlatFileDownload =lazy(()=> import('./app/reports/flatfiledownload'));
 
-
 function App() {
 
   return (
@@ -24,7 +23,6 @@ function App() {
               <Route path="/mainLayout/dashboard" element={<Dashboard />} />
                <Route path="/mainLayout/Report/flat_file_download" element={<FlatFileDownload />} />
               <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
-
             </Route>
           </Routes>
         </Suspense>
