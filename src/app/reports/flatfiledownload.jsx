@@ -84,7 +84,6 @@ const FlatFileDownload = () => {
   const generateExcel = async () => {
     var Data;
     var errrmsg = "";
-    debugger;
     if (selectedYear.length > 0 && selectedDivison.length > 0 && selectedBrand.length > 0) {
       var DivisonIds;
       var strbrand;
@@ -171,7 +170,8 @@ const FlatFileDownload = () => {
       });
       if (response.data) {
         //saveAs(response.data, file);
-        downloadCSVWithoutHeader(response.data, file);
+        const data = response.data.trim().split('\n').map(line => line.split(','));
+        downloadCSVWithoutHeader(data, file);
       }
       else {
         alert("File not found")
