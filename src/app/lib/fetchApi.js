@@ -63,8 +63,8 @@ export const fetchApiGet = async (url, config) => {
 };
 
 //export const API_REQUEST = "https://192.168.120.64/React_Login_api/api/Sales/";
-// export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
-export const API_REQUEST = "https://localhost:5001/api/Sales/";
+export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
+//export const API_REQUEST = "https://localhost:5001/api/Sales/";
 
 export const apiUrls = {
   salesdata: API_REQUEST + 'salesdata',
@@ -85,7 +85,7 @@ export const apiUrls = {
   GetFlatFileDataPrimary: API_REQUEST + 'GetFlatFilePrimarySales',
   SalesDiv: API_REQUEST + 'SalesDiv',
   userEmailId: API_REQUEST + 'userEmailId',
-  DownloadFileFromFTP : API_REQUEST + 'download',
+  DownloadFileFromFTP: API_REQUEST + 'download',
 };
 
 export const popState = {

@@ -14,11 +14,12 @@ function MainLayout() {
     <>
       <RequestProvider>
         <Navbar />
-        {data?.data[0]?.modelUrl !== '' && data?.data[0]?.modelUrl !== null && (
-          <CompanyAnnoucement show={true} url={data?.data[0]?.modelUrl} />
-        )}
-
-        <Outlet />
+        <div className="main-content-wrapper">
+          {data?.data[0]?.modelUrl !== '' && data?.data[0]?.modelUrl !== null && (
+            <CompanyAnnoucement show={true} url={data?.data[0]?.modelUrl} />
+          )}
+          <Outlet />
+        </div>
       </RequestProvider>
     </>
   );

@@ -50,7 +50,7 @@ const Navbar = () => {
         try {
           const parsed = JSON.parse(storedReqValue);
           storedDivs = parsed.div;
-        } catch {}
+        } catch { }
       }
       if (storedDivs && Array.isArray(storedDivs) && storedDivs.length) {
         const selectedDivs = divisions
@@ -160,7 +160,7 @@ const Navbar = () => {
     } else {
       divValue =
         selected.length === divisions.length &&
-        data?.data[0]?.enetsale === 'ALL'
+          data?.data[0]?.enetsale === 'ALL'
           ? data?.data[0]?.enetsale
           : Array(selected.map((items) => items.value)).join(',');
     }
@@ -310,7 +310,7 @@ const Navbar = () => {
                 </li>
               </ul>
               <button
-                className="navbar-toggler navbar-toggler-right d-lg-none align-self-center"
+                className="navbar-toggler navbar-toggler-right d-lg-none d-md-none align-self-center"
                 type="button"
                 data-toggle="horizontal-menu-toggle"
                 style={{ border: 'none', background: 'none', padding: 0 }}
@@ -356,64 +356,67 @@ const Navbar = () => {
             </ul>
           </div>
         </nav>
+        {/* Move mobile filter bar directly below horizontal-menu for mobile view */}
+        <ul className="navbar-nav mr-lg-2 bottom-filter d-md-none mobile-filter-bar" style={{ marginTop: 0 }}>
+          <li className="nav-item nav-search">
+            <div className="input-group flex-column flex-md-row">
+              <div className="d-flex flex-row w-100 mb-2" style={{ gap: '0.5rem' }}>
+                <Multiselect_dropdown
+                  className="flex-fill mb-0"
+                  options={divisions.map((col) => ({
+                    label: col.name,
+                    value: col.div,
+                  }))}
+                  selectedList={selected}
+                  setSelected={setSelected}
+                ></Multiselect_dropdown>
+                {/* Month Dropdown */}
+                <select
+                  value={month}
+                  onChange={handleMonthChange}
+                  className="form-select form-select-sm flex-fill mb-0"
+                  aria-label="Select Month"
+                >
+                  <option value="">Select Month</option>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+                {/* Year Dropdown */}
+                <select
+                  value={year}
+                  onChange={handleYearChange}
+                  className="form-select form-select-sm flex-fill mb-0"
+                  aria-label="Select Year"
+                >
+                  <option value="">Select Year</option>
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                </select>
+              </div>
+              <div className="w-100 d-flex justify-content-end ">
+                <Button
+                  className="me-2 btn btn-primary mb-2 mb-md-0 mt-0 flex-fill"
+                  onClick={handleSearch}
+                >
+                  Search
+                </Button>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
-      <ul className="navbar-nav mr-lg-2 bottom-filter d-md-none">
-        <li className="nav-item nav-search">
-          <div className="input-group flex-column flex-md-row">
-            <Multiselect_dropdown
-              className="mx-3 mb-2 mb-md-0"
-              options={divisions.map((col) => ({
-                label: col.name,
-                value: col.div,
-              }))}
-              selectedList={selected}
-              setSelected={setSelected}
-            ></Multiselect_dropdown>
-
-            {/* Month Dropdown */}
-            <select
-              value={month}
-              onChange={handleMonthChange}
-              className="form-select form-select-sm me-2 mb-2 mb-md-0"
-              aria-label="Select Month"
-            >
-              <option value="">Select Month</option>
-              <option value="1">January</option>
-              <option value="2">February</option>
-              <option value="3">March</option>
-              <option value="4">April</option>
-              <option value="5">May</option>
-              <option value="6">June</option>
-              <option value="7">July</option>
-              <option value="8">August</option>
-              <option value="9">September</option>
-              <option value="10">October</option>
-              <option value="11">November</option>
-              <option value="12">December</option>
-            </select>
-
-            {/* Year Dropdown */}
-            <select
-              value={year}
-              onChange={handleYearChange}
-              className="form-select form-select-sm mb-2 mb-md-0"
-              aria-label="Select Year"
-            >
-              <option value="">Select Year</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-            </select>
-            <Button
-              className="me-2 btn btn-primary mb-2 mb-md-0"
-              onClick={handleSearch}
-            >
-              Search
-            </Button>
-          </div>
-        </li>
-      </ul>
     </>
   );
 };

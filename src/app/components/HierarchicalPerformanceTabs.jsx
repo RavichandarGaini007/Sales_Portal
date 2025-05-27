@@ -160,7 +160,7 @@ const HierarchicalPerformanceTabs = () => {
   };
 
   return (
-    <Col lg="12" md="6" sm="6">
+    <Col lg="12" md="12" sm="12">
       <Card className="card-stats com-card-height">
         <CardHeader>
           <div className="d-flex justify-content-between">
