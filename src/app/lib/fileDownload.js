@@ -48,7 +48,6 @@ export const exportToExcel = (data, tblHeaders, filename = "data.xlsx") => {
   saveAs(blob, filename);
 };
 
-
 export const downloadCSV = (data, columns, filename = "download.csv") => {
   // Extract headers from columns
   const headers = columns.map(column => column.header);
@@ -62,6 +61,24 @@ export const downloadCSV = (data, columns, filename = "download.csv") => {
 
   // Convert data to CSV format
   const csv = finalData
+    .map(row => row.map(cell => `"${cell}"`).join(",")) // Join each row with commas and wrap cells with quotes
+    .join("\n"); // Join rows with newline characters
+
+  // Create a Blob object with the CSV data
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+
+  // Create a link to trigger the download
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.target = "_blank";
+  link.download = filename;
+  link.click();
+};
+
+export const downloadCSVWithoutHeader = (data, filename = "download.csv") => {
+
+  // Convert data to CSV format
+  const csv = data
     .map(row => row.map(cell => `"${cell}"`).join(",")) // Join each row with commas and wrap cells with quotes
     .join("\n"); // Join rows with newline characters
 

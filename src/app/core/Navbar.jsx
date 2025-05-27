@@ -123,8 +123,8 @@ const Navbar = () => {
   };
 
   const getUserMenus = async (e) => {
-    let empCode = '41406';
-    let role = 'Admin';
+    let empCode = '41406'; //// data?.data[0]?.userid
+    let role = 'Admin'; ///// data?.data[0]?.role
     const response = await axios.post(
       apiUrls.DashboardMenus + `?empCode=${empCode}&role=${role}`
     );
