@@ -4,7 +4,7 @@ import '../css/commonCss.css';
 
 const Multiselect_dropdown = ({ options, selectedList, setSelected }) => {
   return (
-    <div className="me-2 w-64" style={{ width: '200px' }}>
+    <div className="me-2 w-100 multiselect-responsive-width">
       <MultiSelect
         options={options}
         value={selectedList}

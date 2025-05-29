@@ -10,19 +10,11 @@ import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import { Button } from 'reactstrap';
 import { apiUrls } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
-
-// import '../../assets/vendors/js/vendor.bundle.base.js';
-// import '../../assets/vendors/flot/jquery.flot.js';
-// import '../../assets/vendors/flot/jquery.flot.resize.js';
-// import '../../assets/vendors/flot/jquery.flot.categories.js';
-// import '../../assets/vendors/flot/jquery.flot.fillbetween.js';
-// import '../../assets/vendors/flot/jquery.flot.stack.js';
+import { MdSearch } from 'react-icons/md';
 
 const Navbar = () => {
   const { updateRequest } = useRequest();
-  const { data, isAuthorized, isLoading } = useSelector((state) => {
-    return state.app;
-  });
+  const { data, isAuthorized, isLoading } = useSelector((state) => state.app);
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const [divisions, setAllDivs] = useState([]);
@@ -30,12 +22,12 @@ const Navbar = () => {
   const [year, setYear] = useState(currentYear);
   const [menuItems, setMenuItems] = useState([]);
   const [selected, setSelected] = useState([]);
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   useEffect(() => {
     // Check for 'div' parameter in URL
     const params = new URLSearchParams(window.location.search);
     const divParam = params.get('div');
-
     if (divParam && divisions?.length) {
       // Support comma-separated divs
       const divList = divParam.split(',');
@@ -73,7 +65,6 @@ const Navbar = () => {
     script.src = `${process.env.PUBLIC_URL}/settings.js`; // Loads from public/
     script.async = true;
     document.body.appendChild(script);
-
     // Optional cleanup
     return () => {
       document.body.removeChild(script);
@@ -83,12 +74,10 @@ const Navbar = () => {
   useEffect(() => {
     // Fetch data from API
     getUserMenus();
-
     axios
-      .get(apiUrls.SalesDiv + '?strEmpCode=' + data?.data[0]?.userid) // Replace with your API endpoint
+      .get(apiUrls.SalesDiv + '?strEmpCode=' + data?.data[0]?.userid)
       .then((response) => {
         const resdata = response.data.data;
-
         if (
           data?.data &&
           Array.isArray(data.data) &&
@@ -103,7 +92,6 @@ const Navbar = () => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
-
     genRequest();
   }, []);
 
@@ -143,7 +131,6 @@ const Navbar = () => {
     const today = new Date();
     let mnth = month;
     let yr = year;
-
     if (today.getDate() < 5) {
       mnth -= 1;
       if (mnth === 0) {
@@ -153,7 +140,6 @@ const Navbar = () => {
       setMonth(mnth);
       setYear(yr);
     }
-
     let divValue;
     if (divParam) {
       divValue = divParam;
@@ -164,7 +150,6 @@ const Navbar = () => {
           ? data?.data[0]?.enetsale
           : Array(selected.map((items) => items.value)).join(',');
     }
-
     const comReq = {
       tbl_name: 'FTP_' + mnth + '_' + yr,
       empcode: data?.data[0]?.userid,
@@ -195,7 +180,7 @@ const Navbar = () => {
                 />
               </a>
               <span
-                className="font-12 d-block font-weight-light"
+                className="font-12 d-block font-weight-light d-none d-lg-block"
                 style={{
                   fontWeight: 'bold',
                   fontSize: '20px',
@@ -218,7 +203,7 @@ const Navbar = () => {
             </div>
             <div className="navbar-menu-wrapper d-flex align-items-center justify-content-end">
               <ul className="navbar-nav mr-lg-2">
-                <li className="nav-item nav-search d-none d-lg-block">
+                <li className="nav-item nav-search d-none d-lg-block d-md-block">
                   <div className="input-group">
                     <Multiselect_dropdown
                       className="mx-3"
@@ -229,7 +214,6 @@ const Navbar = () => {
                       selectedList={selected}
                       setSelected={setSelected}
                     ></Multiselect_dropdown>
-
                     {/* Month Dropdown */}
                     <select
                       value={month}
@@ -251,7 +235,6 @@ const Navbar = () => {
                       <option value="11">November</option>
                       <option value="12">December</option>
                     </select>
-
                     {/* Year Dropdown */}
                     <select
                       value={year}
@@ -288,8 +271,7 @@ const Navbar = () => {
                     </div>
                     <div className="nav-profile-text">
                       <p className="text-black font-weight-semibold m-0">
-                        {' '}
-                        {data?.data[0]?.name}{' '}
+                        {data?.data[0]?.name}
                       </p>
                     </div>
                   </a>
@@ -298,17 +280,26 @@ const Navbar = () => {
                     aria-labelledby="profileDropdown"
                   >
                     <a className="dropdown-item" href="/">
-                      <i className="mdi mdi-cached mr-2 text-success"></i>{' '}
+                      <i className="mdi mdi-cached mr-2 text-success"></i>
                       Activity Log
                     </a>
                     <div className="dropdown-divider"></div>
                     <a className="dropdown-item" href="/">
-                      <i className="mdi mdi-logout mr-2 text-primary"></i>{' '}
+                      <i className="mdi mdi-logout mr-2 text-primary"></i>
                       Signout
                     </a>
                   </div>
                 </li>
               </ul>
+              {/* Mobile search icon */}
+              <button
+                className="d-sm-block d-md-none btn btn-link p-0 ms-2"
+                style={{ background: 'none', border: 'none' }}
+                onClick={() => setShowMobileFilter(true)}
+                aria-label="Show search filters"
+              >
+                <MdSearch size={28} color="#333" />
+              </button>
               <button
                 className="navbar-toggler navbar-toggler-right d-lg-none d-md-none align-self-center"
                 type="button"
@@ -322,7 +313,7 @@ const Navbar = () => {
               </button>
             </div>
           </div>
-        </nav>
+        </nav >
         <nav className="bottom-navbar">
           <div className="container">
             <ul className="nav page-navigation">
@@ -356,67 +347,97 @@ const Navbar = () => {
             </ul>
           </div>
         </nav>
-        {/* Move mobile filter bar directly below horizontal-menu for mobile view */}
-        <ul className="navbar-nav mr-lg-2 bottom-filter d-md-none mobile-filter-bar" style={{ marginTop: 0 }}>
-          <li className="nav-item nav-search">
-            <div className="input-group flex-column flex-md-row">
-              <div className="d-flex flex-row w-100 mb-2" style={{ gap: '0.5rem' }}>
-                <Multiselect_dropdown
-                  className="flex-fill mb-0"
-                  options={divisions.map((col) => ({
-                    label: col.name,
-                    value: col.div,
-                  }))}
-                  selectedList={selected}
-                  setSelected={setSelected}
-                ></Multiselect_dropdown>
-                {/* Month Dropdown */}
-                <select
-                  value={month}
-                  onChange={handleMonthChange}
-                  className="form-select form-select-sm flex-fill mb-0"
-                  aria-label="Select Month"
+
+        {/* Mobile filter drawer */}
+        {
+          showMobileFilter && (
+            <div className="mobile-filter-drawer" style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              height: '100%',
+              width: 320, // Restore previous width (e.g., 320px)
+              background: '#fff',
+              zIndex: 2000,
+              boxShadow: '-2px 0 8px rgba(0,0,0,0.15)',
+              transition: 'transform 0.3s',
+              transform: showMobileFilter ? 'translateX(0)' : 'translateX(100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: 0
+            }}>
+              <div className="d-flex justify-content-end p-2">
+                <button
+                  className="btn btn-link"
+                  style={{ fontSize: 28, color: '#333' }}
+                  onClick={() => setShowMobileFilter(false)}
+                  aria-label="Close search filters"
                 >
-                  <option value="">Select Month</option>
-                  <option value="1">January</option>
-                  <option value="2">February</option>
-                  <option value="3">March</option>
-                  <option value="4">April</option>
-                  <option value="5">May</option>
-                  <option value="6">June</option>
-                  <option value="7">July</option>
-                  <option value="8">August</option>
-                  <option value="9">September</option>
-                  <option value="10">October</option>
-                  <option value="11">November</option>
-                  <option value="12">December</option>
-                </select>
-                {/* Year Dropdown */}
-                <select
-                  value={year}
-                  onChange={handleYearChange}
-                  className="form-select form-select-sm flex-fill mb-0"
-                  aria-label="Select Year"
-                >
-                  <option value="">Select Year</option>
-                  <option value="2023">2023</option>
-                  <option value="2024">2024</option>
-                  <option value="2025">2025</option>
-                  <option value="2026">2026</option>
-                </select>
+                  &times;
+                </button>
               </div>
-              <div className="w-100 d-flex justify-content-end ">
-                <Button
-                  className="me-2 btn btn-primary mb-2 mb-md-0 mt-0 flex-fill"
-                  onClick={handleSearch}
-                >
-                  Search
-                </Button>
+              <div className="flex-grow-1 d-flex flex-column justify-content-start align-items-center px-3">
+                <ul className="navbar-nav bottom-filter w-100">
+                  <li className="nav-item nav-search w-100">
+                    <div className="input-group flex-column w-100 align-items-stretch" style={{ gap: 8 }}>
+                      <Multiselect_dropdown
+                        className="mb-2 w-100"
+                        options={divisions.map((col) => ({
+                          label: col.name,
+                          value: col.div,
+                        }))}
+                        selectedList={selected}
+                        setSelected={setSelected}
+                      ></Multiselect_dropdown>
+                      <select
+                        value={month}
+                        onChange={handleMonthChange}
+                        className="form-select form-select-sm mb-2 w-100"
+                        aria-label="Select Month"
+                      >
+                        <option value="">Select Month</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                      </select>
+                      <select
+                        value={year}
+                        onChange={handleYearChange}
+                        className="form-select form-select-sm mb-2 w-100"
+                        aria-label="Select Year"
+                      >
+                        <option value="">Select Year</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                      </select>
+                      <Button
+                        className="btn btn-primary w-100"
+                        onClick={() => {
+                          handleSearch();
+                          setShowMobileFilter(false);
+                        }}
+                      >
+                        Search
+                      </Button>
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
-          </li>
-        </ul>
-      </div>
+          )
+        }
+      </div >
     </>
   );
 };

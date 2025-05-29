@@ -35,3 +35,11 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+@media (min-width: 768px) {
+  .multiselect-responsive-width {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+  }
+}
