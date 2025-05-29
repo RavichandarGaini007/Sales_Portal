@@ -202,11 +202,12 @@ const Navbar = () => {
               </a>
             </div>
             <div className="navbar-menu-wrapper d-flex align-items-center justify-content-end">
-              <ul className="navbar-nav mr-lg-2">
+              <ul className="navbar-nav mr-lg-2 justify-content-md-start" style={{ width: '100%' }}>
                 <li className="nav-item nav-search d-none d-lg-block d-md-block">
                   <div className="input-group">
                     <Multiselect_dropdown
                       className="mx-3"
+                      style={{ width: '200px !important' }}
                       options={divisions.map((col) => ({
                         label: col.name,
                         value: col.div,
@@ -291,9 +292,9 @@ const Navbar = () => {
                   </div>
                 </li>
               </ul>
-              {/* Mobile search icon */}
+              {/* Mobile & Tab search icon */}
               <button
-                className="d-sm-block d-md-none btn btn-link p-0 ms-2"
+                className="d-md-none d-lg-none btn btn-link p-0 ms-2"
                 style={{ background: 'none', border: 'none' }}
                 onClick={() => setShowMobileFilter(true)}
                 aria-label="Show search filters"
@@ -301,9 +302,12 @@ const Navbar = () => {
                 <MdSearch size={28} color="#333" />
               </button>
               <button
-                className="navbar-toggler navbar-toggler-right d-lg-none d-md-none align-self-center"
+                className="navbar-toggler navbar-toggler-right d-md-block d-lg-none align-self-center"
                 type="button"
-                data-toggle="horizontal-menu-toggle"
+                onClick={() => {
+                  const menu = document.querySelector('.bottom-navbar');
+                  if (menu) menu.classList.toggle('show');
+                }}
                 style={{ border: 'none', background: 'none', padding: 0 }}
               >
                 <span
