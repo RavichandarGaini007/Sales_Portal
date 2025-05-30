@@ -328,14 +328,20 @@ const Navbar = () => {
             <ul className="nav page-navigation">
               {menuItems.map((item, index) => (
                 <li className="nav-item" key={index}>
-                  <Link className="nav-link" to={item.url}>
-                    <i className={`${item.menu_icon} menu-icon`}></i>
-                    <span className="menu-title">{item.name}</span>
-                    {menuItems[index].submenu &&
-                      menuItems[index].submenu.length > 0 && (
-                        <i className="menu-arrow"></i>
-                      )}
-                  </Link>
+                  {item.url.startsWith("http") ? (
+                    <a className="nav-link" href={item.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted)} target="_blank" rel="noopener noreferrer">
+                      <span>{item.name}</span>
+                    </a>
+                  ) : (
+                    <Link className="nav-link" to={item.url}>
+                      <i className={`${item.menu_icon} menu-icon`}></i>
+                      <span className="menu-title">{item.name}</span>
+                      {menuItems[index].submenu &&
+                        menuItems[index].submenu.length > 0 && (
+                          <i className="menu-arrow"></i>
+                        )}
+                    </Link>
+                  )}
                   {/* Render Submenu if available */}
                   {menuItems[index].submenu &&
                     menuItems[index].submenu.length > 0 && (

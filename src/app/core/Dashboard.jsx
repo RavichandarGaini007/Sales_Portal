@@ -63,7 +63,7 @@ const Dashboard = () => {
             <div className="page-header flex-wrap">
               <div className="header-left">
                 <button
-                  className="btn btn-primary mb-2 mb-md-0 mr-2"
+                  className="btn btn-primary mb-2 mb-md-0 mr-2" style={{ "background": "#00d284", "border": "none" }}
                   onClick={() => navComps('dashboard')}
                 >
                   {' '}

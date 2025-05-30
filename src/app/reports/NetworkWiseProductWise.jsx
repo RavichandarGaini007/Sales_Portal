@@ -5,19 +5,33 @@ import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
 import { apiUrls } from '../lib/fetchApi';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
-import XlsxPopulate from "xlsx-populate/browser/xlsx-populate";
-// import XlsxPopulate from 'xlsx-populate';
-import { saveAs } from "file-saver";
-const NetworkWiseProductWise = () => {
 
+const NetworkProductWise = () => {
+    const [view, setView] = useState('allindia'); // empty, 'product', or 'yearly'
     const [divison, setdivison] = useState([]);
     const [selectedDivison, setSelectedDivison] = useState([]);
     const [selectedYear, setSelectedYear] = useState([]);
-    const [years] = useState([
-        { label: '2023', value: 2023 },
-        { label: '2024', value: 2024 },
-        { label: '2025', value: 2025 },
-    ]);
+    const [selectedMonth, setselectedMonth] = useState([]);
+    const [selectedNetworkwise, setselectedNetworkwise] = useState([]);
+    const currentYear = new Date().getFullYear();
+    const [years] = useState(() => {
+        return Array.from({ length: 3 }, (_, i) => {
+            const year = currentYear - i;
+            return {
+                label: year,
+                value: year,
+            };
+        });
+    });
+    const [monthyears] = useState(() => {
+        return Array.from({ length: 3 }, (_, i) => {
+            const year = currentYear - i;
+            return {
+                label: `${year}-${year + 1}`,
+                value: year,
+            };
+        });
+    });
     const [months] = useState([
         { label: 'January', value: 1 },
         { label: 'February', value: 2 },
@@ -34,6 +48,19 @@ const NetworkWiseProductWise = () => {
 
     ]);
 
+    const [desg] = useState([
+        { label: 'NSM', value: 'NSM' },
+        { label: 'SM', value: 'SM' },
+        { label: 'ZSM', value: 'ZSM' },
+        { label: 'DSM', value: 'DSM' },
+        { label: 'SRM', value: 'SRM' },
+        { label: 'RM', value: 'RM' },
+        { label: 'ABM', value: 'ABM' },
+        { label: 'HQ', value: 'HQ' },
+
+
+    ]);
+
     // Fetch divison on load
     useEffect(() => {
 
@@ -41,9 +68,7 @@ const NetworkWiseProductWise = () => {
         async function fetchDivision() {
             try {
 
-                // const response = await axios.get('/api/divison');
-                let empCode = '041406';
-                let role = 'Admin';
+                let empCode = data?.data[0]?.userid;
                 const response = await axios.get(
                     apiUrls.SalesDiv + `?strEmpCode=${empCode}`
                 );
@@ -60,63 +85,97 @@ const NetworkWiseProductWise = () => {
         fetchDivision();
     }, []);
 
-
+    const fnChangeNetworkWise = (value) => {
+        setView(view);
+    }
     return (<div>
         <div className="container-fluid py-4" style={{ height: '100vh' }}>
             <div className="row gx-4">
 
                 <h2 className='p-4 mb-lg-4'>Network Wise Product Sales Details</h2>
-                <div className="col-auto d-flex align-items-center gap-2"></div>
-                <select className="form-select form-select-sm"
-                    style={{ width: '150px' }}>
-                    <option value={"allindia"}>ALL India</option>
-                    <option value={"network"}>Networkwise</option>
-                    <option value={"quarterwise"}>Quarterwise</option>
-                </select>
-
-                {/* Division (Divison) Dropdown */}
                 <div className="col-auto d-flex align-items-center gap-2">
-                    <label className="form-label mb-0">Division:</label>
-                    <div style={{ width: '200px' }}>
-                        <Multiselect_dropdown
-                            options={divison}
-                            selectedList={selectedDivison}
-                            setSelected={setSelectedDivison}
-                        />
-                    </div>
+
+                    <select className="form-select form-select-sm" onChange={(e) => { setView(e.target.value) }}
+                        style={{ width: '150px' }}>
+                        <option value={"allindia"}>All India</option>
+                        <option value={"network"}>Networkwise</option>
+                        <option value={"quarterwise"}>Quarterwise</option>
+                    </select>
                 </div>
+                {view != "allindia" && (
+                    <>
+                        <div className="col-auto d-flex align-items-center gap-2">
+                            <label className="form-label mb-0">Division:</label>
+                            <div style={{ width: '200px' }}>
+                                <Multiselect_dropdown
+                                    options={divison}
+                                    selectedList={selectedDivison}
+                                    setSelected={setSelectedDivison}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-auto d-flex align-items-center gap-2">
+                            <label className="form-label mb-0">Desg:</label>
+                            <select
+                                id="ddldesg"
+                                className="form-select form-select-sm"
+                                style={{ width: '150px' }}
+                            >
+                                <option value="">--Select--</option>
+                                {desg.map((a) => (
+                                    <option key={a.value} value={a.value}>
+                                        {a.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </>
+                )}
+
 
                 {/* Year Dropdown */}
                 <div className="col-auto d-flex align-items-center gap-2">
                     <label htmlFor="yearDropdown" className="form-label mb-0">Month & Year:</label>
-                    <select
+                    {view !== "quarterwise" && (
+                        <><select
+                            id="yearDropdown"
+                            className="form-select form-select-sm"
+                            style={{ width: '150px' }}
+                        >
+                            <option value="">Select Month</option>
+                            {months.map((year) => (
+                                <option key={year.value} value={year.value}>
+                                    {year.label}
+                                </option>
+                            ))}
+                        </select>
+                            <select
+                                id="yearDropdown"
+                                className="form-select form-select-sm"
+                                style={{ width: '150px' }}
+                            >
+                                <option value="">Select Year</option>
+                                {years.map((year) => (
+                                    <option key={year.value} value={year.value}>
+                                        {year.label}
+                                    </option>
+                                ))}
+                            </select></>
+                    )}
+                    {view === "quarterwise" && (<><select
                         id="yearDropdown"
                         className="form-select form-select-sm"
                         style={{ width: '150px' }}
-                        value={selectedYear[0]?.value || ''}
-
-                    >
-                        <option value="">Select Month</option>
-                        {months.map((year) => (
-                            <option key={year.value} value={year.value}>
-                                {year.label}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        id="yearDropdown"
-                        className="form-select form-select-sm"
-                        style={{ width: '150px' }}
-                        value={selectedYear[0]?.value || ''}
-
                     >
                         <option value="">Select Year</option>
-                        {years.map((year) => (
-                            <option key={year.value} value={year.value}>
-                                {year.label}
+                        {monthyears.map((myear) => (
+                            <option key={myear.value} value={myear.value}>
+                                {myear.label}
                             </option>
                         ))}
                     </select>
+                    </>)}
+
 
                 </div>
                 <div className="col-auto">
@@ -130,4 +189,4 @@ const NetworkWiseProductWise = () => {
     )
 }
 
-export default NetworkWiseProductWise;
+export default NetworkProductWise;

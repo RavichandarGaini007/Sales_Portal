@@ -86,6 +86,9 @@ export const apiUrls = {
   SalesDiv: API_REQUEST + 'SalesDiv',
   userEmailId: API_REQUEST + 'userEmailId',
   DownloadFileFromFTP: API_REQUEST + 'download',
+  GetCustomizeTabUser: API_REQUEST + 'GetCustomize_tab_user',
+  GetFtpFileLastModifiedDateTime: API_REQUEST + 'GetFtpFileLastModifiedDateTime',
+  GetEncryptAndEncodeVal: API_REQUEST + 'GetEncryptAndEncodeVal',
 };
 
 export const popState = {
