@@ -35,3 +35,30 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+@media (min-width: 768px) {
+  .multiselect-responsive-width {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .navbar-brand-wrapper {
+    width: 10% !important;
+    min-width: 10% !important;
+    max-width: 10% !important;
+  }
+  .navbar-menu-wrapper {
+    width: 90% !important;
+    min-width: 90% !important;
+    max-width: 90% !important;
+  }
+  .bottom-navbar {
+    display: none !important;
+  }
+  .bottom-navbar.show {
+    display: block !important;
+  }
+}
