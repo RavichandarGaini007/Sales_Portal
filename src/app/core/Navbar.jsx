@@ -324,7 +324,7 @@ const Navbar = () => {
               {menuItems.map((item, index) => (
                 <li className="nav-item" key={index}>
                   {item.url.startsWith("http") ? (
-                    <a className="nav-link" href={item.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted)} target="_blank" rel="noopener noreferrer">
+                    <a className="nav-link" href={item.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted).replace("stringemailencryption", data.emailEncryptionString)} target="_blank" rel="noopener noreferrer">
                       <span>{item.name}</span>
                     </a>
                   ) : (
@@ -344,9 +344,14 @@ const Navbar = () => {
                         <ul className="submenu-item">
                           {menuItems[index].submenu.map((submenu, subIndex) => (
                             <li className="nav-item" key={subIndex}>
-                              <Link className="nav-link" to={submenu.url}>
-                                <span>{submenu.name}</span>
-                              </Link>
+                              {submenu.url.startsWith("http") ? (
+                                <a className="nav-link" href={submenu.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted).replace("stringemailencryption", data.emailEncryptionString)} target="_blank" rel="noopener noreferrer">
+                                  <span>{submenu.name}</span>
+                                </a>
+                              ) : (
+                                <Link className="nav-link" to={submenu.url}>
+                                  <span>{submenu.name}</span>
+                                </Link>)}
                             </li>
                           ))}
                         </ul>

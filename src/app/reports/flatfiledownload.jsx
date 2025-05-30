@@ -189,7 +189,16 @@ const FlatFileDownload = () => {
 
       // Step 3: Export and download
       const blob = await workbook.outputAsync();
-      saveAs(blob, "Flat File Primary Sales.xlsx");
+      const date = new Date();
+      const dd = String(date.getDate()).padStart(2, '0');
+      const MM = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+      const yyyy = date.getFullYear();
+      const HH = String(date.getHours()).padStart(2, '0');
+      const mm = String(date.getMinutes()).padStart(2, '0');
+      const ss = String(date.getSeconds()).padStart(2, '0');
+      var filename = `mis_flat_file_${dd}-${MM}-${yyyy} ${HH}${mm}${ss}.xlsx`;
+
+      saveAs(blob, filename);
     }
     if (selectedDivison.length == 0) {
       errrmsg += "Please Select Division. \n";
