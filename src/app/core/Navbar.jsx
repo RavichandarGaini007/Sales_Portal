@@ -292,7 +292,10 @@ const Navbar = () => {
                       Activity Log
                     </a>
                     <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" href="/">
+                    <a className="dropdown-item" href="#" onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = '/sales_portal_new';
+                    }}>
                       <i className="mdi mdi-logout mr-2 text-primary"></i>
                       Signout
                     </a>
