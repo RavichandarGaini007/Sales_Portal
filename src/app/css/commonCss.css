@@ -62,3 +62,64 @@
     display: block !important;
   }
 }
+
+/* Container for all submenu groups */
+.submenu-columns {
+  display: flex;
+  /* flex-wrap: wrap; */
+  gap: 20px;
+}
+
+/* Each group of submenu items */
+.submenu-group {
+  flex: 1 1 200px;
+  box-sizing: border-box;
+}
+
+/* Optional: style the heading */
+.submenu-title {
+   background-color: rgb(0, 210, 132);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  margin: 0;
+  border-radius: 3px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  font-weight: 600;
+}
+
+/* The list inside each group */
+.submenu-item {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each menu item */
+.nav-item {
+  margin-bottom: 6px;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 6px 12px;
+  /* background-color: #f3f3f3; */
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+}
+
+/* Mobile view: stack groups vertically */
+@media (max-width: 768px) {
+  .submenu-columns {
+    /* flex-direction: column; */
+    /* flex: none; */
+    flex-wrap:wrap;
+  }
+
+  .submenu-group {
+    width: 100%;
+  }
+}
