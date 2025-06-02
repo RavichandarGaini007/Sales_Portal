@@ -124,6 +124,13 @@ const Navbar = () => {
     genRequest();
   };
 
+  const chunkArray = (array, size) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  };
   const genRequest = () => {
     // Check for 'div' parameter in URL
     const params = new URLSearchParams(window.location.search);
@@ -338,25 +345,44 @@ const Navbar = () => {
                     </Link>
                   )}
                   {/* Render Submenu if available */}
-                  {menuItems[index].submenu &&
-                    menuItems[index].submenu.length > 0 && (
-                      <div className="submenu">
-                        <ul className="submenu-item">
-                          {menuItems[index].submenu.map((submenu, subIndex) => (
-                            <li className="nav-item" key={subIndex}>
-                              {submenu.url.startsWith("http") ? (
-                                <a className="nav-link" href={submenu.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted).replace("stringemailencryption", data.emailEncryptionString)} target="_blank" rel="noopener noreferrer">
-                                  <span>{submenu.name}</span>
-                                </a>
-                              ) : (
-                                <Link className="nav-link" to={submenu.url}>
-                                  <span>{submenu.name}</span>
-                                </Link>)}
-                            </li>
-                          ))}
-                        </ul>
+                  {menuItems[index].submenu && menuItems[index].submenu.length > 0 && (
+                    <div className="submenu">
+                      <div className="submenu-columns">
+                        {chunkArray(menuItems[index].submenu, 10).map((chunk, colIndex) => (
+                          <div className="submenu-group" key={colIndex}>
+                            {item.name == "Other Portals" && (
+                              <h5 className="submenu-title">Group {colIndex + 1}</h5>)}
+                            <ul className="submenu-item">
+                              {chunk.map((submenu, subIndex) => (
+                                <li className="nav-item" key={subIndex}>
+                                  {submenu.url.startsWith("http") ? (
+                                    <a
+                                      className="nav-link"
+                                      href={submenu.url
+                                        .replace("stremailencrypt", data.emailKeyEncrypted)
+                                        .replace("struserencrypt", data.userKeyEncrypted)
+                                        .replace("stringemailencryption", data.emailEncryptionString)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {submenu.name}
+                                    </a>
+                                  ) : (
+                                    <Link className="nav-link" to={submenu.url}>
+                                      {submenu.name}
+                                    </Link>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                    </div>
+                  )}
+
+
+
                 </li>
               ))}
             </ul>
