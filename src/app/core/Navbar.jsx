@@ -95,6 +95,23 @@ const Navbar = () => {
     genRequest();
   }, []);
 
+  useEffect(() => {
+    // Ensure jQuery is available
+    if (window.$) {
+      // Horizontal menu navigation in mobile menu on click (from settings.js logic)
+      const navItemClicked = window.$('.horizontal-menu .page-navigation >.nav-item');
+      navItemClicked.off('click._customReactMenu'); // Remove previous handler if any
+      navItemClicked.on('click._customReactMenu', function (event) {
+        if (window.matchMedia('(max-width: 991px)').matches) {
+          if (!window.$(this).hasClass('show-submenu')) {
+            navItemClicked.removeClass('show-submenu');
+          }
+          window.$(this).toggleClass('show-submenu');
+        }
+      });
+    }
+  }, [menuItems]);
+
   // Handle change for Division dropdown
   const handleDivisionChange = (selectedColumns) => {
     setSelected(selectedColumns);
@@ -305,18 +322,15 @@ const Navbar = () => {
                 <MdSearch size={28} color="#333" />
               </button>
               <button
-                className="navbar-toggler navbar-toggler-right d-md-block d-lg-none align-self-center"
+                className="navbar-toggler navbar-toggler-right d-block d-lg-none align-self-center"
                 type="button"
+                aria-label="Toggle navigation"
                 onClick={() => {
                   const menu = document.querySelector('.bottom-navbar');
                   if (menu) menu.classList.toggle('show');
                 }}
-                style={{ border: 'none', background: 'none', padding: 0 }}
               >
-                <span
-                  className="mdi mdi-menu"
-                  style={{ fontSize: '2rem', color: '#333' }}
-                ></span>
+                <span className="navbar-toggler-icon"></span>
               </button>
             </div>
           </div>
