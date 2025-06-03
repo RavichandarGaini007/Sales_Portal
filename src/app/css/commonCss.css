@@ -78,7 +78,7 @@
 
 /* Optional: style the heading */
 .submenu-title {
-   background-color: rgb(0, 210, 132);
+  background-color: rgb(0, 210, 132);
   color: white;
   padding: 0.3rem 0.8rem;
   margin: 0;
@@ -116,10 +116,54 @@
   .submenu-columns {
     /* flex-direction: column; */
     /* flex: none; */
-    flex-wrap:wrap;
+    flex-wrap: wrap;
   }
 
   .submenu-group {
     width: 100%;
+  }
+}
+
+/* Ensure .bottom-navbar is hidden by default on mobile and only shown when .show is present */
+@media (max-width: 991.98px) {
+  .bottom-navbar {
+    display: none !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1050;
+    background: #fff;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .bottom-navbar.show {
+    display: block !important;
+  }
+  /* Ensure submenu is visible and styled for mobile */
+  .navbar-nav .dropdown-menu {
+    position: static;
+    float: none;
+    width: 100%;
+    background: #fff;
+    box-shadow: none;
+    border: none;
+    display: none;
+  }
+  .navbar-nav .dropdown.open > .dropdown-menu,
+  .navbar-nav .dropdown:hover > .dropdown-menu,
+  .navbar-nav .dropdown:focus > .dropdown-menu {
+    display: block;
+  }
+  .navbar-toggler {
+    display: block !important;
+  }
+}
+/* Always show navbar-toggler on mobile */
+.navbar-toggler {
+  display: none;
+}
+@media (max-width: 991.98px) {
+  .navbar-toggler {
+    display: block !important;
   }
 }
