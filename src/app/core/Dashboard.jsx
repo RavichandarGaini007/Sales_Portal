@@ -18,7 +18,6 @@ import RegionPerformance from '../components/RegionPerformance';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
 import SalesDivs from '../components/SalesDivs';
-import Spinner from '../common/Spinner';
 
 const Dashboard = () => {
   const [scData, setscData] = useState([]);
@@ -94,6 +93,7 @@ const Dashboard = () => {
               </Col>
               <Col lg="5" md="5" sm="5">
                 <SalesDivs tableData={salableData} />
+                {/* <DivBars /> */}
               </Col>
             </Row>
             <Row className="mt-performace">

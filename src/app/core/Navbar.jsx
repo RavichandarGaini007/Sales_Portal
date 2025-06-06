@@ -397,9 +397,6 @@ const Navbar = () => {
                       </div>
                     </div>
                   )}
-
-
-
                 </li>
               ))}
             </ul>
