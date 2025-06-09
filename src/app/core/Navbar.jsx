@@ -329,7 +329,7 @@ const Navbar = () => {
                 <MdSearch size={28} color="#333" />
               </button>
               <button
-                className="navbar-toggler navbar-toggler-right d-block d-lg-none align-self-center"
+                className="navbar-toggler navbar-toggler-right d-block d-md-none d-lg-none align-self-center"
                 type="button"
                 aria-label="Toggle navigation"
                 onClick={() => {

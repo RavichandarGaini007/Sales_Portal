@@ -38,8 +38,9 @@ const chartOptions = {
   },
   scales: {
     x: {
-      categoryPercentage: 0.6,
-      barPercentage: 0.8,
+      categoryPercentage: 1.0, // full width for the group
+      barPercentage: 0.3, // much thinner bars, more space between bars
+      // Add groupPadding if using grouped bars (not needed for single group)
     },
   },
 };
@@ -62,7 +63,7 @@ const UnconfirmedOrderChart = ({ tableData }) => {
         label: 'Unconfirmed Due to OS', // Label for first bar
         data: [salableGrndTotl.unconf_ostd_ord], //  // Example value for "Unconfirmed Due to OS"
         backgroundColor: '#5e6eed', // Bar color for "OS"
-        borderColor: 'rgba(255, 99, 132, 1)', // Border color for "OS"
+
         borderWidth: 1,
         barThickness: 20,
       },
@@ -70,7 +71,7 @@ const UnconfirmedOrderChart = ({ tableData }) => {
         label: 'Unconfirmed Due to Stock', // Label for second bar
         data: [salableGrndTotl.unconf_stock], // //props.data.unconf_stock  // Example value for "Unconfirmed Due to Stock"
         backgroundColor: '#ff0d59', // Bar color for "Stock"
-        borderColor: 'rgba(54, 162, 235, 1)', // Border color for "Stock"
+
         borderWidth: 1,
         barThickness: 20,
       },

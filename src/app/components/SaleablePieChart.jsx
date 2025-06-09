@@ -1,10 +1,5 @@
-import React from 'react';
-import { Card, CardHeader, CardBody, Row, Col } from 'reactstrap';
-import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-
-// Register required components
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { Card, CardHeader, CardBody, Row } from 'reactstrap';
+import '@mdi/font/css/materialdesignicons.min.css';
 
 const SaleablePieChart = ({ tableData }) => {
   if (!tableData || tableData.length === 0) {
@@ -25,59 +20,17 @@ const SaleablePieChart = ({ tableData }) => {
     100 - saleablePercentage - nonSaleablePercentage
   );
 
-  const pieData = {
-    labels: ['Sale', 'Saleable', 'Non-Saleable'],
-    datasets: [
-      {
-        data: [totalSales, saleablePercentage, nonSaleablePercentage],
-        backgroundColor: ['#5e6eed', '#00d284', '#ff0d59'],
-        hoverBackgroundColor: ['#5e6eed', '#00d284', '#ff0d59'],
-      },
-    ],
+  const cardIconStyle = {
+    fontSize: '50px',
+    color: '#fff',
+    marginBottom: '10px',
+    opacity: 0.5,
+    right: '10px',
+    position: 'absolute',
   };
-
-  const pieOptions = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw}%`,
-          // label: function (tooltipItem) {
-          //   const label = tooltipItem.label || '';
-          //   const value = tooltipItem.raw || 0;
-          //   return `${label}: ${value}%`;
-          // },
-        },
-      },
-      legend: {
-        display: false,
-        position: 'bottom',
-      },
-      datalabels: {
-        color: '#fff', // Set the color of the data labels (white in this case)
-        font: {
-          weight: 'bold',
-          size: 14,
-        },
-        formatter: function (value) {
-          return value + '%'; // Append percentage to the label
-        },
-      },
-    },
-    maintainAspectRatio: false,
-  };
-
-  const colorStyle = (color) => ({
-    display: 'inline-block',
-    width: '15px',
-    height: '15px',
-    backgroundColor: color,
-    marginRight: '5px',
-  });
 
   return (
-    // <Col lg="5" md="12" sm="12">
     <Card className="card-stats" style={{ height: '220px' }}>
-      {/* <CardHeader className="bg-primary text-white"> */}
       <CardHeader>
         <div className="stats card-title mb-0">
           <i className="mdi mdi-chart-pie menu-icon" />
@@ -85,32 +38,31 @@ const SaleablePieChart = ({ tableData }) => {
         </div>
       </CardHeader>
       <CardBody>
-        <Row>
-          <Col md="6" sm="12">
-            <div style={{ width: '100%' }}>
-              <Doughnut data={pieData} options={pieOptions} />
+        <Row className="g-2 flex-wrap flex-md-nowrap justify-content-between align-items-stretch">
+          <div className="col-12 col-sm-4 mb-3 mb-sm-0">
+            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(63 195 60)', borderRadius: '10px', minHeight: 100 }}>
+              <h5 className="text-white">Total Sale</h5>
+              <p className="m-b-0 text-white">{salableGrndTotl.net_amt} ({totalSales}% )</p>
+              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
             </div>
-          </Col>
-          <Col md="6" sm="12" className="text-center">
-            <ul className="list-unstyled" style={{ textAlign: 'left' }}>
-              <li>
-                <span style={colorStyle('#5e6eed')}></span>
-                Total Sales: {totalSales}%
-              </li>
-              <li>
-                <span style={colorStyle('#00d284')}></span>
-                Saleable: {saleablePercentage}%
-              </li>
-              <li>
-                <span style={colorStyle('#ff0d59')}></span>
-                Non-Saleable: {nonSaleablePercentage}%
-              </li>
-            </ul>
-          </Col>
+          </div>
+          <div className="col-12 col-sm-4 mb-3 mb-sm-0">
+            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(58 183 148)', borderRadius: '10px', minHeight: 100 }}>
+              <h5 className="text-white">Salable</h5>
+              <p className="m-b-0 text-white">{salableGrndTotl.saleable} ({saleablePercentage}% )</p>
+              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
+            </div>
+          </div>
+          <div className="col-12 col-sm-4">
+            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(237 52 52)', borderRadius: '10px', minHeight: 100 }}>
+              <h5 className="text-white">Non-Salable</h5>
+              <p className="m-b-0 text-white">{salableGrndTotl.nonsaleable} ({nonSaleablePercentage}% )</p>
+              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
+            </div>
+          </div>
         </Row>
       </CardBody>
     </Card>
-    // </Col>
   );
 };
 

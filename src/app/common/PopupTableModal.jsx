@@ -71,68 +71,6 @@ const PopupTableModal = ({
     }
   };
 
-  // const renderTable = (data) => {
-  //   return (
-  //     <table className="table table-bordered">
-  //       {data && Array.isArray(data) && data.length > 0 ? (
-  //         <>
-  //           <thead className="thead-light">
-  //             <tr>
-  //               {head.map((column) => (
-  //                 <th key={column.accessorKey}>{column.header}</th>
-  //               ))}
-  //             </tr>
-  //           </thead>
-  //           <tbody>
-  //             {data.map((item, index) => (
-  //               <tr
-  //                 // key={index}
-  //                 key={`${item.id}-${index}`}
-  //                 onClick={() => {
-  //                   handleRowClick(item);
-  //                 }}
-  //               >
-  //                 {head.map((column) => {
-  //                   const value = item[column.accessorKey];
-  //                   const isAchv = column.accessorKey === 'achv';
-  //                   return (
-  //                     <td
-  //                       key={`${item.id}-${column.accessorKey}`}
-  //                       style={{
-  //                         color:
-  //                           isAchv && value >= 100
-  //                             ? '#00d284'
-  //                             : isAchv
-  //                               ? 'red'
-  //                               : undefined,
-  //                       }}
-  //                     >
-  //                       {value}
-  //                       {isAchv && value >= 100 ? (
-  //                         <i className="mdi mdi-arrow-up"></i>
-  //                       ) : isAchv && value ? (
-  //                         <i className="mdi mdi-arrow-down"></i>
-  //                       ) : undefined}
-  //                     </td>
-  //                   );
-  //                 })}
-  //               </tr>
-  //             ))}
-  //           </tbody>
-  //         </>
-  //       ) : (
-  //         <tbody>
-  //           <tr>
-  //             <td colSpan="5" style={{ textAlign: 'center' }}>
-  //               No data available
-  //             </td>
-  //           </tr>
-  //         </tbody>
-  //       )}
-  //     </table>
-  //   );
-  // };
-
   const renderTable = (data) => {
     if (!data || !Array.isArray(data) || data.length === 0) {
       return (

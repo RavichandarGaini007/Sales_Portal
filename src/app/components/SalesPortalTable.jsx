@@ -425,7 +425,7 @@ const SalesPortalTable = () => {
                           ).map((col) => {
                             const colClass =
                               col.accessorKey === 'division' ||
-                              col.accessorKey === 'name'
+                                col.accessorKey === 'name'
                                 ? 'sticky-column-twocol'
                                 : '';
 
@@ -458,11 +458,6 @@ const SalesPortalTable = () => {
         fullscreen={true} // Enables full-window modal
       >
         <Modal.Body>{modelComp()}</Modal.Body>
-        {/* <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-        </Modal.Footer> */}
       </Modal>
     </>
   );

@@ -56,10 +56,13 @@
     max-width: 90% !important;
   }
   .bottom-navbar {
-    display: none !important;
+    display: block !important;
   }
   .bottom-navbar.show {
     display: block !important;
+  }
+  .page-body-wrapper {
+    padding-top: 60px !important;
   }
 }
 
@@ -124,8 +127,7 @@
   }
 }
 
-/* Ensure .bottom-navbar is hidden by default on mobile and only shown when .show is present */
-@media (max-width: 991.98px) {
+@media (max-width: 767.98px) {
   .bottom-navbar {
     display: none !important;
     position: fixed;
@@ -141,31 +143,19 @@
   .bottom-navbar.show {
     display: block !important;
   }
-  /* Ensure submenu is visible and styled for mobile */
-  .navbar-nav .dropdown-menu {
-    position: static;
-    float: none;
-    width: 100%;
-    background: #fff;
-    box-shadow: none;
-    border: none;
-    display: none;
-  }
-  .navbar-nav .dropdown.open > .dropdown-menu,
-  .navbar-nav .dropdown:hover > .dropdown-menu,
-  .navbar-nav .dropdown:focus > .dropdown-menu {
-    display: block;
-  }
   .navbar-toggler {
     display: block !important;
   }
 }
+
 /* Always show navbar-toggler on mobile */
 .navbar-toggler {
   display: none;
 }
-@media (max-width: 991.98px) {
+
+/* below code is used to show navbar toggle for tablet view */
+/* @media (max-width: 991.98px) {
   .navbar-toggler {
     display: block !important;
   }
-}
+} */

@@ -88,10 +88,10 @@ const Dashboard = () => {
               </div>
             </div>
             <Row className="mt-performace">
-              <Col lg="7" md="7" sm="7">
+              <Col lg="7" md="12" sm="12">
                 <SalesAchvTabs />
               </Col>
-              <Col lg="5" md="5" sm="5">
+              <Col lg="5" md="12" sm="12">
                 <SalesDivs tableData={salableData} />
                 {/* <DivBars /> */}
               </Col>
@@ -105,12 +105,12 @@ const Dashboard = () => {
               </Col>
             </Row>
             <Row className="mt-performace">
-              <Col lg="6" md="6" sm="6">
+              <Col lg="6" md="6" sm="12">
                 <Suspense fallback={<h1>🌀 Loading...</h1>}>
                   <HQPerformance />
                 </Suspense>
               </Col>
-              <Col lg="6" md="6" sm="6">
+              <Col lg="6" md="6" sm="12">
                 <RegionPerformance />
               </Col>
             </Row>
