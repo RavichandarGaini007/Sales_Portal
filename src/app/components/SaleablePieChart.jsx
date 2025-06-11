@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardBody, Row } from 'reactstrap';
+import { Card, CardHeader, CardBody } from 'reactstrap';
 import '@mdi/font/css/materialdesignicons.min.css';
 
 const SaleablePieChart = ({ tableData }) => {
@@ -30,7 +30,7 @@ const SaleablePieChart = ({ tableData }) => {
   };
 
   return (
-    <Card className="card-stats" style={{ height: '220px' }}>
+    <Card className="card-stats" style={{ minHeight: '220px', maxHeight: '400px' }}>
       <CardHeader>
         <div className="stats card-title mb-0">
           <i className="mdi mdi-chart-pie menu-icon" />
@@ -38,29 +38,23 @@ const SaleablePieChart = ({ tableData }) => {
         </div>
       </CardHeader>
       <CardBody>
-        <Row className="g-2 flex-wrap flex-md-nowrap justify-content-between align-items-stretch">
-          <div className="col-12 col-sm-4 mb-3 mb-sm-0">
-            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(63 195 60)', borderRadius: '10px', minHeight: 100 }}>
-              <h5 className="text-white">Total Sale</h5>
-              <p className="m-b-0 text-white">{salableGrndTotl.net_amt} ({totalSales}% )</p>
-              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
-            </div>
+        <div className="flex-wrap d-flex gap-3 justify-content-between align-items-stretch w-100">
+          <div className="card-body position-relative flex-fill d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(63 195 60)', borderRadius: '10px', maxHeight: 80 }}>
+            <h5 className="text-white" style={{ marginBottom: 0 }}>Total Sale</h5>
+            <p className="m-b-0 text-white">{salableGrndTotl.net_amt} ({totalSales}% )</p>
+            <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 0, marginBottom: 0 }}></i>
           </div>
-          <div className="col-12 col-sm-4 mb-3 mb-sm-0">
-            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(58 183 148)', borderRadius: '10px', minHeight: 100 }}>
-              <h5 className="text-white">Salable</h5>
-              <p className="m-b-0 text-white">{salableGrndTotl.saleable} ({saleablePercentage}% )</p>
-              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
-            </div>
+          <div className="card-body position-relative flex-fill d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(58 183 148)', borderRadius: '10px', maxHeight: 80 }}>
+            <h5 className="text-white" style={{ marginBottom: 0 }}>Salable</h5>
+            <p className="m-b-0 text-white">{salableGrndTotl.saleable} ({saleablePercentage}% )</p>
+            <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 0, marginBottom: 0 }}></i>
           </div>
-          <div className="col-12 col-sm-4">
-            <div className="card-body position-relative h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(237 52 52)', borderRadius: '10px', minHeight: 100 }}>
-              <h5 className="text-white">Non-Salable</h5>
-              <p className="m-b-0 text-white">{salableGrndTotl.nonsaleable} ({nonSaleablePercentage}% )</p>
-              <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 4, marginBottom: 0 }}></i>
-            </div>
+          <div className="card-body position-relative flex-fill d-flex flex-column justify-content-center" style={{ backgroundColor: 'rgb(237 52 52)', borderRadius: '10px', maxHeight: 80 }}>
+            <h5 className="text-white" style={{ marginBottom: 0 }}>Non-Salable</h5>
+            <p className="m-b-0 text-white">{salableGrndTotl.nonsaleable} ({nonSaleablePercentage}% )</p>
+            <i className="mdi mdi-currency-inr material-icons-two-tone d-block f-46 card-icon text-white" style={{ ...cardIconStyle, position: 'absolute', right: 10, top: 0, marginBottom: 0 }}></i>
           </div>
-        </Row>
+        </div>
       </CardBody>
     </Card>
   );

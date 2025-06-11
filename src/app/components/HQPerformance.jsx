@@ -38,8 +38,6 @@ const HQPerformance = () => {
   const activeTabData = tabData[activeTab].data;
 
   useEffect(() => {
-    //if (tabData[activeTab]?.data || tabData[activeTab]?.loading) return; // If data is available or loading, do nothing
-
     if (request) {
       setTabData((prvData) => ({
         ...prvData,
@@ -90,26 +88,6 @@ const HQPerformance = () => {
   };
 
   const renderTableBody = () => {
-    // if (tabData[activeTab].loading) {
-    //   return <Spinner />;
-    // }
-
-    // {
-    //   tabData[activeTab].loading && (
-    //     <Spinner isLoading={true} color="primary" />
-    //   );
-    // }
-
-    // if (tabData[activeTab].loading) {
-    //   return (
-    //     <tr>
-    //       <td colSpan="8" style={{ textAlign: 'center' }}>
-    //         <Spinner color="primary" />;
-    //       </td>
-    //     </tr>
-    //   );
-    // }
-
     if (!activeTabData || activeTabData.length === 0) {
       return (
         <tr>

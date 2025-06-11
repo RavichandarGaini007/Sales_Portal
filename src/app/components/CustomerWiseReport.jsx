@@ -43,15 +43,17 @@ function CustomerWiseReport({ headerName, HqCode, divCode, onClose }) {
         onCloseClick={onClose}
       />
       {rowData && (
-        <Modal show={modalOpen} onHide={toggleModal} fullscreen>
-          <Modal.Body>
-            <CustInvoiceReport
-              headerName={rowData.name1}
-              custCode={rowData.kunnr}
-              onClose={toggleModal}
-            />
-          </Modal.Body>
-        </Modal>
+        alert('This feature is not implemented yet.')
+        // <Modal show={modalOpen} onHide={toggleModal} fullscreen>
+        //   <Modal.Body>
+        //     <CustInvoiceReport
+        //       headerName={rowData.name1}
+        //       custCode={rowData.kunnr}
+        //       onClose={toggleModal}
+        //     />
+
+        //   </Modal.Body>
+        // </Modal>
       )}
     </>
   );

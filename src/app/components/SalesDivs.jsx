@@ -44,7 +44,15 @@ const SalesDivs = ({ tableData }) => {
           return customLabels[context.dataIndex];
         },
       },
-      tooltip: { enabled: true },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: function (context) {
+            // Show customLabels in tooltip
+            return customLabels[context.dataIndex];
+          }
+        }
+      },
       title: { display: false }, // Hide chart title if not needed
     },
     scales: {
@@ -52,7 +60,7 @@ const SalesDivs = ({ tableData }) => {
         categoryPercentage: 0.1, // reduce to add more space between groups
         barPercentage: 0.7, // reduce to make bars thinner        
         afterDataLimits: (axis) => { // Extend the max value to allow space for datalabels and extra ticks
-          axis.max += axis.max * 0.75; // add 25% more space to the right
+          axis.max += axis.max * 0.500; // add 25% more space to the right
         },
         ticks: {
           callback: function (value, index, values) {

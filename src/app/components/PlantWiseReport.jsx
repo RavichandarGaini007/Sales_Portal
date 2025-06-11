@@ -26,7 +26,7 @@ function PlantWiseReport({ headerName, divCode, onClose }) {
     <>
       <PopupTableModal
         url={apiUrls.DivPlantReportData}
-        request={{ ...request, div: divCode }}
+        request={{ ...request, div: divCode, ename: headerName }}
         head={divPlantPopupColumns}
         headerName={headerName}
         state={popState.popPlantWise}

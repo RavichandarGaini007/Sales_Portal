@@ -172,7 +172,7 @@ const Navbar = () => {
         selected.length === divisions.length &&
           data?.data[0]?.enetsale === 'ALL'
           ? data?.data[0]?.enetsale
-          : Array(selected.map((items) => items.value)).join(',');
+          : selected.length > 0 ? Array(selected.map((items) => items.value)).join(',') : data?.data[0]?.enetsale.replaceAll("'", '');
     }
     const comReq = {
       tbl_name: 'FTP_' + mnth + '_' + yr,
@@ -231,7 +231,6 @@ const Navbar = () => {
                   <div className="input-group">
                     <Multiselect_dropdown
                       className="mx-3"
-                      style={{ width: '200px !important' }}
                       options={divisions.map((col) => ({
                         label: col.name,
                         value: col.div,
@@ -310,6 +309,7 @@ const Navbar = () => {
                     </a>
                     <div className="dropdown-divider"></div>
                     <a className="dropdown-item" href="#" onClick={(e) => {
+                      localStorage.removeItem('token');
                       e.preventDefault();
                       window.location.href = '/sales_portal_new';
                     }}>

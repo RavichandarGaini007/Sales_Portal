@@ -20392,10 +20392,10 @@ code {
   background: #fff;
   border: 1px solid #e4e9f0;
 }
-
+/* 
 .card .card-body {
   padding: 30px 28px;
-}
+} */
 
 .card .card-body + .card-body {
   padding-top: 1rem;

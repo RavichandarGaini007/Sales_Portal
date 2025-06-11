@@ -35,7 +35,6 @@
   max-height: 300px;
   overflow-y: auto;
 }
-
 @media (min-width: 768px) {
   .multiselect-responsive-width {
     width: 150px !important;
@@ -43,6 +42,14 @@
     max-width: 150px !important;
   }
 }
+/* 
+@media (max-width: 1024px) {
+  .multiselect-responsive-width {
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+  }
+} */
 
 @media (min-width: 768px) and (max-width: 991.98px) {
   .navbar-brand-wrapper {
@@ -100,11 +107,6 @@
   margin: 0;
 }
 
-/* Each menu item */
-.nav-item {
-  margin-bottom: 6px;
-}
-
 .nav-link {
   display: inline-block;
   padding: 6px 12px;
@@ -124,6 +126,9 @@
 
   .submenu-group {
     width: 100%;
+  }
+  .nav-item {
+    margin-bottom: 6px;
   }
 }
 

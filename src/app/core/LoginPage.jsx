@@ -33,6 +33,29 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
+  // Check for token in localStorage and validate expiry
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        // Decode JWT (assume JWT structure: header.payload.signature)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Check for exp (expiry) in seconds
+        if (payload.exp && Date.now() < payload.exp * 1000) {
+          // Token is valid, redirect user
+          // You can add more logic here if needed
+          navigate('/mainLayout/SalesPortal');
+        } else {
+          // Token expired, remove it
+          localStorage.removeItem('token');
+        }
+      } catch (e) {
+        // Invalid token, remove it
+        localStorage.removeItem('token');
+      }
+    }
+  }, [navigate]);
+
   const sliderSettings = {
     dots: false,
     // infinite: true,
