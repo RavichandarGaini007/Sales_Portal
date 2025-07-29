@@ -9,15 +9,6 @@ import { useRequest } from '../common/RequestContext';
 function ProductWiseReport({ headerName, brandCode, divCode, onClose }) {
   const { request } = useRequest();
 
-  //   const requestData = {
-  //     tbl_name: 'FTP_MAT_VAL_11_2024',
-  //     empcode: '041406',
-  //     div: '23',
-  //     month: '11',
-  //     year: '2024',
-  //     type: 'val',
-  //   };
-
   const buildRequestParams = useCallback(() => {
     const params = { ...request };
 

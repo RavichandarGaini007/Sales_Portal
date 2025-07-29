@@ -6,7 +6,7 @@ import { Modal } from 'react-bootstrap';
 import CustInvoiceReport from './CustInvoiceReport';
 import { useRequest } from '../common/RequestContext';
 
-function CustomerWiseReport({ headerName, HqCode, divCode, onClose }) {
+function CustomerWiseReport({ headerName, HqCode, divCode, onClose, misCode }) {
   const [modalOpen, setModalOpen] = useState(true);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
@@ -27,6 +27,9 @@ function CustomerWiseReport({ headerName, HqCode, divCode, onClose }) {
 
     if (divCode) params.div = divCode;
     if (HqCode) params.hq = HqCode;
+    if (misCode) params.mis = misCode;
+
+    params.ename = headerName;
 
     return params;
   }, [request, divCode, HqCode]);

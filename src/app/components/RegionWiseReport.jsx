@@ -31,6 +31,7 @@ function RegionWiseReport({ headerName, divCode, onClose }) {
 
     params.tbl_name = request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_');
     if (divCode) params.div = divCode;
+    params.ename = headerName;
 
     return params;
   }, [request, divCode]);

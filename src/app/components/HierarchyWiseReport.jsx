@@ -3,23 +3,25 @@ import PopupTableModal from '../common/PopupTableModal';
 import { divHierarchyPopupColumns } from '../lib/tableHead';
 import { apiUrls, popState } from '../lib/fetchApi';
 import { Modal } from 'react-bootstrap';
-// import { Button } from 'reactstrap';
 import HqWiseReport from './HqWiseReport';
+import BrandWiseReport from './BrandWiseReport';
 import { useRequest } from '../common/RequestContext';
 
 function HierarchyWiseReport({ headerName, divCode, onClose }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
   const { request } = useRequest();
+  const [modalType, setModalType] = useState('hq');
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
 
-  const handleRowClick = (data) => {
+  const handleRowClick = (data, vwType) => {
     if (rowData?.fsCode !== data.fsCode) {
       setrowData(data); // Store the clicked row's data
     }
+    setModalType(vwType);
     toggleModal(); // Open the modal
   };
 
@@ -28,6 +30,7 @@ function HierarchyWiseReport({ headerName, divCode, onClose }) {
 
     params.tbl_name = request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_');
     if (divCode) params.div = divCode;
+    params.ename = headerName;
 
     return params;
   }, [request, divCode]);
@@ -46,17 +49,24 @@ function HierarchyWiseReport({ headerName, divCode, onClose }) {
       {rowData && (
         <Modal show={modalOpen} onHide={toggleModal} fullscreen>
           <Modal.Body>
-            <HqWiseReport
-              headerName={rowData.bezei}
-              isDrillEnable={false}
-              onClose={toggleModal}
-            />
+            {modalType === 'hq' ? (
+              <HqWiseReport
+                divCode={divCode}
+                misCode={rowData.fsCode}
+                headerName={rowData.name}
+                isDrillEnable={false}
+                onClose={toggleModal}
+              />
+            ) : (
+              <BrandWiseReport
+                divCode={divCode}
+                misCode={rowData.fsCode}
+                headerName={rowData.name}
+                isDrillEnable={false}
+                onClose={toggleModal}
+              />
+            )}
           </Modal.Body>
-          {/* <Modal.Footer>
-            <Button variant="secondary" onClick={toggleModal}>
-              Close
-            </Button>
-          </Modal.Footer> */}
         </Modal>
       )}
     </>

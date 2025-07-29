@@ -16,6 +16,7 @@ import {
 import { exportToExcel } from '../lib/fileDownload';
 import BouncingLoader from '../common/BouncingLoader';
 import '../css/PopupCard.css';
+import { popState } from '../lib/fetchApi';
 
 const PopupTableModal = ({
   url,
@@ -24,11 +25,13 @@ const PopupTableModal = ({
   headerName,
   state, //// further use for download file name
   onRowClick,
-  onCloseClick,
+  onCloseClick
+
 }) => {
   const [activeTab, setActiveTab] = useState(2);
   const [renderComp, setRenderComp] = useState(null);
-
+  const [viewType, setViewType] = useState('hq'); // Default view type
+  const [desgVal, setDesgVal] = useState(null);
   const flags = ['Achieve', 'Not Achieve', 'All'];
 
   const [tabData, setTabData] = useState({
@@ -36,6 +39,12 @@ const PopupTableModal = ({
     1: { data: null, loading: false, error: null },
     2: { data: null, loading: false, error: null },
   });
+
+  useEffect(() => {
+    if (state === popState.popHierarchyWise) {
+      setDesgVal('ME');
+    }
+  }, [state, popState])
 
   useEffect(() => {
     (async () => {
@@ -46,15 +55,17 @@ const PopupTableModal = ({
 
       const opData = await fetchApi(url, request);
       if (opData && opData.data) {
-        const achvGreaterThan100 = opData.data.filter(
+        const allData = desgVal ? opData.data.filter((item) => item.desg === desgVal) : opData.data || [];
+
+        const achvGreaterThan100 = allData.filter(
           (item) => item.achv >= 100
         );
-        const achvLessThan100 = opData.data.filter((item) => item.achv < 100);
+        const achvLessThan100 = allData.filter((item) => item.achv < 100);
 
         setTabData({
           [0]: { data: achvGreaterThan100, loading: false, error: null }, // Achieve
           [1]: { data: achvLessThan100, loading: false, error: null }, // Not Achieve
-          [2]: { data: opData.data, loading: false, error: null }, // All data
+          [2]: { data: allData, loading: false, error: null }, // All data
         });
       }
     })();
@@ -66,9 +77,13 @@ const PopupTableModal = ({
 
   const handleRowClick = (data) => {
     if (onRowClick && typeof onRowClick === 'function') {
-      const comp = onRowClick(data);
+      const comp = onRowClick(data, viewType);
       setRenderComp(comp);
     }
+  };
+
+  const onDropdownClick = (event) => {
+    setDesgVal(event.target.value);
   };
 
   const renderTable = (data) => {
@@ -169,6 +184,49 @@ const PopupTableModal = ({
         <CardHeader className="card-header-flex">
           <div className="stats card-title mb-0">
             <i className="mdi mdi-chart-bar menu-icon" /> {headerName}
+          </div>
+          <div >
+            {state === popState.popHierarchyWise && (
+              <div>
+                <div>
+                  <select
+                    id="roleSelect"
+                    style={{ maxWidth: '100px' }}
+                    className="form-control"
+                    value={desgVal}
+                    onChange={onDropdownClick}
+                  >
+                    <option value="DSM">DSM</option>
+                    <option value="RM">RM</option>
+                    <option value="ME">ME</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <label style={{ margin: 0 }}>
+                    <input
+                      type="radio"
+                      name="viewType"
+                      value="hq"
+                      checked={viewType === 'hq'}
+                      style={{ marginRight: '0.3rem' }}
+                      onChange={() => setViewType && setViewType('hq')}
+                    />
+                    HQ Wise
+                  </label>
+                  <label style={{ margin: 0 }}>
+                    <input
+                      type="radio"
+                      name="viewType"
+                      value="brand"
+                      checked={viewType === 'brand'}
+                      style={{ marginRight: '0.3rem' }}
+                      onChange={() => setViewType && setViewType('brand')}
+                    />
+                    Brand Wise
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
           <div className="card-icons"></div>
           <div>

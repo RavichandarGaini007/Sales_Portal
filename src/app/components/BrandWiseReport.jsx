@@ -14,6 +14,7 @@ function BrandWiseReport({
   hqCode,
   plantCode,
   divCode,
+  misCode,
   onClose,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -39,9 +40,12 @@ function BrandWiseReport({
     if (divCode) params.div = divCode;
     if (hqCode) params.hq = hqCode;
     if (brandCode) params.brand = brandCode;
+    if (misCode) params.mis = misCode;
+
+    params.ename = headerName;
 
     return params;
-  }, [request, plantCode, divCode, hqCode, brandCode]);
+  }, [request, plantCode, divCode, hqCode, brandCode, misCode]);
 
   return (
     <>
@@ -64,11 +68,6 @@ function BrandWiseReport({
               onClose={toggleModal}
             />
           </Modal.Body>
-          {/* <Modal.Footer>
-            <Button variant="secondary" onClick={toggleModal}>
-              Close
-            </Button>
-          </Modal.Footer> */}
         </Modal>
       )}
     </>

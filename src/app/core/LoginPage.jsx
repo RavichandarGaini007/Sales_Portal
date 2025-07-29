@@ -27,7 +27,6 @@ const LoginPage = () => {
     return state.app;
   });
 
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [loading, setLoading] = useState(false); // To handle loading state
   const [errorMessage, setErrorMessage] = useState(''); // To display API errors
 
@@ -47,11 +46,11 @@ const LoginPage = () => {
           navigate('/mainLayout/SalesPortal');
         } else {
           // Token expired, remove it
-          localStorage.removeItem('token');
+          //localStorage.removeItem('token');
         }
       } catch (e) {
         // Invalid token, remove it
-        localStorage.removeItem('token');
+        //localStorage.removeItem('token');
       }
     }
   }, [navigate]);
@@ -129,10 +128,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleCheckboxChange = (e) => {
-    setKeepSignedIn(e.target.checked);
-  };
-
   return (
     <Container fluid className="login-page vh-100 d-flex align-items-center">
       <Row className="w-100 clsportal">
@@ -189,7 +184,8 @@ const LoginPage = () => {
                 type="checkbox"
                 name="keepSignIn"
                 label="Keep me signed in"
-                onChange={handleCheckboxChange}
+                onChange={handleChange}
+
               />
             </Form.Group>
             <Button variant="primary" type="submit" className="w-100 mb-3">

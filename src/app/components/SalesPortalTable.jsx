@@ -91,10 +91,14 @@ const SalesPortalTable = () => {
       rowData &&
       rowData.division
     ) {
-      window.open(
-        `/sales_portal_new/mainLayout/dashboard?div=${rowData.division}`,
-        '_blank'
-      );
+      if (!isNaN(Number(rowData.division))) {
+        window.open(
+          `/sales_portal_new/mainLayout/dashboard?div=${rowData.division}`,
+          '_blank'
+        );
+      } else {
+        alert('invalid Division');
+      }
       setShowModal(false); // close the modal after opening new tab
     }
   }, [dropdownSelection, showModal, rowData]);

@@ -16,6 +16,7 @@ function HqWiseReport({
   regionCode,
   misCode,
   onClose,
+
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
@@ -29,6 +30,8 @@ function HqWiseReport({
     if (hqCode) params.hq = hqCode;
     if (regionCode) params.region = regionCode;
     if (misCode) params.mis = misCode;
+
+    params.ename = headerName;
 
     return params;
   }, [request, plantCode, divCode, hqCode, regionCode, misCode]);
@@ -66,6 +69,7 @@ function HqWiseReport({
               HqCode={rowData?.vkbur}
               divCode={rowData?.division1}
               onClose={toggleModal}
+              misCode={misCode}
             />
           </Modal.Body>
           {/* <Modal.Footer>
