@@ -247,3 +247,75 @@ export const hierarchyPerformanceHead = [
   { accessorKey: 'target', header: 'Target' },
   { accessorKey: 'achv', header: 'Ach(%)' },
 ];
+
+export const QuaterWiseProductSaleHeaderColumn = [
+{ label: 'BRAND CODE', key: 'Products' },
+{ label: 'BRAND', key: 'Name' },
+{ label: 'VQ', key: 'VQ' },
+{ label: 'SALE', key: 'TYS_QTR1' },
+{ label: 'TARGET', key: 'TGT_QTR1' },
+{ label: 'ACH', key: 'ACH_QTR1' },
+{ label: 'VAR', key: 'CVR_QTR1' },
+{ label: 'LYS', key: 'LYS_QTR1' },
+{ label: 'GROWTH', key: 'GTH_QTR1' },
+{ label: 'SALE', key: 'TYS_QTR2' },
+{ label: 'TARGET', key: 'TGT_QTR2' },
+{ label: 'ACH', key: 'ACH_QTR2' },
+{ label: 'VAR', key: 'CVR_QTR2' },
+{ label: 'LYS', key: 'LYS_QTR2' },
+{ label: 'GROWTH', key: 'GTH_QTR2' },
+{ label: 'SALE', key: 'TYS_QTR3' },
+{ label: 'TARGET', key: 'TGT_QTR3' },
+{ label: 'ACH', key: 'ACH_QTR3' },
+{ label: 'VAR', key: 'CVR_QTR3' },
+{ label: 'LYS', key: 'LYS_QTR3' },
+{ label: 'GROWTH', key: 'GTH_QTR3' },
+{ label: 'SALE', key: 'TYS_QTR4' },
+{ label: 'TARGET', key: 'TGT_QTR4' },
+{ label: 'ACH', key: 'ACH_QTR4' },
+{ label: 'VAR', key: 'CVR_QTR4' },
+{ label: 'LYS', key: 'LYS_QTR4' },
+{ label: 'GROWTH', key: 'GTH_QTR4' },
+{ label: 'SALE', key: 'TYS_TOTAL' },
+{ label: 'TARGET', key: 'TGT_TOTAL' },
+{ label: 'ACH', key: 'ACH_TOTAL' },
+{ label: 'VAR', key: 'CVR_TOTAL' },
+{ label: 'LYS', key: 'LYS_TOTAL' },
+{ label: 'GROWTH', key: 'GTH_TOTAL' },
+];
+
+
+export const QuaterWiseProductSaleHeaderGroupColumn = [
+{ label: 'DESCRIPTION', span: 3 },
+{ label: 'QTR1', span: 6 },
+{ label: 'QTR2', span: 6 },
+{ label: 'QTR3', span: 6 },
+{ label: 'QTR4', span: 6 },
+{ label: 'ANNUAL TOTAL', span: 6 },
+];
+
+export const NetworkWiseProductSaleHeaderColumn =[
+{ label: 'Products', key: 'Products' },
+{ label: 'Name', key: 'Name' },
+{ label: 'TAG', key: 'TAG' },
+{ label: 'SALE', key: 'TYS' },
+{ label: 'TGT', key: 'TGT' },
+{ label: 'ACH', key: 'ACH' },
+{ label: 'VAR', key: 'VAR' },
+{ label: 'LYS', key: 'LYS' },
+{ label: 'GROWTH', key: 'GROW' },
+{ label: 'CSALE', key: 'CTYS' },
+{ label: 'CTGT', key: 'CTGT' },
+{ label: 'CACH', key: 'CACH' },
+{ label: 'CVAR', key: 'CVAR' },
+{ label: 'CLYS', key: 'CLYS' },
+{ label: 'CGROW', key: 'CGROW' },
+{ label: 'CONT', key: 'CONT' },
+{ label: 'PROD', key: 'PROD' },
+];
+
+export const NetworkWiseProductSaleHeaderGroupColumn =[
+{ label: 'DESCRIPTION', span: 3 },
+{ label: 'financYear', span: 6 },
+{ label: 'financYearStr', span: 8 },
+];                                

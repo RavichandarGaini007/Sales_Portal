@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
-import { apiUrls } from '../lib/fetchApi';
+import { apiUrls, fetchApiGet } from '../lib/fetchApi';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import XlsxPopulate from "xlsx-populate/browser/xlsx-populate";
 import { saveAs } from "file-saver";
@@ -46,10 +46,8 @@ const FlatFileDownload = () => {
     async function fetchDivision() {
       try {
         let empCode = data?.data[0]?.userid;
-        const response = await axios.get(
-          apiUrls.SalesDiv + `?strEmpCode=${empCode}`
-        );
-        const formatted = response.data.data.map((item) => ({
+        const response = await axios.get(apiUrls.SalesDiv + `?strEmpCode=${empCode}`)
+        const formatted = response?.data.data.map((item) => ({
           label: item.name,
           value: item.div,
         }));
@@ -62,10 +60,8 @@ const FlatFileDownload = () => {
     async function fn_IsAllowFlatFileDownload() {
       try {
         let empCode = data?.data[0]?.userid;
-        const response = await axios.get(
-          apiUrls.GetCustomizeTabUser + `?userid=${empCode}`
-        );
-        const AllowFlatFileDownload = response.data.data[0]?.IsAllowFlatFileDownload;
+        const response = await fetchApiGet(apiUrls.GetCustomizeTabUser + `?userid=${empCode}`)
+        const AllowFlatFileDownload = response.data[0]?.IsAllowFlatFileDownload;
         setisAllowFlatFileDownload(AllowFlatFileDownload);
       } catch (error) {
         console.error('Error fetching Allow Flat File Download:', error);
@@ -86,10 +82,11 @@ const FlatFileDownload = () => {
   async function fn_lastModified_date() {
     try {
       const filename = `MIS_FLAT_FILE_${selectedYear[0].value}_GENERIC.csv`;
-      const response = await axios.get(
-        apiUrls.GetFtpFileLastModifiedDateTime + `?fileName=${filename}`
-      );
-      setlastmodifieddate(response.data);
+      const response = await fetchApiGet(apiUrls.GetFtpFileLastModifiedDateTime + `?fileName=${filename}`)
+      if (response) {
+        setlastmodifieddate(response.data);
+      }
+
     } catch (error) {
       console.error('Error fetching Flat File Last Modified Date Time:', error);
     }
@@ -101,14 +98,9 @@ const FlatFileDownload = () => {
       async function fetchBrands() {
         try {
           const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
+          const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=flatfiledownload&fieldname=brandcode`)
 
-          const response = await axios.get(apiUrls.GetBrandCodeData, {
-            params: {
-              div: DivisonIds.join(','),
-              year: selectedYear[0].value,
-            },
-          });
-          const formatted = response.data.data.map((item) => ({
+          const formatted = response.data.map((item) => ({
             label: item.brand,
             value: item.brand_code,
           }));
@@ -144,16 +136,10 @@ const FlatFileDownload = () => {
       else {
         strbrand = (selectedBrand.map((brand) => brand.value)).join(',');  // Collect all selected divison
       }
-      const response1 = await axios.get(apiUrls.GetFlatFileDataPrimary, {
-        params: {
-          DownloadFor: downloadfor,
-          year: selectedYear[0].label,
-          empcode: data?.data[0]?.userid,
-          div: DivisonIds,
-          brand_code: strbrand,
-        },
-      });
-      const formatted = response1.data.data;
+
+      const response1 = await fetchApiGet(apiUrls.GetFlatFileDataPrimary + `?DownloadFor=${downloadfor}&year=${selectedYear[0].value}&empcode=${data?.data[0]?.userid}&div=${DivisonIds}&brand_code=${strbrand}`)
+
+      const formatted = response1.data;
       Data = formatted;
       setLoading(false);
       if (!Data) {
@@ -216,17 +202,28 @@ const FlatFileDownload = () => {
     setLoading(true);
     try {
       var file = filename;
-      const response = await axios.get(apiUrls.DownloadFileFromFTP, {
-        params: {
-          fileName: file
-        },
-      }, {
-        responseType: 'blob',
-      });
-      if (response.data) {
-        //saveAs(response.data, file);
-        const data = response.data.trim().split('\n').map(line => line.split(','));
-        downloadCSVWithoutHeader(data, file);
+      const response = await fetchApiGet(apiUrls.DownloadFileFromFTP + `?fileName=${file}`);//, {
+      if (response) {
+        // Convert base64 string to Blob
+        const byteCharacters = atob(response.data);
+
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        const blob = new Blob([byteArray], { type: 'application/octet-stream' });
+
+        // Create a download link and click it
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
         setLoading(false);
       }
       else {
@@ -238,6 +235,16 @@ const FlatFileDownload = () => {
     } catch (error) {
       //console.error('Download failed', error);
       console.log('Download failed', error);
+    }
+  }
+
+  function bytesToString(bytes) {
+    try {
+      const decoder = new TextDecoder('utf-8');
+      return decoder.decode(bytes);
+    } catch (error) {
+      console.error("Error decoding bytes:", error);
+      return "";
     }
   }
 

@@ -10,23 +10,7 @@ export const fetchApi = async (url, payload, config) => {
 
   if (!url.includes('https://alkemcrm.com/salesapi/api/User/userEmailId?user_id')) {
     const token = localStorage.getItem('token');
-    // const secretKey = "superSecretKey@345";
-
-    // if (token) {
-    //   const decoded = jwtDecode(token);
-    //   const currentTime = Date.now() / 1000;
-
-    //   if (decoded.exp && decoded.exp < currentTime) {
-    //     return res.status(403).send('Access Denied: Invalid or Expired Token'); // Token expired
-    //   }
-
-    //   // jwt.verify(token, secretKey, (err) => {
-    //   //   if (err) {
-    //   //     return res.status(403).send('Access Denied: Invalid or Expired Token');
-    //   //   }
-    //   // });
-    // }
-
+    
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -52,19 +36,30 @@ export const fetchApi = async (url, payload, config) => {
 };
 
 export const fetchApiGet = async (url, config) => {
+
+    const headers = {
+    'Content-Type': 'application/json',
+    ...(config ? config.headers : {}),
+  };
+
+ 
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  
+
   return await fetch(url, {
     method: 'GET', // Specify the HTTP method as GET
-    headers: {
-      'Content-Type': 'application/json', // Set the content type to JSON
-      ...(config ? config.headers : {}), // Merge any additional headers from config
-    },
+    headers: headers,
     ...(config ? config : {}), // Merge any additional configuration options
   }).then((resp) => resp.json());
 };
 
 //export const API_REQUEST = "https://192.168.120.64/React_Login_api/api/Sales/";
 export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
-//export const API_REQUEST = "https://localhost:5001/api/Sales/";
+// export const API_REQUEST = "https://localhost:5001/api/Sales/";
 
 export const apiUrls = {
   salesdata: API_REQUEST + 'salesdata',
@@ -89,6 +84,8 @@ export const apiUrls = {
   GetCustomizeTabUser: API_REQUEST + 'GetCustomize_tab_user',
   GetFtpFileLastModifiedDateTime: API_REQUEST + 'GetFtpFileLastModifiedDateTime',
   GetEncryptAndEncodeVal: API_REQUEST + 'GetEncryptAndEncodeVal',
+  GetDesGetDesgEmp: API_REQUEST + 'GetDesGetDesgEmp',
+  NetworkWiseProductSale_S: API_REQUEST + 'NetworkWiseProductSale_S',
 };
 
 export const popState = {
