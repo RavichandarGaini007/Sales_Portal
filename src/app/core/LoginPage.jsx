@@ -11,9 +11,10 @@ import { useFormik } from 'formik';
 import axios from 'axios';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
+import { apiUrls, fetchApi } from '../lib/fetchApi';
 
 const initialValues = {
   emailid: '',
@@ -23,6 +24,7 @@ const initialValues = {
 
 const LoginPage = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { data, isAuthorized, isLoading } = useSelector((state) => {
     return state.app;
   });
@@ -31,6 +33,51 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState(''); // To display API errors
 
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      const para = params.get('para'); // URL example: /login?para=123
+      const paraId = params.get('paraId');
+
+      const userIdFromUrl = params.get('userId');
+      // const opData = await fetchApi(apiUrls.SalesScData, {
+      //   ...request,
+      //   tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+      // });
+
+      if (userIdFromUrl) {
+        autoLogin(userIdFromUrl);
+      }
+    })();
+  }, [location.search]);
+
+  const autoLogin = async (id) => {
+    try {
+      setLoading(true);
+      setErrorMessage('');
+
+      // Option 1: Using your redux action
+      const response = await dispatch(loginUser({ emailid: id, password: 'demand' })) // adapt to your API
+        .unwrap();
+
+      if (response.code === 1) {
+        if (response.data[0].enetsale === 'ALL') {
+          navigate('/mainLayout/SalesPortal');
+        } else {
+          navigate('/mainLayout/dashboard');
+        }
+      } else {
+        setErrorMessage('Auto-login failed: ' + response.message);
+      }
+    } catch (error) {
+      console.error('Auto login error:', error);
+      setErrorMessage('Auto login failed. Please try manual login.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   // Check for token in localStorage and validate expiry
   React.useEffect(() => {

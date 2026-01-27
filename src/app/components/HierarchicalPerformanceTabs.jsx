@@ -38,6 +38,7 @@ const HierarchicalPerformanceTabs = () => {
   const [desgVal, setDesgVal] = useState('ME');
   const [rowData, setrowData] = useState(null);
   const [rowModel, setRowModel] = useState(false);
+  const [fetchedDesgs, setFetchedDesgs] = useState(new Set());
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
@@ -48,7 +49,7 @@ const HierarchicalPerformanceTabs = () => {
   useEffect(() => {
     // Fetch data from API
     (async () => {
-      if (request) {
+      if (request && !fetchedDesgs.has(desgVal)) {
         setTabData((prvData) => ({
           ...prvData,
           [activeTab]: { ...prvData[activeTab], loading: true },
@@ -57,21 +58,25 @@ const HierarchicalPerformanceTabs = () => {
         const opData = await fetchApi(apiUrls.SalesHierarchyDesg, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
+          desg: desgVal,
         });
 
         if (opData && opData.data) {
           const achieve = opData?.data.filter((item) => item.achv >= 100);
           const notAchieve = opData?.data.filter((item) => item.achv < 100);
 
-          setTabData({
-            0: { data: achieve, loading: false, error: null },
-            1: { data: notAchieve, loading: false, error: null },
-            2: { data: opData?.data, loading: false, error: null },
-          });
+          setTabData((prevData) => ({
+            ...prevData,
+            0: { data: [...(prevData[0].data || []), ...achieve], loading: false, error: null },
+            1: { data: [...(prevData[1].data || []), ...notAchieve], loading: false, error: null },
+            2: { data: [...(prevData[2].data || []), ...opData?.data], loading: false, error: null },
+          }));
+
+          setFetchedDesgs(prev => new Set([...prev, desgVal]));
         }
       }
     })();
-  }, [request]);
+  }, [request, desgVal]);
 
   const activeTabData = desgVal
     ? tabData[activeTab]?.data?.filter((item) => item.desg === desgVal)
