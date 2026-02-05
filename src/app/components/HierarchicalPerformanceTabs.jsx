@@ -35,7 +35,7 @@ const HierarchicalPerformanceTabs = () => {
 
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
-  const [desgVal, setDesgVal] = useState('ME');
+  const [desgVal, setDesgVal] = useState('DSM');
   const [rowData, setrowData] = useState(null);
   const [rowModel, setRowModel] = useState(false);
   const [fetchedDesgs, setFetchedDesgs] = useState(new Set());

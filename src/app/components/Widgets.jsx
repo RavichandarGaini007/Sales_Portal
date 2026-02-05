@@ -7,32 +7,15 @@ const getClass = (achv) => {
   return achv > 99 ? 'success' : achv >= 70 ? 'warning' : 'danger';
 };
 
-// const data = {
-//   labels: ['January', 'February', 'March', 'April', 'May'],
-//   datasets: [
-//     {
-//       label: 'My First dataset',
-//       data: [65, 59, 80, 81, 56],
-//       borderColor: 'rgba(75, 192, 192, 1)',
-//       fill: false,
-//     },
-//   ],
-// };
-// const options = {
-//   responsive: true,
-//   maintainAspectRatio: false,
-//   // Additional Chart.js options...
-// };
-
 const Widgets = ({ wdata }) => {
   const domestic_sale = wdata.find(
-    (item) => item.name === 'DOMESTIC SALES WITHOUT GENERIC'
+    (item) => item.division === 'DSOG'
   );
-  const generic_sale = wdata.find((item) => item.name === 'GENERIC SALES');
-  const total_sale = wdata.find((item) => item.name === 'TOTAL DOMESTIC SALES');
-  const cluster1 = wdata.find((item) => item.name === 'CLUSTER 1');
-  const cluster2 = wdata.find((item) => item.name === 'CLUSTER 2');
-  const cluster3 = wdata.find((item) => item.name === 'CLUSTER 3');
+  const generic_sale = wdata.find((item) => item.division === 'GS');
+  const total_sale = wdata.find((item) => item.division === 'DS');
+  const cluster1 = wdata.find((item) => item.division === 'C1');
+  const cluster2 = wdata.find((item) => item.division === 'C2');
+  const cluster3 = wdata.find((item) => item.division === 'C3');
   return (
     <>
       <Row>
@@ -45,7 +28,7 @@ const Widgets = ({ wdata }) => {
                 </div>
                 <div className="float-left">
                   <p className="mb-0 text-left text-dark txt-header">
-                    Domestic Without Generic
+                    Domestic Without Wellness
                   </p>
                   <div className="fluid-container">
                     <h6 className="font-weight-semibold text-left mb-0 text-dark">
@@ -84,7 +67,7 @@ const Widgets = ({ wdata }) => {
                 </div>
                 <div className="float-left">
                   <p className="mb-0 text-left text-dark txt-header">
-                    Generic Sales
+                    Wellness Sales
                   </p>
                   <div className="fluid-container">
                     <h6 className="font-weight-semibold text-left mb-0 text-dark">

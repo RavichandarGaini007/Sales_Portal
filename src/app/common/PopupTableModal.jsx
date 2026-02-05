@@ -130,11 +130,12 @@ const PopupTableModal = ({
           }
         >
           {value}
-          {isAchv && value >= 100 ? (
-            <i className="mdi mdi-arrow-up"></i>
-          ) : isAchv && value ? (
-            <i className="mdi mdi-arrow-down"></i>
-          ) : undefined}
+          {column.accessorKey === 'achv' && (
+            isAchv && value >= 100 ? (
+              <i className="mdi mdi-arrow-up"></i>
+            ) : isAchv && value ? (
+              <i className="mdi mdi-arrow-down"></i>
+            ) : undefined)}
         </div>
       );
     };
@@ -153,8 +154,8 @@ const PopupTableModal = ({
             <tr key={`${item.id}-${index}`}>
               {head.map((column) => {
                 const value = item[column.accessorKey];
-                const isAchv = column.accessorKey === 'achv';
-                const colorStyle = getColorStyle(isAchv, value);
+                const isAchv = column.accessorKey === 'achv' || column.accessorKey === 'net_amt1';
+                const colorStyle = getColorStyle(isAchv, column.accessorKey === 'achv' ? value : item['achv']);
                 const isTotal =
                   item[column.accessorKey] === 'Grand Total' ?? false;
 

@@ -1,65 +1,111 @@
-//const jwt = require('token');
-import { jwtDecode } from 'jwt-decode';
 
-export const fetchApi = async (url, payload, config) => {
-
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(config ? config.headers : {}),
-  };
-
-  if (!url.includes('https://alkemcrm.com/salesapi/api/User/userEmailId?user_id')) {
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-  }
-
-  const response = await fetch(url, {
-    method: 'POST', // Specify the HTTP method as POST
-    headers: headers,
-    body: JSON.stringify(payload), // Convert the body object to JSON
-    ...(config ? config : {}),
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    // Token is invalid or expired, redirect to login
-    console.error('Unauthorized or Forbidden: Token might be expired or invalid');
-    // Redirect to login page (or handle token renewal)
-    window.location.href = 'sales_portal_new/login'; //// Redirect to login page //LoginPage
-    return;
-  }
-
-  const data = await response.json();
-  return data;
-};
-
-export const fetchApiGet = async (url, config) => {
-
-    const headers = {
-    'Content-Type': 'application/json',
-    ...(config ? config.headers : {}),
-  };
-
- 
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-  
-
-  return await fetch(url, {
-    method: 'GET', // Specify the HTTP method as GET
-    headers: headers,
-    ...(config ? config : {}), // Merge any additional configuration options
-  }).then((resp) => resp.json());
-};
+import {
+  getAccessToken,
+  setAccessToken,
+  clearAccessToken
+  // getKeepSignIn,
+  // getUserId
+} from './authToken';
 
 //export const API_REQUEST = "https://192.168.120.64/React_Login_api/api/Sales/";
 export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
-// export const API_REQUEST = "https://localhost:5001/api/Sales/";
+//export const API_REQUEST = "https://localhost:5001/api/Sales/";
+
+
+let isRefreshing = false;
+let refreshPromise = null;
+
+const refreshAccessToken = async () => {
+  try {
+    const response = await fetch(`${API_REQUEST}refresh`, {
+      method: 'POST',
+      credentials: 'include' // ✅ sends refresh cookie
+    });
+
+    if (!response.ok) return false;
+
+    const data = await response.json();
+    if (!data.accessToken) return false;
+
+    setAccessToken(data.accessToken);
+    return true;
+  } catch (err) {
+    console.error('Refresh token failed', err);
+    return false;
+  }
+};
+
+
+export const fetchApi = async (url, payload = {}, config = {}) => {
+  const token = getAccessToken();
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(config.headers || {})
+    },
+    body: JSON.stringify(payload),
+    credentials: 'include',
+    ...config
+  });
+
+  // ✅ SUCCESS
+  if (response.status !== 401) {
+    return response.json();
+  }
+
+  // 🔁 ACCESS TOKEN EXPIRED
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshPromise = refreshAccessToken();
+  }
+
+  const refreshed = await refreshPromise;
+  isRefreshing = false;
+
+  if (!refreshed) {
+    clearAccessToken();
+    window.location.href = '/sales_portal_new/login';
+    //throw new Error('Session expired');
+  }
+
+  // 🔄 RETRY ORIGINAL REQUEST
+  return fetchApi(url, payload, config);
+};
+
+export const fetchApiGet = async (url, config = {}) => {
+  const token = getAccessToken();
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(config.headers || {})
+    },
+    credentials: 'include',
+    ...config
+  });
+
+  if (response.status !== 401) {
+    return response.json();
+  }
+
+  // 🔁 ACCESS TOKEN EXPIRED
+  const refreshed = await refreshAccessToken();
+
+  if (!refreshed) {
+    clearAccessToken();
+    window.location.href = '/sales_portal_new/login';
+    // throw new Error('Session expired');
+  }
+
+  // 🔄 RETRY ORIGINAL REQUEST
+  return fetchApiGet(url, config);
+};
+
 
 export const apiUrls = {
   salesdata: API_REQUEST + 'salesdata',

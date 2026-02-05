@@ -126,13 +126,13 @@ const Dashboard = () => {
               <HierarchicalPerformanceTabs />
             </Row>
             <Row className="mt-performace">
-              <OrderTracking />
+              {/* <OrderTracking /> */}
               <TopPerformance />
             </Row>
-            <Row className="mt-performace">
+            {/* <Row className="mt-performace">
               <NewsAndInformation />
               <AwardsDetailsCard />
-            </Row>
+            </Row> */}
           </div>
         </div>
       </div>

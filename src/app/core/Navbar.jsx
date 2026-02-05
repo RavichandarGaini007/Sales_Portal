@@ -8,9 +8,10 @@ import '../../assets/vendors/css/vendor.bundle.base.css';
 import { useSelector } from 'react-redux';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import { Button } from 'reactstrap';
-import { apiUrls } from '../lib/fetchApi';
+import { apiUrls, API_REQUEST } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
 import { MdSearch } from 'react-icons/md';
+import { clearAccessToken } from '../lib/authToken';
 
 const Navbar = () => {
   const { updateRequest } = useRequest();
@@ -141,6 +142,22 @@ const Navbar = () => {
     genRequest();
   };
 
+  const handleSignout = async (e) => {
+    localStorage.removeItem('token');
+    e.preventDefault();
+    clearAccessToken();
+
+    const response = await fetch(API_REQUEST + 'logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include', // IMPORTANT (refresh cookie)
+    });
+
+    window.location.href = '/sales_portal_new';
+  }
+
   const chunkArray = (array, size) => {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -165,8 +182,14 @@ const Navbar = () => {
       setYear(yr);
     }
     let divValue;
-    if (divParam) {
+    if ((divParam && Array(selected.map((items) => items.value)).join(',') === divParam) || (divParam && selected.length === 0)) {
       divValue = divParam;
+
+      // const divList = divParam.split(',');
+      // const selectedDivs = divisions
+      //   .filter((col) => divList.includes(col.div))
+      //   .map((col) => ({ label: col.name, value: col.div }));
+      // setSelected(selectedDivs);
     } else {
       divValue =
         selected.length === divisions.length &&
@@ -308,11 +331,7 @@ const Navbar = () => {
                       Activity Log
                     </a>
                     <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" href="#" onClick={(e) => {
-                      localStorage.removeItem('token');
-                      e.preventDefault();
-                      window.location.href = '/sales_portal_new';
-                    }}>
+                    <a className="dropdown-item" href="#" onClick={handleSignout}>
                       <i className="mdi mdi-logout mr-2 text-primary"></i>
                       Signout
                     </a>

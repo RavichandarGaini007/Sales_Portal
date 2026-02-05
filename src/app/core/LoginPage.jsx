@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import '../css/LoginPage.css'; // Custom styles
-import alkemLogo from './logo.png'; // Replace with your company logo
 import pharma1 from './LoginImages/pharma1.jpg'; // Replace with your company logo
 import pharma2 from './LoginImages/pharma2.jpg'; // Replace with your company logo
 import pharma3 from './LoginImages/pharma3.jpg';
@@ -14,7 +13,8 @@ import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
-import { apiUrls, fetchApi } from '../lib/fetchApi';
+import { API_REQUEST } from '../lib/fetchApi';
+import { setAccessToken, setKeepSignIn } from '../lib/authToken';
 
 const initialValues = {
   emailid: '',
@@ -24,7 +24,9 @@ const initialValues = {
 
 const LoginPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
+
   const { data, isAuthorized, isLoading } = useSelector((state) => {
     return state.app;
   });
@@ -32,19 +34,11 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false); // To handle loading state
   const [errorMessage, setErrorMessage] = useState(''); // To display API errors
 
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const params = new URLSearchParams(location.search);
-      const para = params.get('para'); // URL example: /login?para=123
-      const paraId = params.get('paraId');
-
-      const userIdFromUrl = params.get('userId');
-      // const opData = await fetchApi(apiUrls.SalesScData, {
-      //   ...request,
-      //   tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
-      // });
+      const userIdFromUrlbase64 = params.get('Id');
+      const userIdFromUrl = userIdFromUrlbase64 ? atob(userIdFromUrlbase64) : null;
 
       if (userIdFromUrl) {
         autoLogin(userIdFromUrl);
@@ -58,15 +52,11 @@ const LoginPage = () => {
       setErrorMessage('');
 
       // Option 1: Using your redux action
-      const response = await dispatch(loginUser({ emailid: id, password: 'demand' })) // adapt to your API
+      const response = await dispatch(loginUser({ emailid: id, password: 'demand' }))
         .unwrap();
 
       if (response.code === 1) {
-        if (response.data[0].enetsale === 'ALL') {
-          navigate('/mainLayout/SalesPortal');
-        } else {
-          navigate('/mainLayout/dashboard');
-        }
+        redirectUser(response);
       } else {
         setErrorMessage('Auto-login failed: ' + response.message);
       }
@@ -78,33 +68,57 @@ const LoginPage = () => {
     }
   };
 
-
-  // Check for token in localStorage and validate expiry
-  React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
+  useEffect(() => {
+    const tryAutoLogin = async () => {
       try {
-        // Decode JWT (assume JWT structure: header.payload.signature)
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        // Check for exp (expiry) in seconds
-        if (payload.exp && Date.now() < payload.exp * 1000) {
-          // Token is valid, redirect user
-          // You can add more logic here if needed
-          navigate('/mainLayout/SalesPortal');
-        } else {
-          // Token expired, remove it
-          //localStorage.removeItem('token');
+        const res = await fetch(
+          API_REQUEST + 'refresh',
+          {
+            method: 'POST',
+            credentials: 'include'
+          }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          setAccessToken(data.token);
+          //setKeepSignIn(page.keepSignIn);
+
+          navigate('/mainLayout/SalesPortal', { replace: true });
+          return;
         }
-      } catch (e) {
-        // Invalid token, remove it
-        //localStorage.removeItem('token');
+      } catch (error) {
+        console.error('Auto login error:', error);
       }
-    }
+    };
+
+    tryAutoLogin();
   }, [navigate]);
+  // // Check for token in localStorage and validate expiry
+  // React.useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     try {
+  //       // Decode JWT (assume JWT structure: header.payload.signature)
+  //       const payload = JSON.parse(atob(token.split('.')[1]));
+  //       // Check for exp (expiry) in seconds
+  //       if (payload.exp && Date.now() < payload.exp * 1000) {
+  //         // Token is valid, redirect user
+  //         // You can add more logic here if needed
+  //         navigate('/mainLayout/SalesPortal');
+  //       } else {
+  //         // Token expired, remove it
+  //         //localStorage.removeItem('token');
+  //       }
+  //     } catch (e) {
+  //       // Invalid token, remove it
+  //       //localStorage.removeItem('token');
+  //     }
+  //   }
+  // }, [navigate]);
 
   const sliderSettings = {
     dots: false,
-    // infinite: true,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -132,11 +146,7 @@ const LoginPage = () => {
           .unwrap()
           .then((f) => {
             if (f.code === 1) {
-              if (f.data[0].enetsale === 'ALL') {
-                navigate('/mainLayout/SalesPortal');
-              } else {
-                navigate('/mainLayout/dashboard');
-              }
+              redirectUser(f);
             } else {
               alert(f.message);
             }
@@ -156,13 +166,17 @@ const LoginPage = () => {
     },
   });
 
+  const redirectUser = (response) => {
+    if (response.data?.[0]?.enetsale === 'ALL') {
+      navigate('/mainLayout/SalesPortal');
+    } else {
+      navigate('/mainLayout/dashboard');
+    }
+  };
+
   const handleBlurEmail = async (e) => {
     const email = e.target.value;
     try {
-      // Example: Replace with your actual API endpoint and logic
-      // const response = await axios.post(
-      //   `https://192.168.120.64/React_Login_api/api/User/userEmailId?user_id=${email}`
-      // );
       const response = await axios.post(
         `https://alkemcrm.com/salesapi/api/User/userEmailId?user_id=${email}`
       );

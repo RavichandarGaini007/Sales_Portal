@@ -51,7 +51,7 @@ const getLabelColor = (value) => {
 const SalesPortalTable = () => {
   const { updateRequest } = useRequest();
   const [data, setData] = useState([]);
-  const [dropdownSelection, setDropdownSelection] = useState('plantwise'); // Default selection
+  const [dropdownSelection, setDropdownSelection] = useState('dashboard'); // Default selection
   const [rowData, setrowData] = useState(null);
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [tblColsTgl, setTblColumns] = useState([]);
@@ -65,8 +65,6 @@ const SalesPortalTable = () => {
   const toggle = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    //const storedRequest = JSON.parse(localStorage.getItem('commonRequest'));
-    // Fetch data from API
     (async () => {
       if (request) {
         setIsLoading(true);
@@ -191,6 +189,14 @@ const SalesPortalTable = () => {
   const handleMenuClick = (menuVal) => setDropdownSelection(menuVal);
   const togglePopover = () => setPopoverOpen(!popoverOpen);
 
+  const getRowStyle = (division) => {
+    const greyDivisions = ['c1', 'c2', 'c3', 'dsog', 'gs', 'ds', 'np'];
+    if (greyDivisions.some(div => division.toLowerCase().includes(div))) {
+      return { backgroundColor: '#dad8d8' };
+    }
+    return {};
+  };
+
   const renderTableBody = () => {
     if (!data || data.length === 0) {
       return (
@@ -203,7 +209,7 @@ const SalesPortalTable = () => {
     }
 
     return data.map((row) => (
-      <tr key={row.id}>
+      <tr key={row.id} >
         {Salescolumns.filter((c) =>
           tblColsTgl.some((s) => s.id === c.accessorKey)
         ).map((col) => {
@@ -213,7 +219,7 @@ const SalesPortalTable = () => {
               : '';
 
           return (
-            <td key={`${row.id}-${col.accessorKey}`} className={colClass}>
+            <td key={`${row.id}-${col.accessorKey}`} className={colClass} style={getRowStyle(row.division)}>
               {col.accessorKey === 'name' ? (
                 <div
                   style={{
@@ -228,7 +234,7 @@ const SalesPortalTable = () => {
                 </div>
               ) : col.accessorKey === 'net_amt' ? (
                 <Badge
-                  color={getLabelColor(row[col.accessorKey])}
+                  color={getLabelColor(row['achv'])}
                   style={{
                     fontSize: '12px',
                     fontWeight: 'auto',
@@ -248,7 +254,8 @@ const SalesPortalTable = () => {
                       top: '0',
                       left: '50%',
                       transform: 'translate(-50%, 0)',
-                      color: row[col.accessorKey] < 50 ? 'black' : 'white',
+                      //color: row[col.accessorKey] < 50 ? 'black' : 'white',
+                      color: 'black',
                       fontWeight: 'bold',
                       paddingTop: '2px',
                     }}
