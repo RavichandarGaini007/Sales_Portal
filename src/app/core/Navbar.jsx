@@ -146,6 +146,7 @@ const Navbar = () => {
     localStorage.removeItem('token');
     e.preventDefault();
     clearAccessToken();
+    localStorage.removeItem("dashboardPopupSeen");
 
     const response = await fetch(API_REQUEST + 'logout', {
       method: 'POST',

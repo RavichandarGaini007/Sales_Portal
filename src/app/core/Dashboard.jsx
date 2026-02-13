@@ -2,7 +2,8 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { Row, Col } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import ScoreCard from '../components/ScoreCard';
+//import ScoreCard from '../components/ScoreCard';
+import ScoreCardQtyVal from '../components/ScoreCardQtyVal';
 import HQPerformance from '../components/HQPerformance';
 import SaleablePieChart from '../components/SaleablePieChart';
 import BrandPerformance from '../components/BrandPerformance';
@@ -98,7 +99,8 @@ const Dashboard = () => {
             </Row>
             <Row className="mt-performace">
               <Col lg="6" md="6" sm="6">
-                <ScoreCard tableData={scData} />
+                {/* <ScoreCard tableData={scData} /> */}
+                <ScoreCardQtyVal tableData={scData} />
               </Col>
               <Col lg="6" md="6" sm="6">
                 <SaleablePieChart tableData={salableData} />

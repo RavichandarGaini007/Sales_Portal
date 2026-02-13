@@ -11,6 +11,7 @@ import {
   TabPane,
   Row,
   Col,
+  ModalFooter,
 } from 'reactstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
 import { Modal } from 'react-bootstrap';
@@ -20,6 +21,7 @@ import HierarchyWiseReport from '../components/HierarchyWiseReport';
 import { hierarchyPerformanceHead } from '../lib/tableHead';
 import { downloadCSV } from '../lib/fileDownload';
 import BouncingLoader from '../common/BouncingLoader';
+import ScoreCardPopup from './ScoreCardPopup';
 
 // const hierarReq = {
 //   tbl_name: 'FTP_MAT_VAL_11_2024',
@@ -39,6 +41,7 @@ const HierarchicalPerformanceTabs = () => {
   const [rowData, setrowData] = useState(null);
   const [rowModel, setRowModel] = useState(false);
   const [fetchedDesgs, setFetchedDesgs] = useState(new Set());
+  const [scModal, setScModal] = useState(false);
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
@@ -50,6 +53,10 @@ const HierarchicalPerformanceTabs = () => {
     // Fetch data from API
     (async () => {
       if (request && !fetchedDesgs.has(desgVal)) {
+        if (request.div === 'ALL') {
+          return 'Please select specific division to fetch data';
+        }
+
         setTabData((prvData) => ({
           ...prvData,
           [activeTab]: { ...prvData[activeTab], loading: true },
@@ -61,7 +68,7 @@ const HierarchicalPerformanceTabs = () => {
           desg: desgVal,
         });
 
-        if (opData && opData.data) {
+        if (opData && opData.data && opData.message === 'Success') {
           const achieve = opData?.data.filter((item) => item.achv >= 100);
           const notAchieve = opData?.data.filter((item) => item.achv < 100);
 
@@ -92,9 +99,16 @@ const HierarchicalPerformanceTabs = () => {
 
   const toggleRowModel = () => setRowModel((prev) => !prev);
 
+  const toggleScModal = () => setScModal((prev) => !prev);
+
   const handleRowClick = (data) => {
     setrowData(data);
     setRowModel(true);
+  };
+
+  const handleScRowClick = (data) => {
+    setrowData(data);
+    setScModal(true);
   };
 
   const onDropdownClick = (event) => {
@@ -110,11 +124,20 @@ const HierarchicalPerformanceTabs = () => {
   };
 
   const renderTableBody = () => {
-    if (!activeTabData || activeTabData.length === 0) {
+    if (!activeTabData || activeTabData.length === 0 && request.div !== 'ALL') {
       return (
         <tr>
-          <td colSpan="5" style={{ textAlign: 'center' }}>
+          <td colSpan="6" style={{ textAlign: 'center' }}>
             No data available
+          </td>
+        </tr>
+      );
+    }
+    else if (request.div === 'ALL') {
+      return (
+        <tr>
+          <td colSpan="6" style={{ textAlign: 'center' }}>
+            Please select specific division to fetch data
           </td>
         </tr>
       );
@@ -136,6 +159,17 @@ const HierarchicalPerformanceTabs = () => {
                     textDecoration: 'underline',
                   }}
                   onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'scorecard' ? (
+                <div
+                  style={{
+                    textAlign: 'right',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleScRowClick(item)}
                 >
                   {value}
                 </div>
@@ -241,51 +275,9 @@ const HierarchicalPerformanceTabs = () => {
                                 </th>
                               );
                             })}
-                            {/* <th className="txtLeft">Name</th>
-                          <th>Scorecard</th>
-                          <th>Net Amount</th>
-                          <th>Target</th>
-                          <th>Ach(%)</th> */}
                           </tr>
                         </thead>
                         <tbody>{renderTableBody()}</tbody>
-                        {/* <tbody>
-                        {activeTabData &&
-                        Array.isArray(activeTabData) &&
-                        activeTabData.length > 0 ? (
-                          activeTabData.map((item, index) => (
-                            <tr key={index}>
-                              <td
-                                className="txtLeft txtLeftCursor"
-                                onClick={() => handleRowClick(item)}
-                              >
-                                {item.name}
-                              </td>
-                              <td>{item.scorecard}</td>
-                              <td>{item.net_amount}</td>
-                              <td>{item.target}</td>
-                              <td
-                                style={{
-                                  color: item.achv >= 100 ? '#00d284' : 'red',
-                                }}
-                              >
-                                {item.achv}%
-                                {item.achv >= 100 ? (
-                                  <i className="mdi mdi-arrow-up"></i>
-                                ) : (
-                                  <i className="mdi mdi-arrow-down"></i>
-                                )}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" style={{ textAlign: 'center' }}>
-                              No data available
-                            </td>
-                          </tr>
-                        )}
-                      </tbody> */}
                       </table>
                     </Col>
                   </Row>
@@ -315,6 +307,20 @@ const HierarchicalPerformanceTabs = () => {
               onClose={toggleModal}
             />
           </Modal.Body>
+        </Modal>
+
+        <Modal show={scModal} onHide={toggleScModal}>
+          <Modal.Body>
+            <ScoreCardPopup
+              divCode={rowData?.div}
+              misCode={rowData?.fsCode}
+            />
+          </Modal.Body>
+          <ModalFooter>
+            <Button variant="secondary" onClick={toggleScModal}>
+              Close
+            </Button>
+          </ModalFooter>
         </Modal>
       </Card>
     </Col>

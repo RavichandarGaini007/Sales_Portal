@@ -132,10 +132,12 @@ export const apiUrls = {
   GetEncryptAndEncodeVal: API_REQUEST + 'GetEncryptAndEncodeVal',
   GetDesGetDesgEmp: API_REQUEST + 'GetDesGetDesgEmp',
   NetworkWiseProductSale_S: API_REQUEST + 'NetworkWiseProductSale_S',
+  groupDivData: API_REQUEST + 'groupDivData',
 };
 
 export const popState = {
   popHqWise: 'hqWise',
+  popDivWise: 'divWise',
   popBrandWise: 'brandWise',
   popHierarchyWise: 'hierarchyWise',
   popPlantWise: 'plantWise',

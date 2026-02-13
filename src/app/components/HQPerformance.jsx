@@ -11,6 +11,7 @@ import {
   TabPane,
   Row,
   Col,
+  ModalFooter,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { apiUrls, fetchApi } from '../lib/fetchApi';
@@ -20,6 +21,7 @@ import { downloadCSV } from '../lib/fileDownload';
 import { useRequest } from '../common/RequestContext';
 import { hqPerformanceHead } from '../lib/tableHead';
 import BouncingLoader from '../common/BouncingLoader';
+import ScoreCardPopup from './ScoreCardPopup';
 
 const HQPerformance = () => {
   const flags = ['Achieve', 'Not Achieve', 'All'];
@@ -28,7 +30,9 @@ const HQPerformance = () => {
   const [activeTab, setActiveTab] = useState(2);
   const [modalOpen, setModalOpen] = useState(false);
   const [rowData, setrowData] = useState(null);
+  const [rowScData, setrowScData] = useState(null);
   const [rowModel, setRowModel] = useState(false);
+  const [scModal, setScModal] = useState(false);
 
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null },
@@ -74,9 +78,16 @@ const HQPerformance = () => {
 
   const toggleRowModel = () => setRowModel((prev) => !prev);
 
+  const toggleScModal = () => setScModal((prev) => !prev);
+
   const handleRowClick = (data) => {
     setrowData(data);
     setRowModel(true);
+  };
+
+  const handleScRowClick = (data) => {
+    setrowScData(data);
+    setScModal(true);
   };
 
   const downloadExcel = () => {
@@ -114,6 +125,17 @@ const HQPerformance = () => {
                     textDecoration: 'underline',
                   }}
                   onClick={() => handleRowClick(item)}
+                >
+                  {value}
+                </div>
+              ) : column.accessorKey === 'for_ord' ? (
+                <div
+                  style={{
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => handleScRowClick(item)}
                 >
                   {value}
                 </div>
@@ -250,6 +272,20 @@ const HQPerformance = () => {
             onClose={toggleModal}
           />
         </Modal.Body>
+      </Modal>
+
+      <Modal show={scModal} onHide={toggleScModal}>
+        <Modal.Body>
+          <ScoreCardPopup
+            // divCode={rowScData?.division}
+            hqCode={rowScData?.vkbur}
+          />
+        </Modal.Body>
+        <ModalFooter>
+          <Button variant="secondary" onClick={toggleScModal}>
+            Close
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );

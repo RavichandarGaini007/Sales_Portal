@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../core/Navbar';
 import { Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -6,16 +6,27 @@ import CompanyAnnoucement from '../components/CompanyAnnoucement';
 import { RequestProvider } from '../common/RequestContext';
 
 function MainLayout() {
+  const [showPopup, setShowPopup] = React.useState(false);
+
   const { data, isAuthorized, isLoading } = useSelector((state) => {
     return state.app;
   });
+
+  useEffect(() => {
+    const hasSeenPopup = localStorage.getItem("dashboardPopupSeen");
+
+    if (!hasSeenPopup) {
+      setShowPopup(true);
+      localStorage.setItem("dashboardPopupSeen", "true");
+    }
+  }, []);
 
   return (
     <>
       <RequestProvider>
         <Navbar />
         <div className="main-content-wrapper">
-          {data?.data[0]?.modelUrl !== '' && data?.data[0]?.modelUrl !== null && (
+          {data?.data[0]?.modelUrl !== '' && data?.data[0]?.modelUrl !== null && showPopup && (
             <CompanyAnnoucement show={true} url={data?.data[0]?.modelUrl} />
           )}
           <Outlet />

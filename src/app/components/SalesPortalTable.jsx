@@ -18,6 +18,7 @@ import {
   PopoverBody,
   ButtonGroup,
   Popover,
+  ModalFooter,
 } from 'reactstrap';
 import { Modal } from 'react-bootstrap'; // Import Bootstrap components
 import '../css/SalesPortalTable.css';
@@ -34,6 +35,8 @@ import Widgets from './Widgets';
 import '../css/widget.css';
 import { useRequest } from '../common/RequestContext';
 import BouncingLoader from '../common/BouncingLoader';
+import DivWiseReport from './DivWiseReport';
+import ScoreCardPopup from './ScoreCardPopup';
 
 // const salesReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -54,6 +57,7 @@ const SalesPortalTable = () => {
   const [dropdownSelection, setDropdownSelection] = useState('dashboard'); // Default selection
   const [rowData, setrowData] = useState(null);
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [scShowModal, setScShowModal] = useState(false); // State to control scorecard modal visibility
   const [tblColsTgl, setTblColumns] = useState([]);
   const { request } = useRequest();
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +91,7 @@ const SalesPortalTable = () => {
       dropdownSelection === 'dashboard' &&
       showModal &&
       rowData &&
-      rowData.division
+      rowData.division && Number(rowData.division)
     ) {
       if (!isNaN(Number(rowData.division))) {
         window.open(
@@ -121,8 +125,26 @@ const SalesPortalTable = () => {
     setShowModal(true);
   };
 
+  const handleScoreCardClick = (row) => {
+    setrowData(row); // Store the clicked row's data
+    setScShowModal(true);
+  };
+
+  const toggleScModal = () => setScShowModal((prev) => !prev);
+
   const modelComp = () => {
     if (rowData) {
+
+      if (rowData.division === 'FT') {
+        return (
+          <DivWiseReport
+            headerName={rowData.name}
+            groupDivCode={rowData.division}
+            isDrillEnable={true}
+            onClose={handleHideModel}
+          />
+        );
+      }
       const components = {
         hqwise: (
           <HqWiseReport
@@ -197,6 +219,10 @@ const SalesPortalTable = () => {
     return {};
   };
 
+  const getGrowthColorStyle = (value) => {
+    return value < 0 ? 'red' : '#ff970e';
+  };
+
   const renderTableBody = () => {
     if (!data || data.length === 0) {
       return (
@@ -229,6 +255,18 @@ const SalesPortalTable = () => {
                     fontStyle: 'bold',
                   }}
                   onClick={() => handleDivNameClick(row)}
+                >
+                  {row[col.accessorKey]}
+                </div>
+              ) : col.accessorKey === 'for_ord' ? (
+                <div
+                  style={{
+                    textAlign: 'right',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    fontStyle: 'bold',
+                  }}
+                  onClick={() => handleScoreCardClick(row)}
                 >
                   {row[col.accessorKey]}
                 </div>
@@ -266,6 +304,12 @@ const SalesPortalTable = () => {
                     ) : (
                       <i className="mdi mdi-arrow-down"></i>
                     )}
+                  </span>
+                </div>
+              ) : col.accessorKey === 'lmgrowth' || col.accessorKey === 'growth' ? (
+                <div style={{ position: 'relative' }}>
+                  <span style={{ color: getGrowthColorStyle(row[col.accessorKey]) }}>
+                    {row[col.accessorKey]}
                   </span>
                 </div>
               ) : (
@@ -469,6 +513,19 @@ const SalesPortalTable = () => {
         fullscreen={true} // Enables full-window modal
       >
         <Modal.Body>{modelComp()}</Modal.Body>
+      </Modal>
+
+      <Modal show={scShowModal} onHide={toggleScModal}>
+        <Modal.Body>
+          <ScoreCardPopup
+            divCode={rowData?.division}
+          />
+        </Modal.Body>
+        <ModalFooter>
+          <Button variant="secondary" onClick={toggleScModal}>
+            Close
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );

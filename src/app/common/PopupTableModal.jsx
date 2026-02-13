@@ -111,6 +111,10 @@ const PopupTableModal = ({
       return undefined;
     };
 
+    const getGrowthColorStyle = (value) => {
+      return value < 0 ? 'red' : '#ff970e';
+    };
+
     const renderCellContent = (column, value, item, isAchv, isTotal) => {
       return (
         <div
@@ -155,7 +159,12 @@ const PopupTableModal = ({
               {head.map((column) => {
                 const value = item[column.accessorKey];
                 const isAchv = column.accessorKey === 'achv' || column.accessorKey === 'net_amt1';
-                const colorStyle = getColorStyle(isAchv, column.accessorKey === 'achv' ? value : item['achv']);
+                let colorStyle;
+                if (column.accessorKey === 'lmgrowth' || column.accessorKey === 'growth') {
+                  colorStyle = getGrowthColorStyle(value);
+                } else {
+                  colorStyle = getColorStyle(isAchv, column.accessorKey === 'achv' ? value : item['achv']);
+                }
                 const isTotal =
                   item[column.accessorKey] === 'Grand Total' ?? false;
 

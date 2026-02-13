@@ -24509,7 +24509,7 @@ dl li {
   z-index: 9;
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   -webkit-transition-duration: 0.2s;
   transition-duration: 0.2s;
   -webkit-transition-property: background, box-shadow;
@@ -24536,6 +24536,7 @@ dl li {
   line-height: 1;
   text-align: left;
   border-right: 1px solid rgba(151, 151, 151, 0.34);
+  padding-right: 24px;
 }
 
 @media (max-width: 767.98px) {
