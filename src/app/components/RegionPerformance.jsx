@@ -123,7 +123,8 @@ function RegionPerformance() {
           const isAchv = column.accessorKey === 'achv';
 
           return (
-            <td key={`${item.id}-${column.accessorKey}`}>
+            <td key={`${item.id}-${column.accessorKey}`}
+              style={column.accessorKey === 'region_desc' ? { position: 'sticky', left: 0 } : undefined}>
               {column.accessorKey === 'region_desc' ? (
                 <div
                   style={{
@@ -208,15 +209,16 @@ function RegionPerformance() {
                         <thead className="thead-light">
                           <tr>
                             {regioPerformanceHead.map((column) => {
-                              const colClass =
-                                column.accessorKey === 'region_desc'
-                                  ? 'txtLeft'
-                                  : '';
+                              const isRegion = column.accessorKey === 'region_desc';
 
                               return (
                                 <th
                                   key={column.accessorKey}
-                                  className={colClass}
+                                  className={isRegion ? 'txtLeft' : ''}
+                                  style={isRegion
+                                    ? { left: 0, position: 'sticky' }
+                                    : undefined
+                                  }
                                 >
                                   {column.header}
                                 </th>

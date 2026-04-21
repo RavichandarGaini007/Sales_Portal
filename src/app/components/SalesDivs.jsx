@@ -57,8 +57,7 @@ const SalesDivs = ({ tableData }) => {
     },
     scales: {
       x: {
-        categoryPercentage: 0.1, // reduce to add more space between groups
-        barPercentage: 0.7, // reduce to make bars thinner        
+        beginAtZero: true,
         afterDataLimits: (axis) => { // Extend the max value to allow space for datalabels and extra ticks
           axis.max += axis.max * 0.500; // add 25% more space to the right
         },
@@ -69,6 +68,8 @@ const SalesDivs = ({ tableData }) => {
         },
       },
       y: {
+        categoryPercentage: 0.6, // controls space between bar groups
+        barPercentage: 0.8, // controls individual bar width
         beginAtZero: true, // Optionally, you can add grid or other y-axis settings here
       },
     },
@@ -79,18 +80,35 @@ const SalesDivs = ({ tableData }) => {
   const salesDivData = tableData.filter((item) => item.division !== 'Grand Total');
   const labels = salesDivData.map((item) => item.div_Name);
   const netAmtData = salesDivData.map((item) => item.net_amt);
+  const lysaleData = salesDivData.map((item) => item.lyutd || 0);
+  const target = salesDivData.map((item) => item.target || 0);
   const customLabels = salesDivData.map((item) => `${item.net_amt} / ${item.target} (${item.achv}%)`);
 
   const data = {
     labels,
     datasets: [
       {
-        label: 'Net Amount / Target (Achv)',
-        data: netAmtData,
-        backgroundColor: '#5e6eed',
+        label: 'Target',
+        data: target,
+        backgroundColor: '#0026ff',
         borderWidth: 1,
         barThickness: 15, // reduced bar thickness
       },
+      {
+        label: 'Sale',
+        data: netAmtData,
+        backgroundColor: '#7382f3',
+        borderWidth: 1,
+        barThickness: 15, // reduced bar thickness
+      },
+      {
+        label: 'LY Sale',
+        data: lysaleData,
+        backgroundColor: '#72e0f3',
+        borderWidth: 1,
+        barThickness: 15, // reduced bar thickness
+      },
+
     ],
   };
 

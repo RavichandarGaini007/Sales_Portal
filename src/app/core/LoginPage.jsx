@@ -14,12 +14,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
 import { API_REQUEST } from '../lib/fetchApi';
-import { setAccessToken, setKeepSignIn } from '../lib/authToken';
+import { setAccessToken } from '../lib/authToken';
+import BouncingLoader from '../common/BouncingLoader';
 
 const initialValues = {
   emailid: '',
   password: '',
-  keepSignIn: false,
+  keepSignIn: true,
 };
 
 const LoginPage = () => {
@@ -71,6 +72,7 @@ const LoginPage = () => {
   useEffect(() => {
     const tryAutoLogin = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           API_REQUEST + 'refresh',
           {
@@ -89,6 +91,8 @@ const LoginPage = () => {
         }
       } catch (error) {
         console.error('Auto login error:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -189,6 +193,12 @@ const LoginPage = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <BouncingLoader />
+    );
+  }
+
   return (
     <Container fluid className="login-page vh-100 d-flex align-items-center">
       <Row className="w-100 clsportal">
@@ -246,7 +256,7 @@ const LoginPage = () => {
                 name="keepSignIn"
                 label="Keep me signed in"
                 onChange={handleChange}
-
+                checked={values.keepSignIn}
               />
             </Form.Group>
             <Button variant="primary" type="submit" className="w-100 mb-3">

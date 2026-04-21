@@ -19,7 +19,7 @@ import BouncingLoader from '../common/BouncingLoader';
 const SpeedometerCard = ({ data }) => {
   return (
     <Row style={{ paddingLeft: '15px' }} className="align-items-center">
-      <Col sm="8" className="">
+      <Col sm="6" className="">
         <ReactSpeedometer
           value={Math.min(data?.achv ?? 0, 100)}
           minValue={0}
@@ -37,50 +37,178 @@ const SpeedometerCard = ({ data }) => {
           ringWidth={40}
         />
       </Col>
-      <Col sm="4">
+      <Col sm="6">
         <Card
-          className="shadow"
           style={{
-            width: '200px',
-            padding: '10px',
+            borderRadius: "12px",
+            overflow: "hidden",
             textAlign: 'center',
           }}
+
           id="growthCard"
         >
-          <Row className="text-center">
-            <Col md="12">
-              <p>
-                <b>NET AMOUNT :</b> {data?.net_amt ?? '0'}
-              </p>
-              {/* <CardText className="fw-bold">NET AMOUNT :</CardText>
-              <CardText>{data?.net_amt ?? '0'}</CardText> */}
-            </Col>
-            <Col>
-              <p>
-                <b>TARGET :</b> {data?.target ?? '0'}
-              </p>
-              {/* <CardText className="fw-bold">TARGET:</CardText>
-              <CardText>{data?.target ?? '0'}</CardText> */}
-            </Col>
-            <Col>
-              <p>
-                <b>ACH (%) :</b> {data?.achv ?? '0'}
-              </p>
-              {/* <CardText className="fw-bold">ACH (%):</CardText>
-              <CardText>{data?.achv ?? '0'}</CardText> */}
-            </Col>
-          </Row>
-          <div style={{ color: 'rgb(13 59 135)' }}>
-            <p>
-              <strong>Last Year Growth:</strong>
-              {data?.growth_ly ?? '0'}
-            </p>
-            <p>
-              <strong>Upto Date Growth:</strong>
-              {data?.growth_lm ?? '0'}
-            </p>
+          {/* ===== HEADER ===== */}
+          <div
+            className="text-center "
+            style={{
+              background: "linear-gradient(90deg, #0d47a1, #1e88e5)",
+              color: "white",
+              fontWeight: "600",
+              fontSize: "18px",
+              paddingTop: "7px",
+              paddingBottom: "7px",
+            }}
+          >
+            NET AMOUNT : ₹ {data?.net_amt ?? "0"}
           </div>
+
+          <CardBody>
+            {/* ===== TARGET + ACH ===== */}
+            <Row className="text-center">
+              <Col xs={12} md={6} className="mb-3 mb-md-0">
+                <div className="fw-semibold ">TARGET</div>
+                <div className="fs-5 fw-bold">
+                  ₹ {data?.target ?? "0"}
+                </div>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <div className="fw-semibold ">ACH (%)</div>
+                <div
+                  className="fs-5 fw-bold"
+                  style={{
+                    color:
+                      Number(data?.achv) >= 50
+                        ? "green"
+                        : "#f57c00",
+                  }}
+                >
+                  {data?.achv ?? "0"} %
+                </div>
+              </Col>
+            </Row>
+
+            {/* ===== GROWTH CARDS ===== */}
+            <Row >
+              <Col xs={12} md={6} className="mb-3 mb-md-0">
+                <div className="rounded text-center bg-light" style={{ padding: '8px' }}>
+                  <div className="fw-semibold">
+                    LY Growth
+                  </div>
+                  <div
+                    className="fw-bold fs-6"
+                    style={{
+                      color:
+                        Number(data?.growth_ly) >= 0
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {data?.growth_ly ?? "0"} %
+                  </div>
+                </div>
+              </Col>
+
+              <Col xs={12} md={6}>
+                <div className="rounded text-center bg-light" style={{ padding: '8px' }}>
+                  <div className="fw-semibold">
+                    UTD Growth
+                  </div>
+                  <div
+                    className="fw-bold fs-6"
+                    style={{
+                      color:
+                        Number(data?.growth_lm) >= 0
+                          ? "green"
+                          : "red",
+                    }}
+                  >
+                    {data?.growth_lm ?? "0"} %
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            {/* ===== RESPONSIVE TABLE ===== */}
+            <div className="table-responsive">
+              <table className="table table-sm table-bordered text-center align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Metric</th>
+                    <th>Sale</th>
+                    <th>Growth</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ textAlign: 'left' }}>Last Month UTD</td>
+                    <td>₹ {data?.lmutd ?? "0"}</td>
+                    <td
+                      className="fw-semibold"
+                      style={{
+                        color:
+                          Number(data?.growth_lm) >= 0
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {data?.growth_lm ?? "0"} %
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style={{ textAlign: 'left' }}>Last Year UTD</td>
+                    <td>₹ {data?.lyutd ?? "0"}</td>
+                    <td
+                      className="fw-semibold"
+                      style={{
+                        color:
+                          Number(data?.lyutdgrowth) >= 0
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {data?.lyutdgrowth ?? "0"} %
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style={{ textAlign: 'left' }}>Last Month</td>
+                    <td>₹ {data?.lmsale ?? "0"}</td>
+                    <td
+                      className="fw-semibold"
+                      style={{
+                        color:
+                          Number(data?.lmgrowth) >= 0
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {data?.lmgrowth ?? "0"} %
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td style={{ textAlign: 'left' }}>Last Year</td>
+                    <td>₹ {data?.lysale ?? "0"}</td>
+                    <td
+                      className="fw-semibold"
+                      style={{
+                        color:
+                          Number(data?.growth_ly) >= 0
+                            ? "green"
+                            : "red",
+                      }}
+                    >
+                      {data?.growth_ly ?? "0"} %
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardBody>
         </Card>
+
       </Col>
     </Row>
   );

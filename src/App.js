@@ -9,6 +9,9 @@ const LoginPage = lazy(() => import('./app/core/LoginPage'));
 const MainLayout = lazy(() => import('./app/core/MainLayout'));
 const FlatFileDownload =lazy(()=> import('./app/reports/flatfiledownload'));
 const NetworkWiseProductWise=lazy(()=> import('./app/reports/NetworkWiseProductWise') )
+const HierarchyWise=lazy(()=> import('./app/reports/HierarchyWise') )
+const CustSaleTrendReport=lazy(()=> import('./app/reports/CustSaleTrendReport') )
+
 function App() {
 
   return (
@@ -23,6 +26,8 @@ function App() {
               <Route path="/mainLayout/dashboard" element={<Dashboard />} />
                <Route path="/mainLayout/Report/flat_file_download" element={<FlatFileDownload />} />
                 <Route path="/mainLayout/Report/Networkwiseproductwise" element={<NetworkWiseProductWise />} />
+                <Route path="/mainLayout/Report/HierarchyWise" element={<HierarchyWise />} />
+                <Route path="/mainLayout/Report/CustSaleTrendReport" element={<CustSaleTrendReport />} />
               <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
             </Route>
           </Routes>

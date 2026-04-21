@@ -150,7 +150,8 @@ const HierarchicalPerformanceTabs = () => {
           const isAchv = column.accessorKey === 'achv';
 
           return (
-            <td key={`${item.id}-${column.accessorKey}`}>
+            <td key={`${item.id}-${column.accessorKey}`}
+              style={column.accessorKey === 'name' ? { position: 'sticky', left: 0 } : undefined}>
               {column.accessorKey === 'name' ? (
                 <div
                   style={{
@@ -265,11 +266,13 @@ const HierarchicalPerformanceTabs = () => {
                             {hierarchyPerformanceHead.map((column) => {
                               const colClass =
                                 column.accessorKey === 'name' ? 'txtLeft' : '';
+                              const isHierarchy = column.accessorKey === 'name';
 
                               return (
                                 <th
                                   key={column.accessorKey}
                                   className={colClass}
+                                  style={isHierarchy ? { position: 'sticky', left: 0 } : undefined}
                                 >
                                   {column.header}
                                 </th>

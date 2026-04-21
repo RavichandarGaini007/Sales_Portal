@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
+import ReportFilters from './ReportFilters';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
-import { apiUrls, fetchApiGet } from '../lib/fetchApi';
-import Multiselect_dropdown from '../common/Multiselect_dropdown';
+import { apiUrls, fetchApiGet, fetchApi } from '../lib/fetchApi';
 import { useSelector } from 'react-redux';
-import DataTable from '../components/DataTable';
 import BouncingLoader from '../common/BouncingLoader';
-import { NetworkWiseProductSaleHeaderColumn, NetworkWiseProductSaleHeaderGroupColumn, QuaterWiseProductSaleHeaderColumn, QuaterWiseProductSaleHeaderGroupColumn } from '../lib/tableHead';
+import ReportDataTable from './ReportDataTable';
+import { NetworkWiseProductSaleHeaderColumn, NetworkWiseProductSaleHeaderGroupColumn, QuaterWiseProductSaleHeaderColumn, QuaterWiseProductSaleHeaderGroupColumn, NetworkWiseProductYearlySaleHeaderColumn } from '../lib/tableHead';
 
 const NetworkProductWise = () => {
     const [generictab, setgenerictab] = useState(false);
@@ -31,6 +30,7 @@ const NetworkProductWise = () => {
     const [selectedMonth, setSelectedMonth] = useState([]);
     const [loading, setLoading] = useState(false);
     const currentYear = new Date().getFullYear();
+    const [reportType, setReportType] = useState('networkWiseProductWise');
     const { data, isAuthorized, isLoading } = useSelector((state) => {
         return state.app;
     });
@@ -96,25 +96,6 @@ const NetworkProductWise = () => {
         fetchDivision();
     }, []);
 
-    function getFinancialYear(selectedMonth, selectedYear) {
-        const month = selectedMonth.slice(0, 3).toUpperCase();
-        let fiscalYearStart, fiscalYearEnd;
-
-        // Months Jan, Feb, Mar belong to previous fiscal year
-        if (month === "JAN" || month === "FEB" || month === "MAR") {
-            fiscalYearStart = selectedYear - 1;
-            fiscalYearEnd = selectedYear;
-        } else {
-            fiscalYearStart = selectedYear;
-            fiscalYearEnd = selectedYear + 1;
-        }
-
-
-        const financialYearStr = `YTD APR TO ${month} ${fiscalYearStart}-${fiscalYearEnd.toString().substring(2)}`;
-        const financialYear = `${month} ${fiscalYearStart.toString().slice(-2)}`
-        return { financialYearStr, financialYear };
-    }
-
     useEffect(() => {
         if (selectedDivison.length > 0) {
             async function GetDesgEmp() {
@@ -141,7 +122,7 @@ const NetworkProductWise = () => {
             async function GetPlant() {
                 try {
                     const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
-                    const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=plant&userid=${data?.data[0]?.userid}`)
+                    const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=plant&userid=${data?.data[0]?.userid}&month=${selectedMonth[0]?.value || ''}`)
 
                     const formatted = response.data.map((item) => ({
                         label: item.ort01,
@@ -156,7 +137,7 @@ const NetworkProductWise = () => {
             async function GetBrand() {
                 try {
                     const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
-                    const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=brandcode`)
+                    const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=brandcode&month=${selectedMonth[0]?.value || ''}`)
 
                     const formatted = response.data.map((item) => ({
                         label: item.BRAND,
@@ -193,14 +174,51 @@ const NetworkProductWise = () => {
 
     }, [selectedDivison])
 
+    // Refresh brands when plant selection changes so Brand dropdown updates
+    // immediately after the user picks a plant.
+    useEffect(() => {
+        async function fetchBrandsForPlant() {
+            try {
+                if (!generictab) return; // only relevant in generic mode
+                if (!selectedDivison || selectedDivison.length === 0) return;
+
+                const DivisonIds = selectedDivison.map((Divison) => Divison.value);
+                const plantParam = Array.isArray(selectedplant) ? selectedplant.join(',') : (selectedplant || '');
+
+                if (!plantParam) return; // if no plant is selected, we shouldn't fetch brands since the API expects a plant filter in generic mode
+
+                const url = apiUrls.GetBrandCodeData +
+                    `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=brandcode` +
+                    (plantParam ? `&plant=${encodeURIComponent(plantParam)}&month=${selectedMonth[0]?.value || ''}` : '');
+
+                const response = await fetchApiGet(url);
+                const formatted = (response.data || []).map((item) => ({
+                    label: item.BRAND,
+                    value: item.BRAND_CODE,
+                }));
+                setBrand(formatted);
+
+                // reset selected brand to ALL when plant changes so the caller doesn't
+                // hold an invalid brand value that doesn't exist in the refreshed list
+                setselectedBrand(['ALL']);
+            } catch (error) {
+                console.error('Error fetching brands for plant:', error);
+            }
+        }
+
+        fetchBrandsForPlant();
+    }, [selectedplant, selectedDivison, selectedYear, generictab]);
+
     async function GetProduct() {
         try {
+            if (selectedBrand[0] === 'ALL') return;
+            if (!selectedBrand || selectedBrand.length == 0) return;
             var brand = "";
             if (selectedBrand.length > 0) {
                 brand = selectedBrand;
             }
             const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
-            const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=product&brandcode=${brand}`)
+            const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=product&brandcode=${brand}&month=${selectedMonth[0]?.value || ''}`)
 
             const formatted = response.data.map((item) => ({
                 label: item.PROD_DESC,
@@ -256,7 +274,7 @@ const NetworkProductWise = () => {
 
 
     const fnchangeview = (e) => {
-        setView(e.target.value);
+        setView(e);
         setselectedplant([]);
         setselectedBrand([]);
         setselectedDesg([]);
@@ -304,20 +322,25 @@ const NetworkProductWise = () => {
             } else {
                 type = "networkwise";
             }
-            const response1 = await fetchApiGet(apiUrls.NetworkWiseProductSale_S + `?div=${div}&desg=${desg}&Misdesc=${Misdesc}&plant=${plant}&brand=${brand}&product=${product}&month=${month}&year=${year}&type=${type}`)
+            var url = reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? apiUrls.NetworkWiseProductYearlySale
+                : apiUrls.NetworkWiseProductSale_S;
+            var request = {
+                div: div,
+                desg: desg,
+                mis: Misdesc,
+                plant: plant === plant ? "" : plant,
+                brand: brand === brand ? "" : brand,
+                product: product === product ? "" : product,
+                month: month.toString(),
+                year: year.toString(),
+                type: reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? reportType : type
+            }
+            const response1 = await fetchApi(url, request)
 
             const formatted = response1.data;
             if (formatted.length > 0) {
                 setGridData(formatted);
-                const { financialYearStr, financialYear } = getFinancialYear(selectedMonth[0].label, selectedYear[0].value);
-                NetworkWiseProductSaleHeaderGroupColumn.map((a) => {
-                    if (a.label == "financYear") {
-                        a.label = financialYear;
-                    }
-                    else if (a.label == "financYearStr") {
-                        a.label = financialYearStr;
-                    }
-                })
+
             } else {
                 alert("No Record Found");
                 setGridData(null);
@@ -346,186 +369,61 @@ const NetworkProductWise = () => {
                     <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
                         <h6 className="card-title mb-4"><b>Network Wise Product Sales Details</b></h6>
                     </div>
-                    {/* View Selector */}
-                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                        <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>View:</label>
-                        <select
-                            className="form-select"
-                            onChange={fnchangeview}
-                            value={view}
-                        >
-                            {data?.data[0]?.enetsale === "ALL" && (
-                                <option value="allindia">All India</option>
-                            )}
-                            <option value="network">Networkwise</option>
-                            <option value="quarterwise">Quarterwise</option>
-                        </select>
-                    </div>
+                    {/* filters moved to reusable component */}
+                    <ReportFilters
+                        reportType={reportType}
+                        setReportType={setReportType}
+                        view={view}
+                        setView={fnchangeview}
+                        data={data}
+                        generictab={generictab}
+                        divison={divison}
+                        selectedDivison={selectedDivison}
+                        setSelectedDivison={setSelectedDivison}
+                        Desg={Desg}
+                        selectedDesg={selectedDesg}
+                        setselectedDesg={setselectedDesg}
+                        Mis={Mis}
+                        selectedMis={selectedMis}
+                        setselectedMis={setselectedMis}
+                        plant={plant}
+                        selectedplant={selectedplant}
+                        setselectedplant={setselectedplant}
+                        Brand={Brand}
+                        selectedBrand={selectedBrand}
+                        setselectedBrand={setselectedBrand}
+                        Product={Product}
+                        selectedProduct={selectedProduct}
+                        setselectedProduct={setselectedProduct}
+                        months={months}
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        years={years}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        monthyears={monthyears}
+                        onGo={DownloadFile}
+                    />
 
-                    {/* Division */}
-                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                        <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>Division:</label>
-                        <div style={{ width: '300px' }}>
-                            <Multiselect_dropdown
-                                options={divison}
-                                selectedList={selectedDivison}
-                                setSelected={setSelectedDivison}
-                            />
-                        </div>
-                    </div>
+                    {GridData && GridData.length > 0 && (
+                        <div className="col-12 pt-4">
+                            {(() => {
+                                const tblHeaders =
+                                    view === "quarterwise" ? QuaterWiseProductSaleHeaderColumn :
+                                        reportType === "networkWiseProductWiseYearly" || reportType === "networkWiseProductWiseNepalYearly" ? NetworkWiseProductYearlySaleHeaderColumn :
+                                            NetworkWiseProductSaleHeaderColumn;
 
-                    {/* Filters when not All India */}
-                    {view !== "allindia" && (
-                        <>
+                                const groupHeaders = view === "quarterwise" ? QuaterWiseProductSaleHeaderGroupColumn : NetworkWiseProductSaleHeaderGroupColumn;
 
-
-                            {!generictab ? (
-                                <>
-                                    {/* Designation */}
-                                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                                        <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>Desg:</label>
-                                        <select
-                                            className="form-select"
-                                            style={{ width: '200px' }}
-                                            value={selectedDesg}
-                                            onChange={(e) => setselectedDesg(e.target.value)}
-                                        >
-                                            <option value="">--Select--</option>
-                                            {Desg.map((a) => (
-                                                <option key={a.Mdesc} value={a.Mdesc}>{a.Mdesc}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* MIS Desc */}
-                                    <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                                        <label className="form-label mb-0">MIS Desc:</label>
-                                        <div style={{ width: '200px' }}>
-                                            <Multiselect_dropdown
-                                                options={Mis}
-                                                selectedList={selectedMis}
-                                                setSelected={setselectedMis}
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            ) : null}
-                        </>
-                    )}
-                    {generictab ? (
-                        <>
-                            {/* Plant */}
-                            <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                                <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>Plant:</label>
-                                <select
-                                    className="form-select"
-                                    style={{ width: '200px' }}
-                                    value={selectedplant}
-                                    onChange={(e) => setselectedplant(e.target.value)}
-                                >
-                                    <option value="">--Select--</option>
-                                    {plant.map((a) => (
-                                        <option key={a.value} value={a.value}>{a.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Brand */}
-                            <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                                <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>Brand:</label>
-                                <select
-                                    className="form-select"
-                                    style={{ width: '200px' }}
-                                    value={selectedBrand}
-                                    onChange={(e) => setselectedBrand(e.target.value)}
-                                >
-                                    <option value="ALL">--ALL--</option>
-                                    {Brand.map((a) => (
-                                        <option key={a.value} value={a.value}>{a.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Product */}
-                            <div className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-center gap-2">
-                                <label className="form-label mb-0" style={{ whiteSpace: 'nowrap' }}>Product:</label>
-                                <select
-                                    className="form-select"
-                                    style={{ width: '200px' }}
-                                    value={selectedProduct}
-                                    onChange={(e) => setselectedProduct(e.target.value)}
-                                >
-                                    <option value="ALL">--ALL--</option>
-                                    {Product.map((a) => (
-                                        <option key={a.value} value={a.value}>{a.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </>
-                    ) : null}
-                    {/* Month (conditionally rendered) */}
-                    {view !== "quarterwise" && (
-                        <div className="col-6 col-sm-3 col-md-2 d-flex align-items-center gap-2">
-                            <label className="form-label mb-0">Month:</label>
-                            <select
-                                className="form-select"
-                                value={selectedMonth[0]?.value || ''}
-                                onChange={(e) => {
-                                    const selected = months.find((y) => y.value === parseInt(e.target.value));
-                                    setSelectedMonth(selected ? [selected] : []);
-                                }}
-                            >
-                                <option value="">Select Month</option>
-                                {months.map((month) => (
-                                    <option key={month.value} value={month.value}>{month.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Year (always shown, adjusts position) */}
-                    <div className="col-6 col-sm-3 col-md-2 d-flex align-items-center gap-2">
-                        <label className="form-label mb-0">Year:</label>
-                        <select
-                            className="form-select"
-                            value={selectedYear[0]?.value || ''}
-                            onChange={(e) => {
-                                const selected = (view !== "quarterwise" ? years : monthyears).find(
-                                    (y) => y.value === parseInt(e.target.value)
+                                return (
+                                    <ReportDataTable
+                                        data={GridData}
+                                        columnHeaders={tblHeaders}
+                                        groupHeaders={groupHeaders}
+                                    />
                                 );
-                                setSelectedYear(selected ? [selected] : []);
-                            }}
-                        >
-                            <option value="">Select Year</option>
-                            {(view !== "quarterwise" ? years : monthyears).map((year) => (
-                                <option key={year.value} value={year.value}>{year.label}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Go Button */}
-                    <div className="col-12 col-sm-6 col-md-2 d-flex align-items-center">
-                        <button className="btn btn-success w-25" onClick={DownloadFile}>
-                            Go
-                        </button>
-                    </div>
-
-                    {view === "quarterwise" && (
-
-                        <div className="col-12 pt-4">
-                            <DataTable data={GridData} filename="NetworkWiseProductSaleReport" headername="Network Wise Product Sales Details"
-                                columnHeaders={QuaterWiseProductSaleHeaderColumn}
-                                groupHeaders={QuaterWiseProductSaleHeaderGroupColumn} name={data?.data[0]?.name} />
+                            })()}
                         </div>
-                    )}
-                    {view !== "quarterwise" && (
-                        <div className="col-12 pt-4">
-                            <DataTable data={GridData} filename="NetworkWiseProductSaleReport" headername="Network Wise Product Sales Details"
-                                columnHeaders={NetworkWiseProductSaleHeaderColumn}
-                                groupHeaders={NetworkWiseProductSaleHeaderGroupColumn}
-                                name={data?.data[0]?.name} />
-                        </div>
-
                     )}
                 </div>
             </div>

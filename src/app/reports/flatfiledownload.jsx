@@ -5,6 +5,7 @@ import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
 import { apiUrls, fetchApiGet } from '../lib/fetchApi';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
+import ReportFilters from './ReportFilters';
 import XlsxPopulate from "xlsx-populate/browser/xlsx-populate";
 import { saveAs } from "file-saver";
 import { useSelector } from 'react-redux';
@@ -40,7 +41,9 @@ const FlatFileDownload = () => {
   useEffect(() => {
 
     const currentYear = new Date().getFullYear();
-    const defaultYear = years.find(year => year.value === currentYear) || years[0];  // Fall back to the first year if current year is not in the list
+    const currentMonth = new Date().getMonth() + 1;
+    const yearToSelect = (currentMonth >= 1 && currentMonth <= 3) ? currentYear - 1 : currentYear;
+    const defaultYear = years.find(year => year.value === yearToSelect) || years[0];  // Fall back to the first year if selected year is not in the list
     setSelectedYear([defaultYear]);
 
     async function fetchDivision() {
@@ -262,60 +265,31 @@ const FlatFileDownload = () => {
             <h2 className="card-title mb-4">Flat File Download</h2>
             <h5 className="card-title mb-4 text-end" style={{ fontSize: "13px" }}>Last Updated Date: {lastmodifieddate}</h5>
           </div>
-          <div className="d-flex flex-wrap gap-4 align-items-center justify-content-center">
-            {/* Year Dropdown */}
-            <div className="d-flex align-items-center gap-2">
-              <label htmlFor="yearDropdown" className="form-label mb-0">Year:</label>
-              <select
-                id="yearDropdown"
-                className="form-select"
-                style={{ minWidth: '150px' }}
-                value={selectedYear[0]?.value || ''}
-                onChange={(e) => {
-                  const selected = years.find((y) => y.value === parseInt(e.target.value));
-                  setSelectedYear(selected ? [selected] : []);
-                }}
-              >
-                <option value="">Select Year</option>
-                {years.map((year) => (
-                  <option key={year.value} value={year.value}>
-                    {year.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Division Dropdown */}
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0">Division:</label>
-              <Multiselect_dropdown
-                options={divison}
-                selectedList={selectedDivison}
-                setSelected={setSelectedDivison}
-              />
-            </div>
-
-            {/* Brand Dropdown */}
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0">Brand:</label>
-              <Multiselect_dropdown
-                options={brands}
-                selectedList={selectedBrand}
-                setSelected={setSelectedBrand}
-              />
-            </div>
-
-            {/* Download Button */}
-            <div>
-              <button onClick={() => generateExcel("D")}
-                className="btn btn-success">
+          {/* filters rendered using reusable component */}
+          <div className="row gx-3 gy-3 align-items-center justify-content-center">
+            <ReportFilters
+              years={years}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
+              divison={divison}
+              selectedDivison={selectedDivison}
+              setSelectedDivison={setSelectedDivison}
+              Brand={brands}
+              selectedBrand={selectedBrand}
+              setselectedBrand={setSelectedBrand}
+              brandMulti={true}
+              view='FlatFile'
+            />
+            {/* actions stay outside filters */}
+            <div className="col-auto">
+              <button onClick={() => generateExcel("D")} className="btn btn-success">
                 Download Excel
-              </button> &nbsp;
-              {isAllowFlatFileDownload && (<button onClick={() => generateExcel("B")}
-                className="btn btn-success">
-                Brandwise Download
-              </button>)}
-
+              </button>{' '}
+              {isAllowFlatFileDownload && (
+                <button onClick={() => generateExcel("B")} className="btn btn-success">
+                  Brandwise Download
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -116,13 +116,15 @@ const HQPerformance = () => {
           const isAchv = column.accessorKey === 'achv';
 
           return (
-            <td key={`${item.id}-${column.accessorKey}`}>
+            <td key={`${item.id}-${column.accessorKey}`}
+              style={column.accessorKey === 'bezei' ? { position: 'sticky', left: 0 } : undefined}
+            >
               {column.accessorKey === 'bezei' ? (
                 <div
                   style={{
                     textAlign: 'left',
                     cursor: 'pointer',
-                    textDecoration: 'underline',
+                    textDecoration: 'underline'
                   }}
                   onClick={() => handleRowClick(item)}
                 >
@@ -219,23 +221,26 @@ const HQPerformance = () => {
         {flags.map((tab, id) => (
           <TabContent key={id} activeTab={activeTab}>
             <TabPane tabId={id}>
-              <CardBody className="com-card-body-height">
+              <CardBody className="com-card-body-height" style={{ paddingTop: '0px !importaint' }}>
                 {tabData[activeTab].loading ? (
                   <BouncingLoader />
                 ) : (
                   <Row>
                     <Col>
-                      <table className="table table-bordered">
+                      <table className="table table-bordered ">
                         <thead className="thead-light">
                           <tr>
                             {hqPerformanceHead.map((column) => {
-                              const colClass =
-                                column.accessorKey === 'bezei' ? 'txtLeft' : '';
+                              const isHq = column.accessorKey === 'bezei';
 
                               return (
                                 <th
                                   key={column.accessorKey}
-                                  className={colClass}
+                                  className={isHq ? 'txtLeft' : ''}
+                                  style={isHq
+                                    ? { left: 0, position: 'sticky' }
+                                    : undefined
+                                  }
                                 >
                                   {column.header}
                                 </th>

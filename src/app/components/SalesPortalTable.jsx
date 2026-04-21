@@ -37,6 +37,7 @@ import { useRequest } from '../common/RequestContext';
 import BouncingLoader from '../common/BouncingLoader';
 import DivWiseReport from './DivWiseReport';
 import ScoreCardPopup from './ScoreCardPopup';
+import { getEnetsale } from '../lib/authToken';
 
 // const salesReq = {
 //   tbl_name: 'FTP_11_2024',
@@ -67,6 +68,15 @@ const SalesPortalTable = () => {
   // const popoverTargetRef = useRef(null);
 
   const toggle = () => setIsOpen(!isOpen);
+
+  const componentMap = {
+    hqwise: HqWiseReport,
+    brandwise: BrandWiseReport,
+    hwise: HierarchyWiseReport,
+    plantwise: PlantWiseReport,
+    custwise: CustomerWiseReport,
+    regionwise: RegionWiseReport,
+  };
 
   useEffect(() => {
     (async () => {
@@ -135,6 +145,10 @@ const SalesPortalTable = () => {
   const modelComp = () => {
     if (rowData) {
 
+      if (dropdownSelection === 'dashboard') {
+        return null;
+      }
+
       if (rowData.division === 'FT') {
         return (
           <DivWiseReport
@@ -145,58 +159,72 @@ const SalesPortalTable = () => {
           />
         );
       }
-      const components = {
-        hqwise: (
-          <HqWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            isDrillEnable={true}
-            onClose={handleHideModel}
-          />
-        ),
-        brandwise: (
-          <BrandWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            isDrillEnable={true}
-            onClose={handleHideModel}
-          />
-        ),
-        hwise: (
-          <HierarchyWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            onClose={handleHideModel}
-          />
-        ),
-        plantwise: (
-          <PlantWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            onClose={handleHideModel}
-          />
-        ),
-        custwise: (
-          <CustomerWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            onClose={handleHideModel}
-          />
-        ),
-        regionwise: (
-          <RegionWiseReport
-            headerName={rowData.name}
-            divCode={rowData.division}
-            onClose={handleHideModel}
-          />
-        ),
-      };
 
-      if (dropdownSelection === 'dashboard') {
-        return null;
-      }
+      const SelectedComponent = componentMap[dropdownSelection];
 
-      return components[dropdownSelection] || null;
+      if (!SelectedComponent) return null;
+
+      return (
+        <SelectedComponent
+          headerName={rowData.name}
+          divCode={rowData.division}
+          isDrillEnable
+          onClose={handleHideModel}
+        />
+      );
+
+      // const components = {
+      //   hqwise: (
+      //     <HqWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       isDrillEnable={true}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      //   brandwise: (
+      //     <BrandWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       isDrillEnable={true}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      //   hwise: (
+      //     <HierarchyWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      //   plantwise: (
+      //     <PlantWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      //   custwise: (
+      //     <CustomerWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      //   regionwise: (
+      //     <RegionWiseReport
+      //       headerName={rowData.name}
+      //       divCode={rowData.division}
+      //       onClose={handleHideModel}
+      //     />
+      //   ),
+      // };
+
+      // if (dropdownSelection === 'dashboard') {
+      //   return null;
+      // }
+
+      // return components[dropdownSelection] || null;
     }
   };
 
@@ -209,6 +237,7 @@ const SalesPortalTable = () => {
   };
 
   const handleMenuClick = (menuVal) => setDropdownSelection(menuVal);
+
   const togglePopover = () => setPopoverOpen(!popoverOpen);
 
   const getRowStyle = (division) => {
@@ -325,11 +354,13 @@ const SalesPortalTable = () => {
   return (
     <>
       {/* <Navbar /> */}
+
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
-          <div className="content-wrapper pb-0">
+          <div className="content-wrapper pb-0" style={{ padding: '12px' }}>
             {/* Row for dropdowns on the same line */}
-            <Widgets wdata={data} />
+            {getEnetsale() === 'ALL' && <Widgets wdata={data} />}
+
             <Row>
               <Navbar expand="md">
                 <NavbarBrand href="#">Filters</NavbarBrand>
@@ -349,6 +380,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'plantwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Plant Wise Report"
                           >
                             Plant Wise
                           </Button>
@@ -358,6 +392,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'hqwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view HQ Wise Report"
                           >
                             HQ Wise
                           </Button>
@@ -367,6 +404,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'brandwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Brand Wise Report"
                           >
                             Brand Wise
                           </Button>
@@ -376,6 +416,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'hwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Hierarchy Wise Report"
                           >
                             Hierarchy Wise
                           </Button>
@@ -385,6 +428,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'custwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Customer Wise Report"
                           >
                             Customer Wise
                           </Button>
@@ -394,6 +440,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'regionwise'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Region Wise Report"
                           >
                             Region Wise
                           </Button>
@@ -403,6 +452,9 @@ const SalesPortalTable = () => {
                             color="primary"
                             outline
                             active={dropdownSelection === 'dashboard'}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Select Division to view Dashboard View"
                           >
                             Dashboard View
                           </Button>
@@ -460,7 +512,7 @@ const SalesPortalTable = () => {
             <Row className="">
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
               <Col lg="12" md="12" sm="12">
-                <Card className="card-stats" style={{ height: '500px' }}>
+                <Card className="card-stats" style={{ height: '400px' }}>
                   {isLoading ? (
                     <BouncingLoader />
                   ) : (

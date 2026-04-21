@@ -23,7 +23,7 @@ import BouncingLoader from '../common/BouncingLoader';
 // };
 
 const TopPerformance = () => {
-  const flags = ['Customer', 'Barnd', 'Hq'];
+  const flags = ['Customer', 'Brand', 'Hq'];
   const [activeTab, setActiveTab] = useState(0);
   const [tabData, setTabData] = useState({
     0: { data: null, loading: false, error: null, request: null },
@@ -141,8 +141,8 @@ const TopPerformance = () => {
                         </thead>
                         <tbody>
                           {activeTabData &&
-                          Array.isArray(activeTabData) &&
-                          activeTabData.length > 0 ? (
+                            Array.isArray(activeTabData) &&
+                            activeTabData.length > 0 ? (
                             activeTabData.map((item, index) => (
                               <tr key={index}>
                                 <td className="txtLeft">{item.name}</td>

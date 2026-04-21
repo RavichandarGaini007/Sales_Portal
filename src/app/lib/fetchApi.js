@@ -133,6 +133,11 @@ export const apiUrls = {
   GetDesGetDesgEmp: API_REQUEST + 'GetDesGetDesgEmp',
   NetworkWiseProductSale_S: API_REQUEST + 'NetworkWiseProductSale_S',
   groupDivData: API_REQUEST + 'groupDivData',
+  NetworkWiseProductYearlySale: API_REQUEST + 'NetworkWiseProductYearlySale',
+  getHierarchyWiseValueWiseReport: API_REQUEST + 'getHierarchyWiseValueWiseReport',
+  custSalesTrendReport: API_REQUEST + 'custSalesTrendReport',
+  custSalesProductTrendReport: API_REQUEST + 'custSalesProductTrendReport',
+  corpPerformanceReport: API_REQUEST + 'corpPerformanceReport',
 };
 
 export const popState = {

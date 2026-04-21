@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 //import axios from 'axios';
 import { API_REQUEST } from '../app/lib/fetchApi';
-import { setAccessToken } from '../app/lib/authToken';
+import { setAccessToken, setEnetsale } from '../app/lib/authToken';
 
 export const loginUser = createAsyncThunk(
   'user/login',
@@ -38,6 +38,7 @@ export const loginUser = createAsyncThunk(
       // ✅ store access token in memory
       if (result.token) {
         setAccessToken(result.token);
+        setEnetsale(result.data[0].enetsale);
         // setKeepSignIn(page.keepSignIn);
         // setUserId(result.data[0].userid);
       }

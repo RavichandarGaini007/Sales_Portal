@@ -31,18 +31,21 @@ const Dashboard = () => {
     // Fetch data from API
     (async () => {
       if (request) {
+        const opSalableData = await fetchApi(apiUrls.salesAchvdata, request);
+
+        if (opSalableData && opSalableData.data) {
+          setsalableData(opSalableData.data);
+        }
+
         const opData = await fetchApi(apiUrls.SalesScData, {
           ...request,
           tbl_name: request.tbl_name.replace('FTP_', 'FTP_MAT_VAL_'),
         });
-        const opSalableData = await fetchApi(apiUrls.salesAchvdata, request);
 
         if (opData && opData.data) {
           setscData(opData.data);
         }
-        if (opSalableData && opSalableData.data) {
-          setsalableData(opSalableData.data);
-        }
+
       }
     })();
   }, [request]);
@@ -74,7 +77,7 @@ const Dashboard = () => {
                   onClick={() => navComps('TableFormat')}
                 >
                   {' '}
-                  Table Formate{' '}
+                  Table Format{' '}
                 </button>
                 <button className="btn btn-outline-primary mb-2 mb-md-0 mr-2">
                   <a
@@ -108,9 +111,7 @@ const Dashboard = () => {
             </Row>
             <Row className="mt-performace">
               <Col lg="6" md="6" sm="12">
-                <Suspense fallback={<h1>🌀 Loading...</h1>}>
-                  <HQPerformance />
-                </Suspense>
+                <HQPerformance />
               </Col>
               <Col lg="6" md="6" sm="12">
                 <RegionPerformance />
