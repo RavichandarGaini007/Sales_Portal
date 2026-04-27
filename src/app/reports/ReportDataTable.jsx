@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
+import { IconButton, Tooltip } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const ReportDataTable = ({ data, columnHeaders = [], groupHeaders = [] }) => {
     if (!data || data.length === 0) {
@@ -11,7 +13,7 @@ const ReportDataTable = ({ data, columnHeaders = [], groupHeaders = [] }) => {
         return columnHeaders.map((col) => ({
             accessorKey: col.key || col.accessor,
             header: col.label || col.header,
-            size: 100,
+            grow: true,
         }));
     }, [columnHeaders]);
 
@@ -44,9 +46,41 @@ const ReportDataTable = ({ data, columnHeaders = [], groupHeaders = [] }) => {
         return groups;
     }, [columns, groupHeaders]);
 
+    const handleExport = (rows) => {
+        if (!rows || rows.length === 0) return;
+
+        // extract actual data
+        const data = rows.map((row) => row.original);
+
+        // get headers dynamically
+        const headers = Object.keys(data[0]);
+
+        // build CSV rows
+        const csv = [
+            headers.join(","), // header row
+            ...data.map((row) =>
+                headers
+                    .map((h) => `"${row[h] ?? ""}"`)
+                    .join(",")
+            ),
+        ].join("\n");
+
+        // create blob
+        const blob = new Blob([csv], {
+            type: "text/csv;charset=utf-8;",
+        });
+
+        // download file
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "report.csv";
+        link.click();
+    };
+
     const table = useMaterialReactTable({
         columns,
         data,
+        //layoutMode: 'grid', // important for auto sizing
         enableGrouping: false,
         groupedColumnMode: 'reorder',
         columnGrouping,
@@ -88,6 +122,17 @@ const ReportDataTable = ({ data, columnHeaders = [], groupHeaders = [] }) => {
                 borderRight: '1px solid #e0e0e0',
                 borderBottom: '1px solid #e0e0e0',
             },
+        },
+        renderTopToolbarCustomActions: ({ table }) => {
+            return (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
+                    <IconButton
+                        title="Download CSV"
+                        onClick={() => handleExport(table.getPrePaginationRowModel().rows)}
+                    ><DownloadIcon />
+                    </IconButton>
+                </div>
+            );
         },
     });
 

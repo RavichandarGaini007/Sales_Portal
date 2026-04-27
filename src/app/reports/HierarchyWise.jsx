@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import {
-    Card,
-    CardHeader,
-    CardBody,
-    Row,
-    Col,
-} from 'reactstrap';
 import ReportDataTable from './ReportDataTable';
 import { apiUrls, fetchApiGet, fetchApi } from '../lib/fetchApi';
 import '../css/commonCss.css';
 import { hierarchyWiseReportHeader } from '../lib/tableHead';
+import './CustSaleTrendReport.css';
+import BouncingLoader from '../common/BouncingLoader';
+
 
 const HierarchyWise = () => {
     const { data } = useSelector((state) => state.app);
@@ -238,244 +234,162 @@ const HierarchyWise = () => {
     };
 
     return (
-        <div className="grid-margin">
-            {/* FILTER CARD */}
-            <Card className="card-statistics" style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
-                <CardHeader className="card-title" style={{ background: 'linear-gradient(90deg, #0d47a1, #1e88e5)', color: 'white', padding: '15px 20px' }}>
-                    <i className="mdi mdi-filter-outline mr-2" />
-                    Hierarchy Wise Report - Filters
-                </CardHeader>
-                <CardBody style={{ padding: '25px' }}>
-                    <Row className="g-3">
+        <section className="cust-sale-report">
+            <div className="cust-sale-card">
+                <div className="cust-sale-card-header">
+                    <div>
+                        <h1 className="cust-sale-title">Hierarchy Wise Report</h1>
+                        <p className="cust-sale-description">Select the criteria to generate your hierarchy wise report</p>
+                    </div>
+                    <button
+                        onClick={handleSubmit}
+                        className="cust-sale-button"
+                        disabled={isLoading}
+                    >
+                        <i className="mdi mdi-magnify mr-2" />
+                        {isLoading ? 'Loading...' : 'Run Report'}
+                    </button>
+                </div>
+
+                <div className="cust-sale-filter-card">
+                    <div className="cust-sale-filter-grid">
                         {/* Division Filter */}
-                        <Col xs="12" sm="6" md="3" lg="3">
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>
-                                    Division
-                                </label>
-                                <select
-                                    value={selectedDiv}
-                                    onChange={(e) => setSelectedDiv(e.target.value)}
-                                    className="form-control"
-                                    disabled={loadingDivisions}
-                                    style={{
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        padding: '10px',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    <option value="">
-                                        {loadingDivisions ? 'Loading...' : 'Select Division'}
+                        <div className="cust-sale-field">
+                            <label className="cust-sale-label">
+                                Division
+                            </label>
+                            <select
+                                value={selectedDiv}
+                                onChange={(e) => setSelectedDiv(e.target.value)}
+                                className="cust-sale-select"
+                                disabled={loadingDivisions}
+                            >
+                                <option value="">
+                                    {loadingDivisions ? 'Loading...' : 'Select Division'}
+                                </option>
+                                {divisions.map((div) => (
+                                    <option key={div.div} value={div.div}>
+                                        {div.name}
                                     </option>
-                                    {divisions.map((div) => (
-                                        <option key={div.div} value={div.div}>
-                                            {div.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </Col>
+                                ))}
+                            </select>
+                        </div>
 
                         {/* Designation Filter */}
-                        <Col xs="12" sm="6" md="3" lg="3">
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>
-                                    Designation
-                                </label>
-                                <select
-                                    value={selectedDesg}
-                                    onChange={(e) => setSelectedDesg(e.target.value)}
-                                    className="form-control"
-                                    disabled={!selectedDiv || loadingDesignations}
-                                    style={{
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        padding: '10px',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    <option value="">
-                                        {!selectedDiv ? 'Select Division First' : loadingDesignations ? 'Loading...' : 'Select Designation'}
+                        <div className="cust-sale-field">
+                            <label className="cust-sale-label">
+                                Designation
+                            </label>
+                            <select
+                                value={selectedDesg}
+                                onChange={(e) => setSelectedDesg(e.target.value)}
+                                className="cust-sale-select"
+                                disabled={!selectedDiv || loadingDesignations}
+                            >
+                                <option value="">
+                                    {!selectedDiv ? 'Select Division First' : loadingDesignations ? 'Loading...' : 'Select Designation'}
+                                </option>
+                                {designations.map((desg) => (
+                                    <option key={desg.Mdesc} value={desg.Mdesc}>
+                                        {desg.Mdesc}
                                     </option>
-                                    {designations.map((desg) => (
-                                        <option key={desg.Mdesc} value={desg.Mdesc}>
-                                            {desg.Mdesc}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </Col>
+                                ))}
+                            </select>
+                        </div>
 
                         {/* MIS Filter */}
-                        <Col xs="12" sm="6" md="3" lg="3">
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>
-                                    MIS
-                                </label>
-                                <select
-                                    value={selectedMis[0]?.value || ''}
-                                    onChange={(e) => {
-                                        const miItem = mis.find(m => m.value === e.target.value);
-                                        setSelectedMis(miItem ? [miItem] : []);
-                                    }}
-                                    className="form-control"
-                                    disabled={!selectedDesg || loadingMis}
-                                    style={{
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        padding: '10px',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    <option value="">
-                                        {!selectedDesg ? 'Select Designation First' : loadingMis ? 'Loading...' : 'Select MIS'}
+                        <div className="cust-sale-field">
+                            <label className="cust-sale-label">
+                                MIS
+                            </label>
+                            <select
+                                value={selectedMis[0]?.value || ''}
+                                onChange={(e) => {
+                                    const miItem = mis.find(m => m.value === e.target.value);
+                                    setSelectedMis(miItem ? [miItem] : []);
+                                }}
+                                className="cust-sale-select"
+                                disabled={!selectedDesg || loadingMis}
+                            >
+                                <option value="">
+                                    {!selectedDesg ? 'Select Designation First' : loadingMis ? 'Loading...' : 'Select MIS'}
+                                </option>
+                                {mis.map((item) => (
+                                    <option key={item.value} value={item.value}>
+                                        {item.label}
                                     </option>
-                                    {mis.map((item) => (
-                                        <option key={item.value} value={item.value}>
-                                            {item.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </Col>
+                                ))}
+                            </select>
+                        </div>
 
                         {/* Month Filter */}
-                        <Col xs="12" sm="6" md="3" lg="3">
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>
-                                    Month
-                                </label>
-                                <select
-                                    value={selectedMonth[0]?.value || ''}
-                                    onChange={(e) => {
-                                        const month = months.find(m => m.value === parseInt(e.target.value));
-                                        setSelectedMonth(month ? [month] : []);
-                                    }}
-                                    className="form-control"
-                                    style={{
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        padding: '10px',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    <option value="">Select Month</option>
-                                    {months.map((month) => (
-                                        <option key={month.value} value={month.value}>
-                                            {month.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </Col>
+                        <div className="cust-sale-field">
+                            <label className="cust-sale-label">
+                                Month
+                            </label>
+                            <select
+                                value={selectedMonth[0]?.value || ''}
+                                onChange={(e) => {
+                                    const month = months.find(m => m.value === parseInt(e.target.value));
+                                    setSelectedMonth(month ? [month] : []);
+                                }}
+                                className="cust-sale-select"
+                            >
+                                <option value="">Select Month</option>
+                                {months.map((month) => (
+                                    <option key={month.value} value={month.value}>
+                                        {month.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
                         {/* Year Filter */}
-                        <Col xs="12" sm="6" md="3" lg="3">
-                            <div className="form-group">
-                                <label className="form-label" style={{ fontWeight: '600', marginBottom: '8px', color: '#333' }}>
-                                    Year
-                                </label>
-                                <select
-                                    value={selectedYear[0]?.value || ''}
-                                    onChange={(e) => {
-                                        const year = years.find(y => y.value === parseInt(e.target.value));
-                                        setSelectedYear(year ? [year] : []);
-                                    }}
-                                    className="form-control"
-                                    style={{
-                                        borderRadius: '4px',
-                                        border: '1px solid #ddd',
-                                        padding: '10px',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    <option value="">Select Year</option>
-                                    {years.map((year) => (
-                                        <option key={year.value} value={year.value}>
-                                            {year.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </Col>
-                    </Row>
-
-                    {/* Action Buttons */}
-                    <Row className="mt-4">
-                        <Col xs="12" className="d-flex gap-2 justify-content-center">
-                            <button
-                                onClick={handleSubmit}
-                                className="btn btn-primary"
-                                disabled={isLoading}
-                                style={{
-                                    borderRadius: '4px',
-                                    padding: '10px 25px',
-                                    fontWeight: '600',
-                                    fontSize: '14px',
-                                    minWidth: '120px',
-                                    transition: 'all 0.3s ease',
+                        <div className="cust-sale-field">
+                            <label className="cust-sale-label">
+                                Year
+                            </label>
+                            <select
+                                value={selectedYear[0]?.value || ''}
+                                onChange={(e) => {
+                                    const year = years.find(y => y.value === parseInt(e.target.value));
+                                    setSelectedYear(year ? [year] : []);
                                 }}
+                                className="cust-sale-select"
                             >
-                                <i className="mdi mdi-magnify mr-2" />
-                                {isLoading ? 'Loading...' : 'Generate Report'}
-                            </button>
-                            <button
-                                onClick={handleReset}
-                                className="btn btn-secondary"
-                                style={{
-                                    borderRadius: '4px',
-                                    padding: '10px 25px',
-                                    fontWeight: '600',
-                                    fontSize: '14px',
-                                    minWidth: '120px',
-                                    transition: 'all 0.3s ease',
-                                }}
-                            >
-                                <i className="mdi mdi-refresh mr-2" />
-                                Reset
-                            </button>
-                        </Col>
-                    </Row>
-                </CardBody>
-            </Card>
+                                <option value="">Select Year</option>
+                                {years.map((year) => (
+                                    <option key={year.value} value={year.value}>
+                                        {year.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-            {/* DATA TABLE CARD */}
-            {GridData.length > 0 && (
-                <Card className="card-statistics mt-4" style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
-                    <CardHeader className="card-title" style={{ background: 'linear-gradient(90deg, #1565c0, #1e88e5)', color: 'white', padding: '15px 20px' }}>
-                        <i className="mdi mdi-table-large mr-2" />
-                        Report Results
-                    </CardHeader>
-                    <CardBody style={{ padding: '20px', overflowX: 'auto' }}>
-                        {/* <HierarchyTable
-                            data={GridData}
-                            headers={tblHeaders}
-                        /> */}
-                        <ReportDataTable
-                            data={GridData}
-                            columnHeaders={hierarchyWiseReportHeader}
-
-                        />
-                    </CardBody>
-                </Card>
-            )}
-
-            {/* Empty State Message */}
-            {GridData.length === 0 && !isLoading && (
-                <Card className="mt-4" style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}>
-                    <CardBody style={{ padding: '40px', textAlign: 'center' }}>
-                        <i
-                            className="mdi mdi-file-search-outline"
-                            style={{ fontSize: '48px', color: '#bdbdbd', marginBottom: '16px', display: 'block' }}
-                        />
-                        <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
-                            No reports generated yet. Select filters and click "Generate Report" to view results.
-                        </p>
-                    </CardBody>
-                </Card>
-            )}
-        </div>
+                <div className="cust-sale-table-wrap">
+                    {isLoading ? (
+                        <div className="cust-sale-loader">
+                            <BouncingLoader />
+                        </div>
+                    ) : (
+                        <>
+                            {GridData.length > 0 ? (
+                                <ReportDataTable
+                                    data={GridData}
+                                    columnHeaders={hierarchyWiseReportHeader}
+                                />
+                            ) : (
+                                <div className="cust-sale-empty">
+                                    No reports generated yet. Select filters and click "Generate Report" to view results.
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
+        </section>
     );
 };
 
