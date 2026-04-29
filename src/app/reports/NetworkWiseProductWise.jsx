@@ -360,14 +360,13 @@ const NetworkProductWise = () => {
         <div className="bg-light min-vh-100">
             {/* Heading */}
             <div className="text-center py-4">
-                {/* <h5>Network Wise Product Sales Details</h5> */}
             </div>
 
             {/* Main container */}
             <div className="container bg-white rounded shadow p-4">
                 <div className="row gx-3 gy-3 align-items-center">
                     <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-                        <h6 className="card-title mb-4"><b>Network Wise Product Sales Details</b></h6>
+                        <h6 className="card-title mb-4"><b>Network Wise Report</b></h6>
                     </div>
                     {/* filters moved to reusable component */}
                     <ReportFilters

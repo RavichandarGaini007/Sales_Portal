@@ -131,7 +131,9 @@ const ReportFilters = ({
                             <option value="allindia">All India</option>
                         )}
                         <option value="network">Network Wise</option>
-                        <option value="quarterwise">Quarter Wise</option>
+                        {reportType === "networkWiseProductWise" && (
+                            <option value="quarterwise">Quarter Wise</option>
+                        )}
                     </select>
                 </div>
             )}
@@ -173,7 +175,7 @@ const ReportFilters = ({
                                     </select>
                                 </div>
                             )}
-                            {/* Plant dropdown */}
+                            {/* Plant dropdown
                             {!generictab && plant && reportType !== "networkWiseValueWise" && (
                                 <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
                                     <label className="form-label" style={styles.formLabel}>Plant:</label>
@@ -189,7 +191,7 @@ const ReportFilters = ({
                                         ))}
                                     </select>
                                 </div>
-                            )}
+                            )} */}
 
                             {/* MIS dropdown */}
                             {Mis && setselectedMis && (

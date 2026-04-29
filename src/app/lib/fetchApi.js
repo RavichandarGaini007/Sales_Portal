@@ -138,6 +138,8 @@ export const apiUrls = {
   custSalesTrendReport: API_REQUEST + 'custSalesTrendReport',
   custSalesProductTrendReport: API_REQUEST + 'custSalesProductTrendReport',
   corpPerformanceReport: API_REQUEST + 'corpPerformanceReport',
+  glanceReport: API_REQUEST + 'GlanceReport',
+  dispensaryReport: API_REQUEST + 'DispensaryReport',
 };
 
 export const popState = {
