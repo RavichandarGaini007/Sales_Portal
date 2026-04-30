@@ -1,22 +1,58 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { apiUrls, fetchApi } from '../lib/fetchApi';
+﻿import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { apiUrls, fetchApi, fetchApiGet } from '../lib/fetchApi';
 import ReportDataTable from './ReportDataTable';
 import BouncingLoader from '../common/BouncingLoader';
+import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import './CustSaleTrendReport.css';
 
-// ✅ type options (label + value)
 const TYPE_OPTIONS = [
     { label: 'Doctor', value: 'D' },
     { label: 'Hospital', value: 'H' },
     { label: 'Trade', value: 'T' },
 ];
 
+const FILTER_FIELDS = [
+    {
+        label: 'Type',
+        name: 'type',
+        optionsKey: 'types',
+    },
+    {
+        label: 'Division',
+        name: 'division',
+        optionsKey: 'divisions',
+    },
+    {
+        label: 'Brand',
+        name: 'brand',
+        optionsKey: 'brands',
+    },
+    {
+        label: 'Product',
+        name: 'product',
+        optionsKey: 'products',
+    },
+    {
+        label: 'Financial Year',
+        name: 'financialYear',
+        optionsKey: 'years',
+    },
+];
+
+const CURRENT_FINANCIAL_YEAR = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+
+const YEARS = Array.from({ length: 10 }, (_, i) => {
+    const start = new Date().getFullYear() - i;
+    return { label: `${start}-${start + 1}`, value: `${start}-${start + 1}` };
+});
+
 const initialFilters = {
-    type: 'D', // ✅ default mapped value
-    division: '',
-    brand: '',
-    product: '',
-    financialYear: '',
+    type: [TYPE_OPTIONS[0]],
+    division: [],
+    brand: [],
+    product: [],
+    financialYear: YEARS[0].value,
 };
 
 const initialOptions = {
@@ -24,84 +60,254 @@ const initialOptions = {
     divisions: [],
     brands: [],
     products: [],
-    years: [],
+    years: YEARS,
+    empCode: '',
 };
 
-// 🔹 normalize API filters
+const formatDivisionItem = (item) => {
+    if (typeof item === 'string') return { label: item, value: item };
+    if (item && typeof item === 'object') {
+        return { label: item.name, value: item.div };
+    }
+    const asString = String(item);
+    return { label: asString, value: asString };
+};
+
+const formatBrandItem = (item) => {
+    if (typeof item === 'string') return { label: item, value: item };
+    if (item && typeof item === 'object') {
+        return { label: item.brand, value: item.brand_code };
+    }
+    const asString = String(item);
+    return { label: asString, value: asString };
+};
+
+const formatProductItem = (item) => {
+    if (typeof item === 'string') return { label: item, value: item };
+    if (item && typeof item === 'object') {
+        return { label: item.product, value: item.Product_Code };
+    }
+    const asString = String(item);
+    return { label: asString, value: asString };
+};
+
+const formatYearItem = (item) => {
+    if (typeof item === 'string') return { label: item, value: item };
+    if (item && typeof item === 'object') {
+        if ('label' in item && 'value' in item) return item;
+        return { label: item.financialYear, value: item.financialYear };
+    }
+    const asString = String(item);
+    return { label: asString, value: asString };
+};
+
 const normalizeFilters = (response) => {
     const payload = response?.filters || response || {};
+    const toOptionList = (items, formatter) => {
+        if (!items) return [];
+        if (typeof items === 'string') return [formatter(items)];
+        if (!Array.isArray(items)) return [];
+        return items.map(formatter);
+    };
 
     return {
-        divisions: payload.divisions || [],
-        brands: payload.brands || [],
-        products: payload.products || [],
-        years:
-            payload.financialYears ||
-            payload.years ||
-            payload.financialYear ||
-            [],
+        divisions: toOptionList(payload.divisions || payload.div || [], formatDivisionItem),
+        brands: toOptionList(payload.brands || [], formatBrandItem),
+        products: toOptionList(payload.products || [], formatProductItem),
+        years: toOptionList(payload.financialYears || payload.years || payload.financialYear || [], formatYearItem),
     };
 };
 
-// 🔹 convert key → Label
 const formatLabel = (key) =>
     key
         .replace(/([A-Z])/g, ' $1')
         .replace(/_/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase());
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+
+const FilterSelect = ({ label, name, value, optionsList, onChange }) => {
+    const isFinancialYear = name === 'financialYear';
+
+    return (
+        <div className="cust-sale-field">
+            <label className="cust-sale-label">{label}</label>
+            {isFinancialYear ? (
+                <select
+                    className="cust-sale-select"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    {optionsList.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            ) : (
+                <Multiselect_dropdown
+                    className="mb-0"
+                    options={optionsList}
+                    selectedList={value}
+                    setSelected={onChange}
+                />
+            )}
+        </div>
+    );
+};
+
+const getSelectedValues = (items) => {
+    if (!items) return [];
+    if (!Array.isArray(items)) return [items];
+
+    return items
+        .map((item) => (item && typeof item === 'object' ? item.value : item))
+        .filter((item) => item !== undefined && item !== null && item !== '');
+};
+
+const getFirstSelectedValue = (items) => {
+    if (!items) return '';
+    if (!Array.isArray(items)) return items;
+    const first = items[0];
+    return first && typeof first === 'object' ? first.value : first;
+};
 
 const DispensaryReport = () => {
+    const { data: authData } = useSelector((state) => state.app || {});
+    const employeeCode = authData?.data?.[0]?.userid;
+
     const [filters, setFilters] = useState(initialFilters);
     const [options, setOptions] = useState(initialOptions);
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // 🔹 load filter options
     useEffect(() => {
-        const loadFilters = async () => {
-            try {
-                const res = await fetchApi(apiUrls.glanceReport, { metadata: true });
-                const normalized = normalizeFilters(res);
+        if (!employeeCode) return;
 
-                setOptions((prev) => ({
-                    ...prev,
-                    ...normalized,
-                }));
+        const fetchDivisions = async () => {
+            try {
+                const response = await fetchApiGet(apiUrls.SalesDiv + `?strEmpCode=${employeeCode}`);
+                const divisionData = response?.data ?? response;
+                const divisions = Array.isArray(divisionData)
+                    ? divisionData.map(formatDivisionItem)
+                    : [];
+
+                setOptions((prev) => ({ ...prev, divisions }));
             } catch (err) {
                 console.error(err);
-                setError('Failed to load filters');
+                setError('Failed to load divisions');
             }
         };
 
-        loadFilters();
+        fetchDivisions();
+    }, [employeeCode]);
+
+    useEffect(() => {
+        if (!Array.isArray(filters.division) || !filters.division.length) {
+            setOptions((prev) => ({ ...prev, brands: [], products: [], empCode: employeeCode }));
+            return;
+        }
+
+        const fetchBrands = async () => {
+            try {
+                const yearValue = getFirstSelectedValue(filters.financialYear) || '';
+                const divisionIds = filters.division.map((item) => item.value).join(',');
+                let url = apiUrls.GetBrandCodeData + `?div=${encodeURIComponent(divisionIds)}&fieldname=brandcode&screencode=dispensaryreport`;
+                if (yearValue) {
+                    url += `&year=${encodeURIComponent(yearValue)}`;
+                }
+
+                const response = await fetchApiGet(url);
+                const brandData = response?.data ?? response;
+                const brands = Array.isArray(brandData)
+                    ? brandData.map(formatBrandItem)
+                    : [];
+
+                setOptions((prev) => ({ ...prev, brands, products: [] }));
+            } catch (err) {
+                console.error(err);
+                setError('Failed to load brands');
+            }
+        };
+
+        fetchBrands();
+    }, [filters.division, filters.financialYear]);
+
+    useEffect(() => {
+        if (!Array.isArray(filters.division) || !filters.division.length || !Array.isArray(filters.brand) || !filters.brand.length) {
+            setOptions((prev) => ({ ...prev, products: [] }));
+            return;
+        }
+
+        const fetchProducts = async () => {
+            try {
+                const yearValue = getFirstSelectedValue(filters.financialYear) || '';
+                const divisionIds = filters.division.map((item) => item.value).join(',');
+                const brandCodes = filters.brand.map((item) => item.value).join(',');
+                let url = apiUrls.GetBrandCodeData + `?div=${encodeURIComponent(divisionIds)}&brandcode=${encodeURIComponent(brandCodes)}&fieldname=product&screencode=dispensaryreport`;
+                if (yearValue) {
+                    url += `&year=${encodeURIComponent(yearValue)}`;
+                }
+
+                const response = await fetchApiGet(url);
+                const productData = response?.data ?? response;
+                const products = Array.isArray(productData)
+                    ? productData.map(formatProductItem)
+                    : [];
+
+                setOptions((prev) => ({ ...prev, products }));
+            } catch (err) {
+                console.error(err);
+                setError('Failed to load products');
+            }
+        };
+
+        fetchProducts();
+    }, [filters.division, filters.brand, filters.financialYear]);
+
+    const handleChange = useCallback((name, value) => {
+        setFilters((prev) => {
+            const resetValues = {
+                type: { division: [], brand: [], product: [] },
+                division: { brand: [], product: [] },
+                brand: { product: [] },
+                financialYear: { brand: [], product: [] },
+            };
+
+            return {
+                ...prev,
+                ...resetValues[name],
+                [name]: value,
+            };
+        });
     }, []);
 
-    // 🔹 handle change
-    const handleChange = (field, value) => {
-        setFilters((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-
-    // 🔹 run report
-    const handleRunReport = async () => {
+    const handleRunReport = useCallback(async () => {
         setLoading(true);
         setError(null);
 
         try {
-            // ✅ filters already API-ready
-            const res = await fetchApi(apiUrls.glanceReport, filters);
-            const responseData = res?.data ?? res;
+            const typeValues = getSelectedValues(filters.type);
+            const yearValues = getSelectedValues(filters.financialYear);
 
-            setData(Array.isArray(responseData) ? responseData : []);
+            const requestPayload = {
+                empcode: employeeCode,
+                type:
+                    typeValues.length === 0 || typeValues.includes('All')
+                        ? 'All'
+                        : typeValues.join(','),
+                div: getSelectedValues(filters.division).join(','),
+                brand: getSelectedValues(filters.brand).join(','),
+                product: getSelectedValues(filters.product).join(','),
+                year: yearValues.join(','),
+            };
 
-            if (res?.filters) {
-                setOptions((prev) => ({
-                    ...prev,
-                    ...normalizeFilters(res.filters),
-                }));
+            const response = await fetchApi(apiUrls.dispensaryReport, requestPayload);
+            const reportRows = response?.data ?? response;
+
+            setData(Array.isArray(reportRows) ? reportRows : []);
+
+            if (response?.filters) {
+                setOptions((prev) => ({ ...prev, ...normalizeFilters(response.filters) }));
             }
         } catch (err) {
             console.error(err);
@@ -109,128 +315,47 @@ const DispensaryReport = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters]);
 
-    // 🔹 dynamic columns
     const columns = useMemo(() => {
-        if (!data.length) return [];
+        if (!data.length) {
+            return [];
+        }
 
-        return Object.keys(data[0]).map((key) => ({
-            label: formatLabel(key),
-            key,
-        }));
+        return Object.keys(data[0]).map((key) => ({ label: formatLabel(key), key }));
     }, [data]);
 
     return (
         <section className="cust-sale-report">
             <div className="cust-sale-card">
-
-                {/* HEADER */}
                 <div className="cust-sale-card-header">
                     <div>
                         <h1 className="cust-sale-title">Dispensary Report</h1>
-                        <p className="cust-sale-description">
-                            View sales trends across division, brand and products
-                        </p>
+
                     </div>
 
-                    <button
-                        className="cust-sale-button"
-                        onClick={handleRunReport}
-                        disabled={loading}
-                    >
+                    <button className="cust-sale-button" onClick={handleRunReport} disabled={loading}>
                         {loading ? 'Loading...' : 'Run Report'}
                     </button>
                 </div>
 
-                {/* FILTERS */}
                 <div className="cust-sale-filter-card">
                     <div className="cust-sale-filter-grid">
-
-                        {/* ✅ TYPE */}
-                        <div className="cust-sale-field">
-                            <label className="cust-sale-label">Type</label>
-                            <select
-                                value={filters.type}
-                                onChange={(e) => handleChange('type', e.target.value)}
-                                className="cust-sale-select"
-                            >
-                                {options.types.map((t) => (
-                                    <option key={t.value} value={t.value}>
-                                        {t.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* DIVISION */}
-                        <div className="cust-sale-field">
-                            <label className="cust-sale-label">Division</label>
-                            <select
-                                value={filters.division}
-                                onChange={(e) => handleChange('division', e.target.value)}
-                                className="cust-sale-select"
-                            >
-                                <option value="">All</option>
-                                {options.divisions.map((d) => (
-                                    <option key={d}>{d}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* BRAND */}
-                        <div className="cust-sale-field">
-                            <label className="cust-sale-label">Brand</label>
-                            <select
-                                value={filters.brand}
-                                onChange={(e) => handleChange('brand', e.target.value)}
-                                className="cust-sale-select"
-                            >
-                                <option value="">All</option>
-                                {options.brands.map((b) => (
-                                    <option key={b}>{b}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* PRODUCT */}
-                        <div className="cust-sale-field">
-                            <label className="cust-sale-label">Product</label>
-                            <select
-                                value={filters.product}
-                                onChange={(e) => handleChange('product', e.target.value)}
-                                className="cust-sale-select"
-                            >
-                                <option value="">All</option>
-                                {options.products.map((p) => (
-                                    <option key={p}>{p}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* YEAR */}
-                        <div className="cust-sale-field">
-                            <label className="cust-sale-label">Financial Year</label>
-                            <select
-                                value={filters.financialYear}
-                                onChange={(e) =>
-                                    handleChange('financialYear', e.target.value)
-                                }
-                                className="cust-sale-select"
-                            >
-                                <option value="">All</option>
-                                {options.years.map((y) => (
-                                    <option key={y}>{y}</option>
-                                ))}
-                            </select>
-                        </div>
+                        {FILTER_FIELDS.map(({ label, name, optionsKey }) => (
+                            <FilterSelect
+                                key={name}
+                                name={name}
+                                label={label}
+                                value={filters[name]}
+                                optionsList={options[optionsKey] || []}
+                                onChange={(value) => handleChange(name, value)}
+                            />
+                        ))}
                     </div>
                 </div>
 
-                {/* ERROR */}
                 {error && <div className="cust-sale-alert">{error}</div>}
 
-                {/* TABLE */}
                 <div className="cust-sale-table-wrap">
                     {loading ? (
                         <div className="cust-sale-loader">
@@ -239,9 +364,7 @@ const DispensaryReport = () => {
                     ) : data.length > 0 ? (
                         <ReportDataTable data={data} columnHeaders={columns} />
                     ) : (
-                        <div className="cust-sale-empty">
-                            No data available. Run report to see results.
-                        </div>
+                        <div className="cust-sale-empty">No data available. Run report to see results.</div>
                     )}
                 </div>
             </div>

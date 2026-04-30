@@ -11,6 +11,8 @@ import { saveAs } from "file-saver";
 import { useSelector } from 'react-redux';
 import { downloadCSVWithoutHeader } from '../lib/fileDownload';
 import BouncingLoader from '../common/BouncingLoader';
+import { fetchDiv, fetchBrands } from '../lib/commonLogic';
+
 const FlatFileDownload = () => {
 
   const currentYear = new Date().getFullYear();
@@ -48,12 +50,7 @@ const FlatFileDownload = () => {
 
     async function fetchDivision() {
       try {
-        let empCode = data?.data[0]?.userid;
-        const response = await axios.get(apiUrls.SalesDiv + `?strEmpCode=${empCode}`)
-        const formatted = response?.data.data.map((item) => ({
-          label: item.name,
-          value: item.div,
-        }));
+        const formatted = await fetchDiv(data?.data[0]?.userid);
         setdivison(formatted);
       } catch (error) {
         console.error('Error fetching divison:', error);
@@ -96,29 +93,16 @@ const FlatFileDownload = () => {
   }
 
   // Fetch brands when both year and Divison are selected
-  useEffect(() => {
+  useEffect(async () => {
     if (selectedYear.length > 0 && selectedDivison.length > 0) {
-      async function fetchBrands() {
-        try {
-          const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
-          const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=flatfiledownload&fieldname=brandcode`)
-
-          const formatted = response.data.map((item) => ({
-            label: item.brand,
-            value: item.brand_code,
-          }));
-          setBrands(formatted);
-        } catch (error) {
-          console.error('Error fetching brands:', error);
-        }
-      }
-
-      fetchBrands();
+      const formatted = await fetchBrands(selectedDivison, selectedYear, "flatfiledownload", "brandcode");
+      setBrands(formatted);
     } else {
       setBrands([]);
       setSelectedBrand([]);
     }
   }, [selectedYear, selectedDivison]);
+
 
   const generateExcel = async (downloadfor) => {
     var Data;
@@ -149,7 +133,7 @@ const FlatFileDownload = () => {
         alert('No Data Found')
         return
       }
-      const response = await fetch("/sales_portal_new/template.xlsx");
+      const response = await fetch("/sales_portal/template.xlsx");
       const arrayBuffer = await response.arrayBuffer();
 
       // Step 2: Populate with data

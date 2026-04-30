@@ -106,13 +106,13 @@ const PopupTableModal = ({
 
     const getColorStyle = (isAchv, value) => {
       if (isAchv) {
-        return value >= 100 ? '#00d284' : 'red';
+        return value >= 100 ? 'success' : 'danger';
       }
       return undefined;
     };
 
     const getGrowthColorStyle = (value) => {
-      return value < 0 ? 'red' : '#ff970e';
+      return value < 0 ? 'danger' : 'warning';
     };
 
     const renderCellContent = (column, value, item, isAchv, isTotal) => {

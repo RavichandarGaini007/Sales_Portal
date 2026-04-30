@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { apiUrls, fetchApi, fetchApiGet } from '../lib/fetchApi';
 import ReportDataTable from './ReportDataTable';
 import BouncingLoader from '../common/BouncingLoader';
+import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import './CustSaleTrendReport.css';
 
 const currentYear = new Date().getFullYear();
@@ -33,7 +34,7 @@ const CustSaleTrendReport = () => {
         fromYear: currentYear.toString(),
         toMonth: '12',
         toYear: currentYear.toString(),
-        div: '',
+        div: [],
     });
     const [divisions, setDivisions] = useState([]);
     const [data, setData] = useState([]);
@@ -50,7 +51,7 @@ const CustSaleTrendReport = () => {
         if (!shouldFetch) return;
 
         const { fromMonth, fromYear, toMonth, toYear, div } = filters;
-        if (fromMonth && fromYear && toMonth && toYear && div) {
+        if (fromMonth && fromYear && toMonth && toYear && Array.isArray(div) && div.length > 0) {
             fetchData();
         } else {
             setError('Please select a division and valid date range before running the report.');
@@ -63,7 +64,13 @@ const CustSaleTrendReport = () => {
         try {
             const response = await fetchApiGet(apiUrls.SalesDiv + `?strEmpCode=${employeeCode}`);
             const fetchedDivisions = response?.data ?? response;
-            setDivisions(Array.isArray(fetchedDivisions) ? fetchedDivisions : []);
+            const normalizedDivisions = Array.isArray(fetchedDivisions)
+                ? fetchedDivisions.map((division) => ({
+                    label: division.name,
+                    value: division.div,
+                }))
+                : [];
+            setDivisions(normalizedDivisions);
         } catch (fetchError) {
             console.error('Error fetching divisions:', fetchError);
             setError('Unable to load divisions.');
@@ -79,7 +86,7 @@ const CustSaleTrendReport = () => {
             f_year: filters.fromYear,
             month: filters.toMonth,
             year: filters.toYear,
-            div: filters.div,
+            div: Array.isArray(filters.div) ? filters.div.map((item) => item.value).join(',') : filters.div,
         };
 
         try {
@@ -135,18 +142,12 @@ const CustSaleTrendReport = () => {
                     <div className="cust-sale-filter-grid">
                         <div className="cust-sale-field">
                             <label className="cust-sale-label">Division</label>
-                            <select
-                                value={filters.div}
-                                onChange={(e) => handleFilterChange('div', e.target.value)}
-                                className="cust-sale-select"
-                            >
-                                <option value="">Select division</option>
-                                {divisions.map((division) => (
-                                    <option key={division.id || division.div} value={division.id || division.div}>
-                                        {division.name || division.division || division.div_Name}
-                                    </option>
-                                ))}
-                            </select>
+                            <Multiselect_dropdown
+                                className="mb-0"
+                                options={divisions}
+                                selectedList={filters.div}
+                                setSelected={(value) => handleFilterChange('div', value)}
+                            />
                         </div>
                         <div className="cust-sale-field">
                             <label className="cust-sale-label">From Month</label>

@@ -156,7 +156,7 @@ const Navbar = () => {
       credentials: 'include', // IMPORTANT (refresh cookie)
     });
 
-    window.location.href = '/sales_portal_new';
+    window.location.href = '/sales_portal';
   }
 
   const chunkArray = (array, size) => {

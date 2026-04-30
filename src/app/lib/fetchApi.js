@@ -67,7 +67,7 @@ export const fetchApi = async (url, payload = {}, config = {}) => {
 
   if (!refreshed) {
     clearAccessToken();
-    window.location.href = '/sales_portal_new/login';
+    window.location.href = '/sales_portal/login';
     //throw new Error('Session expired');
   }
 
@@ -98,7 +98,7 @@ export const fetchApiGet = async (url, config = {}) => {
 
   if (!refreshed) {
     clearAccessToken();
-    window.location.href = '/sales_portal_new/login';
+    window.location.href = '/sales_portal/login';
     // throw new Error('Session expired');
   }
 

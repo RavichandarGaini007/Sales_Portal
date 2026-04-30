@@ -49,7 +49,7 @@ import { getEnetsale } from '../lib/authToken';
 
 const getLabelColor = (value) => {
   if (value >= 100) return 'success'; // Green
-  if (value >= 70) return 'warning'; // Yellow
+  if (value >= 95 && value <= 99.99) return 'warning'; // Yellow
   return 'danger'; // Red
 };
 const SalesPortalTable = () => {
@@ -105,7 +105,7 @@ const SalesPortalTable = () => {
     ) {
       if (!isNaN(Number(rowData.division))) {
         window.open(
-          `/sales_portal_new/mainLayout/dashboard?div=${rowData.division}`,
+          `/sales_portal/mainLayout/dashboard?div=${rowData.division}`,
           '_blank'
         );
       } else {
@@ -321,8 +321,8 @@ const SalesPortalTable = () => {
                       top: '0',
                       left: '50%',
                       transform: 'translate(-50%, 0)',
-                      //color: row[col.accessorKey] < 50 ? 'black' : 'white',
-                      color: 'black',
+                      color: row[col.accessorKey] < 50 ? 'black' : 'white',
+                      //color: 'black',
                       fontWeight: 'bold',
                       paddingTop: '2px',
                     }}

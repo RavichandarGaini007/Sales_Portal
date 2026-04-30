@@ -37,6 +37,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       const params = new URLSearchParams(location.search);
       const userIdFromUrlbase64 = params.get('Id');
       const userIdFromUrl = userIdFromUrlbase64 ? atob(userIdFromUrlbase64) : null;
@@ -44,12 +45,15 @@ const LoginPage = () => {
       if (userIdFromUrl) {
         autoLogin(userIdFromUrl);
       }
+      else {
+        setLoading(false);
+      }
     })();
   }, [location.search]);
 
   const autoLogin = async (id) => {
     try {
-      setLoading(true);
+      //setLoading(true);
       setErrorMessage('');
 
       // Option 1: Using your redux action
