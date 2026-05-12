@@ -14,6 +14,7 @@ const CustSaleTrendReport=lazy(()=> import('./app/reports/CustSaleTrendReport') 
 const CustProdSalesTrend=lazy(()=> import('./app/reports/CustProdSalesTrend') )
 const CorporatePerformance=lazy(()=> import('./app/reports/CorporatePerformance') )
 const DispensaryReport=lazy(()=> import('./app/reports/DispensaryReport') )
+const GlanceReport=lazy(()=> import('./app/reports/GlanceReport') )
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/mainLayout/Report/CustProdSalesTrend" element={<CustProdSalesTrend />} />
                 <Route path="/mainLayout/Report/CorporatePerformance" element={<CorporatePerformance />} />
                 <Route path="/mainLayout/Report/DispensaryReport" element={<DispensaryReport />} />
+                <Route path="/mainLayout/Report/GlanceReport" element={<GlanceReport />} />
               <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
             </Route>
           </Routes>

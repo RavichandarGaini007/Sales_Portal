@@ -198,18 +198,8 @@ const HierarchyWise = () => {
             const response = await fetchApi(apiUrls.getHierarchyWiseValueWiseReport, request);
 
             if (response && response.data) {
-                // Flatten hierarchical data
                 const flattenedData = flattenHierarchyData(response.data);
                 setGridData(flattenedData);
-
-                // Set column headers from response or default
-                if (response.columnHeaders && response.columnHeaders.length > 0) {
-                    setTblHeaders(response.columnHeaders);
-                } else {
-                    // Fallback: use fields relevant to the hierarchy display
-
-                    setTblHeaders(hierarchyWiseReportHeader);
-                }
             } else {
                 alert('No data found for the selected criteria');
                 setGridData([]);

@@ -81,11 +81,16 @@ const SalesPortalTable = () => {
   useEffect(() => {
     (async () => {
       if (request) {
-        setIsLoading(true);
-        const opData = await fetchApi(apiUrls.salesdata, request);
-        if (opData && opData.data) {
-          setData(opData.data);
-          setIsLoading(false);
+        let currentRequest = request;
+        currentRequest = { ...request, div: getEnetsale() };
+
+        if (currentRequest) {
+          setIsLoading(true);
+          const opData = await fetchApi(apiUrls.salesdata, currentRequest);
+          if (opData && opData.data) {
+            setData(opData.data);
+            setIsLoading(false);
+          }
         }
       }
     })();

@@ -25,7 +25,7 @@ const CustProdSalesTrend = () => {
     const employeeCode = authData?.data?.[0]?.userid;
 
     const [filters, setFilters] = useState({
-        year: '',
+        year: years[0],
         div: '',
         type: 'value',
     });

@@ -11,7 +11,7 @@ const ReportDataTable = ({ data, columnHeaders = [], groupHeaders = [] }) => {
     // Convert columnHeaders to material-react-table format
     const columns = useMemo(() => {
         return columnHeaders.map((col) => ({
-            accessorKey: col.key || col.accessor,
+            accessorKey: col.key || col.accessor || col.accessorKey,
             header: col.label || col.header,
             grow: true,
         }));

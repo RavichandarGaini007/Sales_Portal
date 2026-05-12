@@ -130,6 +130,7 @@ export const apiUrls = {
   GetCustomizeTabUser: API_REQUEST + 'GetCustomize_tab_user',
   GetFtpFileLastModifiedDateTime: API_REQUEST + 'GetFtpFileLastModifiedDateTime',
   GetEncryptAndEncodeVal: API_REQUEST + 'GetEncryptAndEncodeVal',
+  GetDecryptAndEncodeVal: API_REQUEST + 'GetDecryptAndEncodeVal',
   GetDesGetDesgEmp: API_REQUEST + 'GetDesGetDesgEmp',
   NetworkWiseProductSale_S: API_REQUEST + 'NetworkWiseProductSale_S',
   groupDivData: API_REQUEST + 'groupDivData',

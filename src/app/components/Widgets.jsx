@@ -7,6 +7,9 @@ const getClass = (achv) => {
   return achv > 99 ? 'success' : achv >= 70 ? 'warning' : 'danger';
 };
 
+const growthColorClass = (growth) => {
+  return growth > 0 ? 'success' : 'danger';
+};
 const Widgets = ({ wdata }) => {
   const domestic_sale = wdata.find(
     (item) => item.division === 'DSOG'
@@ -46,11 +49,11 @@ const Widgets = ({ wdata }) => {
               </div>
               <p className="text-muted mt-3 mb-0">
                 <i className="mdi mdi-alert-octagon mr-1" aria-hidden="true" />{' '}
-                <span className={`text-${getClass(domestic_sale?.lmgrowth)}`}>
+                <span className={`text-${growthColorClass(domestic_sale?.lmgrowth)}`}>
                   {domestic_sale?.lmgrowth}%
                 </span>{' '}
                 MOM {' | '}{' '}
-                <span className={`text-${getClass(domestic_sale?.growth)}`}>
+                <span className={`text-${growthColorClass(domestic_sale?.growth)}`}>
                   {domestic_sale?.growth}%
                 </span>{' '}
                 YOY growth
@@ -85,11 +88,11 @@ const Widgets = ({ wdata }) => {
               </div>
               <p className="text-muted mt-3 mb-0">
                 <i className="mdi mdi-alert-octagon mr-1" aria-hidden="true" />{' '}
-                <span className={`text-${getClass(generic_sale?.lmgrowth)}`}>
+                <span className={`text-${growthColorClass(generic_sale?.lmgrowth)}`}>
                   {generic_sale?.lmgrowth}%
                 </span>{' '}
                 MOM {' | '}{' '}
-                <span className={`text-${getClass(generic_sale?.growth)}`}>
+                <span className={`text-${growthColorClass(generic_sale?.growth)}`}>
                   {generic_sale?.growth}%
                 </span>{' '}
                 YOY growth
@@ -124,11 +127,11 @@ const Widgets = ({ wdata }) => {
               </div>
               <p className="text-muted mt-3 mb-0">
                 <i className="mdi mdi-alert-octagon mr-1" aria-hidden="true" />{' '}
-                <span className={`text-${getClass(total_sale?.lmgrowth)}`}>
+                <span className={`text-${growthColorClass(total_sale?.lmgrowth)}`}>
                   {total_sale?.lmgrowth}%
                 </span>{' '}
                 MOM {' | '}{' '}
-                <span className={`text-${getClass(total_sale?.growth)}`}>
+                <span className={`text-${growthColorClass(total_sale?.growth)}`}>
                   {total_sale?.growth}%
                 </span>{' '}
                 YOY growth

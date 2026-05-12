@@ -417,9 +417,17 @@ const Navbar = () => {
                       </div>
                     </div>
                   )}
+
                 </li>
               ))}
+              <li className="nav-item">
+                <a className="nav-link" href="#" onClick={handleSignout}>
+                  <i className="mdi mdi-logout mr-2"></i>
+                  Signout
+                </a>
+              </li>
             </ul>
+
           </div>
         </nav>
 

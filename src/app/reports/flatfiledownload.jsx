@@ -3,6 +3,7 @@ import axios from 'axios';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
 import '../../assets/vendors/css/vendor.bundle.base.css';
+import './CustSaleTrendReport.css';
 import { apiUrls, fetchApiGet } from '../lib/fetchApi';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import ReportFilters from './ReportFilters';
@@ -93,14 +94,18 @@ const FlatFileDownload = () => {
   }
 
   // Fetch brands when both year and Divison are selected
-  useEffect(async () => {
-    if (selectedYear.length > 0 && selectedDivison.length > 0) {
-      const formatted = await fetchBrands(selectedDivison, selectedYear, "flatfiledownload", "brandcode");
-      setBrands(formatted);
-    } else {
-      setBrands([]);
-      setSelectedBrand([]);
-    }
+  useEffect(() => {
+    const updateBrands = async () => {
+      if (selectedYear.length > 0 && selectedDivison.length > 0) {
+        const formatted = await fetchBrands(selectedDivison, selectedYear, "flatfiledownload", "brandcode");
+        setBrands(formatted);
+      } else {
+        setBrands([]);
+        setSelectedBrand([]);
+      }
+    };
+
+    updateBrands();
   }, [selectedYear, selectedDivison]);
 
 
@@ -242,70 +247,74 @@ const FlatFileDownload = () => {
 
   return (
     <div className="container-fluid py-4" style={{ minHeight: '100vh' }}>
-      {/* Card with All Controls */}
-      <div className="card shadow mb-4">
-        <div className="card-body mb-4">
-          <div className="d-flex justify-content-between align-items-center mb-4 mt-2">
-            <h2 className="card-title mb-4">Flat File Download</h2>
-            <h5 className="card-title mb-4 text-end" style={{ fontSize: "13px" }}>Last Updated Date: {lastmodifieddate}</h5>
-          </div>
-          {/* filters rendered using reusable component */}
-          <div className="row gx-3 gy-3 align-items-center justify-content-center">
-            <ReportFilters
-              years={years}
-              selectedYear={selectedYear}
-              setSelectedYear={setSelectedYear}
-              divison={divison}
-              selectedDivison={selectedDivison}
-              setSelectedDivison={setSelectedDivison}
-              Brand={brands}
-              selectedBrand={selectedBrand}
-              setselectedBrand={setSelectedBrand}
-              brandMulti={true}
-              view='FlatFile'
-            />
-            {/* actions stay outside filters */}
-            <div className="col-auto">
-              <button onClick={() => generateExcel("D")} className="btn btn-success">
-                Download Excel
-              </button>{' '}
-              {isAllowFlatFileDownload && (
-                <button onClick={() => generateExcel("B")} className="btn btn-success">
-                  Brandwise Download
-                </button>
-              )}
+      <section className="cust-sale-report">
+        {/* Card with All Controls */}
+        <div className="cust-sale-card mb-4">
+          <div className="card-body mb-4">
+            <div className="cust-sale-card-header">
+              <div>
+                <h2 className="cust-sale-title">Flat File Download</h2>
+                <h5 className="cust-sale-description" style={{ fontSize: "13px", marginTop: '6px' }}>Last Updated Date: {lastmodifieddate}</h5>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-
-      {/* Card with Download Buttons (if Year selected) */}
-      {(isAllowFlatFileDownload && selectedYear[0]?.value) && (
-        <div className="card shadow">
-          <div className="card-body mb-4 mt-3">
-            <h5 className="card-title mb-5">Download Misc Flat Files</h5>
-            <div className="row g-3 justify-content-center">
-              {[
-                "ANTIBIOTIC",
-                "CALCIUM",
-                "CRONIC I",
-                "GENERIC",
-                "CRONIC II"
-              ].map((type) => (
-                <div className="col-6 col-md-4 col-lg-3" key={type}>
-                  <button
-                    onClick={() => downloadfile(`MIS_FLAT_FILE_${selectedYear[0].value}_${type}.csv`)}
-                    className="btn btn-outline-success w-100"
-                  >
-                    {type}
+            <div className="cust-sale-filter-card">
+              <div className="row gx-3 gy-3 align-items-center justify-content-center">
+                <ReportFilters
+                  years={years}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  divison={divison}
+                  selectedDivison={selectedDivison}
+                  setSelectedDivison={setSelectedDivison}
+                  Brand={brands}
+                  selectedBrand={selectedBrand}
+                  setselectedBrand={setSelectedBrand}
+                  brandMulti={true}
+                  view='FlatFile'
+                />
+                <div className="col-auto">
+                  <button onClick={() => generateExcel("D")} className="cust-sale-button">
+                    Download Excel
                   </button>
+                  {isAllowFlatFileDownload && (
+                    <button onClick={() => generateExcel("B")} className="cust-sale-button" style={{ marginLeft: '10px' }}>
+                      Brandwise Download
+                    </button>
+                  )}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Card with Download Buttons (if Year selected) */}
+        {(isAllowFlatFileDownload && selectedYear[0]?.value) && (
+          <div className="cust-sale-card">
+            <div className="card-body mb-4 mt-3">
+              <h5 className="cust-sale-title mb-5">Download Misc Flat Files</h5>
+              <div className="row g-3 justify-content-center">
+                {[
+                  "ANTIBIOTIC",
+                  "CALCIUM",
+                  "CRONIC I",
+                  "GENERIC",
+                  "CRONIC II"
+                ].map((type) => (
+                  <div className="col-6 col-md-4 col-lg-3" key={type}>
+                    <button
+                      onClick={() => downloadfile(`MIS_FLAT_FILE_${selectedYear[0].value}_${type}.csv`)}
+                      className="cust-sale-button"
+                      style={{ width: '100%' }}
+                    >
+                      {type}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 

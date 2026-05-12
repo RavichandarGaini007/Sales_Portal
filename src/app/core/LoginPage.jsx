@@ -39,11 +39,11 @@ const LoginPage = () => {
     (async () => {
       setLoading(true);
       const params = new URLSearchParams(location.search);
-      const userIdFromUrlbase64 = params.get('Id');
-      const userIdFromUrl = userIdFromUrlbase64 ? atob(userIdFromUrlbase64) : null;
+      const para = params.get('para');
+      const para_id = params.get('para_id');
 
-      if (userIdFromUrl) {
-        autoLogin(userIdFromUrl);
+      if (para && para_id) {
+        autoLogin(para, para_id);
       }
       else {
         setLoading(false);
@@ -51,13 +51,16 @@ const LoginPage = () => {
     })();
   }, [location.search]);
 
-  const autoLogin = async (id) => {
+  const autoLogin = async (para, para_id) => {
     try {
       //setLoading(true);
       setErrorMessage('');
 
+      //// call webservice to decrypt
+      const decryptedEmail = await decryptEmail(para, para_id);
+
       // Option 1: Using your redux action
-      const response = await dispatch(loginUser({ emailid: id, password: 'demand' }))
+      const response = await dispatch(loginUser({ emailid: decryptedEmail, password: 'demand' }))
         .unwrap();
 
       if (response.code === 1) {
@@ -70,6 +73,28 @@ const LoginPage = () => {
       setErrorMessage('Auto login failed. Please try manual login.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const decryptEmail = async (encryptedEmail, key) => {
+    try {
+      const response = await fetch(
+        API_REQUEST + 'GetDecryptAndEncodeVal?value=' + encryptedEmail + '&key=' + key,
+        {
+          method: 'GET',
+          credentials: 'include'
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return decodeURIComponent(data.decryptEmail); // Assuming the API returns { decryptedValue: "email" }
+      } else {
+        throw new Error('Failed to decrypt email: ' + response.statusText);
+      }
+    } catch (error) {
+      console.error('Error decrypting email:', error);
+      throw error; // Re-throw to handle in caller
     }
   };
 
@@ -92,10 +117,11 @@ const LoginPage = () => {
 
           navigate('/mainLayout/SalesPortal', { replace: true });
           return;
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.error('Auto login error:', error);
-      } finally {
         setLoading(false);
       }
     };
@@ -156,10 +182,15 @@ const LoginPage = () => {
             if (f.code === 1) {
               redirectUser(f);
             } else {
-              alert(f.message);
+              setErrorMessage(f.message || 'Login failed');
             }
+            setLoading(false);
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error('Error during login:', error);
+            setErrorMessage(
+              error?.message || 'Failed to login. Please try again.'
+            );
             setLoading(false);
           });
       } catch (error) {
@@ -167,9 +198,7 @@ const LoginPage = () => {
         setErrorMessage(
           error.response?.data?.message || 'Failed to login. Please try again.'
         );
-      } finally {
-        setLoading(false); // Hide loading state
-        //navigate("/dashboard");
+        setLoading(false);
       }
     },
   });

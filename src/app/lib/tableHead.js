@@ -440,6 +440,25 @@ export const NetworkWiseProductYearlySaleHeaderColumn =[
 { label: 'YrGTH', key: 'YrGTH' }
 ];
 
+export const GlanceReportHeaderColumn = [
+  { accessorKey: 'DivDesc', header: 'DIV NAME' },
+  { accessorKey: 'ProductCode', header: 'PRODUCT CODE' },
+  { accessorKey: 'ProductDesc', header: 'PRODUCT NAME' },
+  { accessorKey: 'ValType', header: 'TYPE' },
+  { accessorKey: 'Apr', header: 'APR' },
+  { accessorKey: 'May', header: 'MAY' },
+  { accessorKey: 'Jun', header: 'JUN' },
+  { accessorKey: 'Jul', header: 'JUL' },
+  { accessorKey: 'Aug', header: 'AUG' },
+  { accessorKey: 'Sep', header: 'SEP' },
+  { accessorKey: 'Oct', header: 'OCT' },
+  { accessorKey: 'Nov', header: 'NOV' },
+  { accessorKey: 'Dec', header: 'DEC' },
+  { accessorKey: 'Jan', header: 'JAN' },
+  { accessorKey: 'Feb', header: 'FEB' },
+  { accessorKey: 'Mar', header: 'MAR' },
+];
+
 
 export const hierarchyWiseReportHeader = [
 { label: 'Name', key: '_displayName' },

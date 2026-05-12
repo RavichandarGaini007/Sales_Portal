@@ -20,7 +20,7 @@ import Multiselect_dropdown from '../common/Multiselect_dropdown';
  *   Product, selectedProduct, setselectedProduct
  *   months, selectedMonth, setSelectedMonth
  *   years, selectedYear, setSelectedYear
- *   monthyears                       - alternative year list for quarterwise view
+ *   finyears                       - alternative year list for quarterwise view
  *   onGo                             - callback for Go button
  */
 
@@ -56,9 +56,40 @@ const ReportFilters = ({
     years,
     selectedYear,
     setSelectedYear,
-    monthyears,
+    finyears,
     onGo,
+    useCustSaleStyles = false,
 }) => {
+    const filterWrapperClass = (base) => useCustSaleStyles ? `${base} cust-sale-field` : base;
+    const selectClassName = useCustSaleStyles ? 'form-select cust-sale-select' : 'form-select';
+    const labelClassName = useCustSaleStyles ? 'cust-sale-label' : 'form-label';
+    const filterFieldStyle = useCustSaleStyles ? { minWidth: '220px' } : undefined;
+
+    // Determine what date filters to show based on reportType and view
+    let showMonthAndYear = false;
+    let showFinYear = false;
+
+    if (reportType === 'networkWiseValueWise') {
+        showMonthAndYear = true;
+    } else if (reportType === 'networkWiseProductWise') {
+        if (view === 'networkwise' || view === 'allindia') {
+            showMonthAndYear = true;
+        } else if (view === 'quarterwise') {
+            showFinYear = true;
+        }
+    } else if (reportType === 'networkWiseProductWiseNepalYearly') {
+        if (view === 'allindia') {
+            showMonthAndYear = true;
+        } else if (view === 'networkwise') {
+            showFinYear = true;
+        }
+    } else if (reportType === 'networkWiseProductWiseYearly') {
+        showFinYear = true;
+    } else if (reportType === 'glanceReport') {
+        showFinYear = true;
+    }
+
+    const useFinYears = showFinYear;
     const handleViewChange = (e) => {
         if (setView) setView(e.target.value);
     };
@@ -91,32 +122,32 @@ const ReportFilters = ({
 
     return (
         <>
-            {view !== 'FlatFile' && (
+            {(view !== 'FlatFile' && reportType !== 'glanceReport') && (
                 <div className="col-12 mb-3">
                     <div style={{ ...styles.radioGroup, paddingLeft: '0.5rem' }}>
                         <label style={{ ...styles.formLabel, margin: 0, marginRight: '0.5rem', alignSelf: 'center' }}>Report Type:</label>
                         <div style={styles.radioItem}>
                             <input className="form-check-input" type="radio" name="reportType" id="networkWiseProductWise" value="networkWiseProductWise" checked={reportType === 'networkWiseProductWise'} style={{ marginLeft: 0, cursor: 'pointer' }} onChange={(e) => setReportType && setReportType(e.target.value)} />
                             <label className="form-check-label" htmlFor="networkWiseProductWise" style={{ margin: 0, cursor: 'pointer' }}>
-                                Network Wise Product Wise
+                                Product Wise
                             </label>
                         </div>
                         <div style={styles.radioItem}>
                             <input className="form-check-input" type="radio" name="reportType" id="networkWiseProductWiseYearly" value="networkWiseProductWiseYearly" checked={reportType === 'networkWiseProductWiseYearly'} style={{ marginLeft: 0, cursor: 'pointer' }} onChange={(e) => setReportType && setReportType(e.target.value)} />
                             <label className="form-check-label" htmlFor="networkWiseProductWiseYearly" style={{ margin: 0, cursor: 'pointer' }}>
-                                Network Wise Product Wise Yearly Sale
+                                Product Wise Yearly Sale
                             </label>
                         </div>
                         <div style={styles.radioItem}>
                             <input className="form-check-input" type="radio" name="reportType" id="networkWiseProductWiseNepalYearly" value="networkWiseProductWiseNepalYearly" checked={reportType === 'networkWiseProductWiseNepalYearly'} style={{ marginLeft: 0, cursor: 'pointer' }} onChange={(e) => setReportType && setReportType(e.target.value)} />
                             <label className="form-check-label" htmlFor="networkWiseProductWiseNepalYearly" style={{ margin: 0, cursor: 'pointer' }}>
-                                Network Wise Product Wise Nepal Yearly Sale
+                                Product Wise Nepal Yearly Sale
                             </label>
                         </div>
                         <div style={styles.radioItem}>
                             <input className="form-check-input" type="radio" name="reportType" id="networkWiseValueWise" value="networkWiseValueWise" checked={reportType === 'networkWiseValueWise'} style={{ marginLeft: 0, cursor: 'pointer' }} onChange={(e) => setReportType && setReportType(e.target.value)} />
                             <label className="form-check-label" htmlFor="networkWiseValueWise" style={{ margin: 0, cursor: 'pointer' }}>
-                                Network Wise Value Wise
+                                Value Wise
                             </label>
                         </div>
                     </div>
@@ -124,13 +155,13 @@ const ReportFilters = ({
             )}
             {/* View selector */}
             {setView && reportType !== "networkWiseValueWise" && (
-                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                    <label className="form-label" style={styles.formLabel}>View Type:</label>
-                    <select className="form-select" style={styles.selectInput} onChange={handleViewChange} value={view}>
+                <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                    <label className={labelClassName} style={styles.formLabel}>View Type:</label>
+                    <select className={selectClassName} style={styles.selectInput} onChange={handleViewChange} value={view}>
                         {data?.data?.[0]?.enetsale === 'ALL' && (
                             <option value="allindia">All India</option>
                         )}
-                        <option value="network">Network Wise</option>
+                        <option value="networkwise">Network Wise</option>
                         {reportType === "networkWiseProductWise" && (
                             <option value="quarterwise">Quarter Wise</option>
                         )}
@@ -140,8 +171,8 @@ const ReportFilters = ({
 
             {/* Division filter always shown */}
             {divison && setSelectedDivison && (
-                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                    <label className="form-label" style={styles.formLabel}>Division:</label>
+                <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                    <label className={labelClassName} style={styles.formLabel}>Division:</label>
                     <div>
                         <Multiselect_dropdown
                             className="mb-0"
@@ -160,10 +191,10 @@ const ReportFilters = ({
                         <>
                             {/* Designation dropdown */}
                             {Desg && (
-                                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                                    <label className="form-label" style={styles.formLabel}>Designation:</label>
+                                <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                                    <label className={labelClassName} style={styles.formLabel}>Designation:</label>
                                     <select
-                                        className="form-select"
+                                        className={selectClassName}
                                         style={styles.selectInput}
                                         value={selectedDesg}
                                         onChange={(e) => setselectedDesg && setselectedDesg(e.target.value)}
@@ -175,31 +206,14 @@ const ReportFilters = ({
                                     </select>
                                 </div>
                             )}
-                            {/* Plant dropdown
-                            {!generictab && plant && reportType !== "networkWiseValueWise" && (
-                                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                                    <label className="form-label" style={styles.formLabel}>Plant:</label>
-                                    <select
-                                        className="form-select"
-                                        style={styles.selectInput}
-                                        value={selectedplant}
-                                        onChange={(e) => setselectedplant && setselectedplant(e.target.value)}
-                                    >
-                                        <option value="">--Select--</option>
-                                        {plant.map((a) => (
-                                            <option key={a.value} value={a.value}>{a.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )} */}
 
                             {/* MIS dropdown */}
                             {Mis && setselectedMis && (
-                                <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                                    <label className="form-label" style={styles.formLabel}>MIS Desc:</label>
+                                <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                                    <label className={labelClassName} style={styles.formLabel}>MIS Desc:</label>
                                     <div>
                                         <Multiselect_dropdown
-                                            className=""
+                                            className="mb-0"
                                             options={Mis}
                                             selectedList={selectedMis}
                                             setSelected={setselectedMis}
@@ -213,10 +227,10 @@ const ReportFilters = ({
                     {/* generic (plant/brand/product) filters */}
                     {/* brand/product are shown anytime the parent passes in options; plant only when generictab */}
                     {generictab && plant && reportType !== "networkWiseValueWise" && (
-                        <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                            <label className="form-label" style={styles.formLabel}>Plant:</label>
+                        <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                            <label className={labelClassName} style={styles.formLabel}>Plant:</label>
                             <select
-                                className="form-select"
+                                className={selectClassName}
                                 style={styles.selectInput}
                                 value={selectedplant}
                                 onChange={(e) => setselectedplant && setselectedplant(e.target.value)}
@@ -229,13 +243,13 @@ const ReportFilters = ({
                         </div>
                     )}
 
-                    {(generictab && Brand && reportType !== "networkWiseValueWise") || view === 'FlatFile' && (
-                        <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                            <label className="form-label" style={styles.formLabel}>Brand:</label>
+                    {((generictab && reportType !== "networkWiseValueWise") || view === 'FlatFile') && (
+                        <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                            <label className={labelClassName} style={styles.formLabel}>Brand:</label>
                             {brandMulti ? (
                                 <div>
                                     <Multiselect_dropdown
-                                        className=""
+                                        className="mb-0"
                                         options={Brand}
                                         selectedList={selectedBrand}
                                         setSelected={setselectedBrand}
@@ -243,7 +257,7 @@ const ReportFilters = ({
                                 </div>
                             ) : (
                                 <select
-                                    className="form-select"
+                                    className={selectClassName}
                                     style={styles.selectInput}
                                     value={selectedBrand}
                                     onChange={(e) => setselectedBrand && setselectedBrand(e.target.value)}
@@ -258,10 +272,10 @@ const ReportFilters = ({
                     )}
 
                     {generictab && Product && reportType !== "networkWiseValueWise" && (
-                        <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
-                            <label className="form-label" style={styles.formLabel}>Product:</label>
+                        <div className={filterWrapperClass('col-12 col-sm-6 col-md-4 col-lg-3 mb-2')} style={filterFieldStyle}>
+                            <label className={labelClassName} style={styles.formLabel}>Product:</label>
                             <select
-                                className="form-select"
+                                className={selectClassName}
                                 style={styles.selectInput}
                                 value={selectedProduct}
                                 onChange={(e) => setselectedProduct && setselectedProduct(e.target.value)}
@@ -277,11 +291,11 @@ const ReportFilters = ({
             )}
 
             {/* Month input */}
-            {months && view !== 'quarterwise' && (
-                <div className="col-12 col-sm-6 col-md-3 col-lg-2 mb-2">
-                    <label className="form-label" style={styles.formLabel}>Month:</label>
+            {showMonthAndYear && months && (
+                <div className={filterWrapperClass('col-12 col-sm-6 col-md-3 col-lg-2 mb-2')} style={filterFieldStyle}>
+                    <label className={labelClassName} style={styles.formLabel}>Month:</label>
                     <select
-                        className="form-select"
+                        className={selectClassName}
                         style={styles.selectInput}
                         value={selectedMonth[0]?.value || ''}
                         onChange={(e) => {
@@ -298,22 +312,22 @@ const ReportFilters = ({
             )}
 
             {/* Year input */}
-            {years && (
-                <div className="col-12 col-sm-6 col-md-3 col-lg-2 mb-2">
-                    <label className="form-label" style={styles.formLabel}>Year:</label>
+            {(showMonthAndYear || showFinYear) && years && (
+                <div className={filterWrapperClass('col-12 col-sm-6 col-md-3 col-lg-2 mb-2')} style={filterFieldStyle}>
+                    <label className={labelClassName} style={styles.formLabel}>Year:</label>
                     <select
-                        className="form-select"
+                        className={selectClassName}
                         style={styles.selectInput}
                         value={selectedYear[0]?.value || ''}
                         onChange={(e) => {
-                            const selected = (view !== 'quarterwise' || (view === "networkWiseProductWiseNepalYearly" && view === 'networkwise') ? years : monthyears).find(
+                            const selected = (useFinYears ? finyears : years).find(
                                 (y) => y.value === parseInt(e.target.value)
                             );
                             setSelectedYear(selected ? [selected] : []);
                         }}
                     >
                         <option value="">Select Year</option>
-                        {(view !== 'quarterwise' || (view === "networkWiseProductWiseNepalYearly" && view === 'networkwise') ? years : monthyears).map((year) => (
+                        {(useFinYears ? finyears : years).map((year) => (
                             <option key={year.value} value={year.value}>{year.label}</option>
                         ))}
                     </select>
@@ -322,7 +336,7 @@ const ReportFilters = ({
 
             {/* Go button */}
             {onGo && (
-                <div className="col-12 col-sm-6 col-md-3 col-lg-2 mb-2 d-flex align-items-end">
+                <div className={filterWrapperClass('col-12 col-sm-6 col-md-3 col-lg-2 mb-2 d-flex align-items-end')} style={filterFieldStyle}>
                     <button className="btn btn-success w-100" onClick={onGo} style={{ fontWeight: '500' }}>
                         <i className="mdi mdi-play-circle-outline" style={{ marginRight: '0.5rem' }}></i>Go
                     </button>

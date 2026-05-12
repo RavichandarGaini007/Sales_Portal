@@ -10,8 +10,7 @@ import ReportDataTable from './ReportDataTable';
 import { NetworkWiseProductSaleHeaderColumn, NetworkWiseProductSaleHeaderGroupColumn, QuaterWiseProductSaleHeaderColumn, QuaterWiseProductSaleHeaderGroupColumn, NetworkWiseProductYearlySaleHeaderColumn } from '../lib/tableHead';
 
 const NetworkProductWise = () => {
-    const [generictab, setgenerictab] = useState(false);
-    const [view, setView] = useState('network'); // empty, 'product', or 'yearly'
+    const [view, setView] = useState('networkwise'); // empty, 'product', or 'yearly'
     const [divison, setdivison] = useState([]);
     const [Desg, setDesg] = useState([]);
     const [plant, setplant] = useState([]);
@@ -20,10 +19,12 @@ const NetworkProductWise = () => {
     const [Mis, setMis] = useState([]);
     const [enetsale, setenetsale] = useState([]);
     const [selectedDivison, setSelectedDivison] = useState([]);
+    const genericDivisionCodes = ['07', '28'];
+    const generictab = selectedDivison.some(item => genericDivisionCodes.includes(item.value));
     const [selectedMis, setselectedMis] = useState([]);
     const [selectedplant, setselectedplant] = useState([]);
-    const [selectedBrand, setselectedBrand] = useState(['ALL']);
-    const [selectedProduct, setselectedProduct] = useState(['ALL']);
+    const [selectedBrand, setselectedBrand] = useState([]);
+    const [selectedProduct, setselectedProduct] = useState([]);
     const [selectedDesg, setselectedDesg] = useState([]);
     const [GridData, setGridData] = useState([]);
     const [selectedYear, setSelectedYear] = useState([]);
@@ -44,7 +45,7 @@ const NetworkProductWise = () => {
             };
         });
     });
-    const [monthyears] = useState(() => {
+    const [finyears] = useState(() => {
         return Array.from({ length: 3 }, (_, i) => {
             const year = currentYear - i;
             return {
@@ -148,12 +149,10 @@ const NetworkProductWise = () => {
                     console.error('Error fetching brands:', error);
                 }
             }
-            const gernicdiv = ['07', '28'];
-            const isAnyMatch = gernicdiv.some(value =>
+            const isAnyMatch = genericDivisionCodes.some(value =>
                 selectedDivison.some(item => item.value === value)
             );
 
-            setgenerictab(isAnyMatch);
             GetDesgEmp();
             if (isAnyMatch) {
                 GetPlant();
@@ -165,7 +164,6 @@ const NetworkProductWise = () => {
             setDesg([]);
             setBrand([]);
             setplant([]);
-            setgenerictab(false);
             setselectedplant([]);
             setselectedBrand([]);
             setselectedDesg([]);
@@ -215,7 +213,7 @@ const NetworkProductWise = () => {
             if (!selectedBrand || selectedBrand.length == 0) return;
             var brand = "";
             if (selectedBrand.length > 0) {
-                brand = selectedBrand;
+                brand = selectedBrand.map((brand) => brand.value).join(',');
             }
             const DivisonIds = selectedDivison.map((Divison) => Divison.value);  // Collect all selected divison
             const response = await fetchApiGet(apiUrls.GetBrandCodeData + `?div=${DivisonIds}&year=${selectedYear[0].value}&screencode=networkwiseproductsale&fieldname=product&brandcode=${brand}&month=${selectedMonth[0]?.value || ''}`)
@@ -307,49 +305,55 @@ const NetworkProductWise = () => {
         }
 
         if (errrmsg == "") {
-            setLoading(true);
-            var div = selectedDivison[0].value;
-            var desg = selectedDesg ?? "";
-            var Misdesc = selectedMis?.[0]?.value ?? "";
-            var plant = selectedplant ?? "";
-            var brand = selectedBrand ?? "";
-            var product = selectedProduct ?? "";
-            var month = selectedMonth[0].value;
-            var year = selectedYear[0].value;
-            var type = "";
-            if (view == "quarterwise") {
-                type = "quarterwise";
-            } else {
-                type = "networkwise";
-            }
-            var url = reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? apiUrls.NetworkWiseProductYearlySale
-                : apiUrls.NetworkWiseProductSale_S;
-            var request = {
-                div: div,
-                desg: desg,
-                mis: Misdesc,
-                plant: plant === plant ? "" : plant,
-                brand: brand === brand ? "" : brand,
-                product: product === product ? "" : product,
-                month: month.toString(),
-                year: year.toString(),
-                type: reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? reportType : type
-            }
-            const response1 = await fetchApi(url, request)
+            try {
+                setLoading(true);
+                var div = selectedDivison.map((Divison) => Divison.value).join(',')
+                var desg = selectedDesg?.[0]?.value ?? "";
+                var Misdesc = selectedMis?.[0]?.value ?? "";
+                var plant = selectedplant.length === 0 || selectedplant[0] == "ALL" ? 'ALL' : selectedplant.map((plant) => plant.value).join(',');
+                var brand = selectedBrand.length === 0 || selectedBrand[0] == "ALL" ? 'ALL' : selectedBrand.map((brand) => brand.value).join(',');
+                var product = selectedProduct.length === 0 ? 'ALL' : selectedProduct.map((product) => product.value).join(',');
+                var month = selectedMonth[0].value;
+                var year = selectedYear[0].value;
+                var type = "";
+                if (view == "quarterwise") {
+                    type = "quarterwise";
+                } else {
+                    type = "networkwise";
+                }
+                var url = reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? apiUrls.NetworkWiseProductYearlySale
+                    : apiUrls.NetworkWiseProductSale_S;
+                var request = {
+                    div: div,
+                    desg: desg,
+                    mis: Misdesc,
+                    plant: plant,
+                    brand: brand,
+                    product: product,
+                    month: month.toString(),
+                    year: year.toString(),
+                    type: reportType === 'networkWiseProductWiseYearly' || reportType === 'networkWiseProductWiseNepalYearly' ? reportType : type
+                }
+                const response1 = await fetchApi(url, request)
 
-            const formatted = response1.data;
-            if (formatted.length > 0) {
-                setGridData(formatted);
+                const formatted = response1.data;
+                if (formatted.length > 0) {
+                    setGridData(formatted);
 
-            } else {
-                alert("No Record Found");
-                setGridData(null);
+                } else {
+                    alert("No Record Found");
+                    setGridData(null);
+                }
+
+                setLoading(false);
+            }
+            catch (error) {
+                console.error("Error fetching report data:", error);
+                alert("An error occurred while fetching the report data. Please try again later.");
+                setLoading(false);
             }
 
-            setLoading(false);
         }
-
-
     }
 
     if (loading) {
@@ -400,7 +404,7 @@ const NetworkProductWise = () => {
                         years={years}
                         selectedYear={selectedYear}
                         setSelectedYear={setSelectedYear}
-                        monthyears={monthyears}
+                        finyears={finyears}
                         onGo={DownloadFile}
                     />
 
