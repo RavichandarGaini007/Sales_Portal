@@ -14,7 +14,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../../src/actions/loginactions';
 import { API_REQUEST } from '../lib/fetchApi';
-import { setAccessToken } from '../lib/authToken';
+import { setAccessToken, useTimestampValidation } from '../lib/authToken';
 import BouncingLoader from '../common/BouncingLoader';
 
 const initialValues = {
@@ -41,9 +41,10 @@ const LoginPage = () => {
       const params = new URLSearchParams(location.search);
       const para = params.get('para');
       const para_id = params.get('para_id');
+      const para_ts = params.get('para_ts');
 
       if (para && para_id) {
-        autoLogin(para, para_id);
+        autoLogin(para, para_id, para_ts);
       }
       else {
         setLoading(false);
@@ -51,22 +52,31 @@ const LoginPage = () => {
     })();
   }, [location.search]);
 
-  const autoLogin = async (para, para_id) => {
+  const autoLogin = async (para, para_id, para_ts) => {
     try {
       //setLoading(true);
       setErrorMessage('');
 
-      //// call webservice to decrypt
-      const decryptedEmail = await decryptEmail(para, para_id);
+      const decryptedTs = await decryptEmail(para_ts, para_id);
 
-      // Option 1: Using your redux action
-      const response = await dispatch(loginUser({ emailid: decryptedEmail, password: 'demand' }))
-        .unwrap();
+      const isTimestampValid = useTimestampValidation(decryptedTs);
 
-      if (response.code === 1) {
-        redirectUser(response);
-      } else {
-        setErrorMessage('Auto-login failed: ' + response.message);
+      if (isTimestampValid) {
+        //// call webservice to decrypt
+        const decryptedEmail = await decryptEmail(para, para_id);
+
+        // Option 1: Using your redux action
+        const response = await dispatch(loginUser({ emailid: decryptedEmail, password: 'demand' }))
+          .unwrap();
+
+        if (response.code === 1) {
+          redirectUser(response);
+        } else {
+          setErrorMessage('Auto-login failed: ' + response.message);
+        }
+      }
+      else {
+        setErrorMessage('Invalid Url: ' + response.message);
       }
     } catch (error) {
       console.error('Auto login error:', error);

@@ -42,7 +42,8 @@ const CompanyAnnoucement = ({ show, url }) => {
 
       <Modal.Body className="text-center">
         <img
-          src={`${process.env.PUBLIC_URL}/commimage/${url}`}
+          // src={`${process.env.PUBLIC_URL}/commimage/${url}`}
+          src={`data:image/jpeg;base64,${url}`}
           alt="Preview"
           className="img-fluid rounded"
         />

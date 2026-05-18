@@ -10,7 +10,7 @@ import BouncingLoader from '../common/BouncingLoader';
 import ReportDataTable from './ReportDataTable';
 import { GlanceReportHeaderColumn } from '../lib/tableHead';
 
-const GlanceReport = () => {
+const GlanceReport = ({ repoType }) => {
     const [view, setView] = useState('allindia');
     const [divison, setdivison] = useState([]);
     const [Desg, setDesg] = useState([]);
@@ -164,7 +164,7 @@ const GlanceReport = () => {
                     desg: desg,
                     mis: Misdesc,
                     year: year.toString(),
-                    type: view
+                    type: repoType
                 }
                 const response1 = await fetchApi(apiUrls.glanceReport, request)
 
@@ -201,7 +201,7 @@ const GlanceReport = () => {
             <div className="cust-sale-card">
                 <div className="cust-sale-card-header">
                     <div>
-                        <h1 className="cust-sale-title">Glance Report</h1>
+                        <h1 className="cust-sale-title">{repoType} At Glance Report</h1>
                     </div>
                     <button className="cust-sale-button" onClick={FetchReportData} disabled={loading}>
                         {loading ? 'Loading...' : 'Run Report'}

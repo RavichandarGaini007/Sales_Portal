@@ -35,7 +35,8 @@ function App() {
                 <Route path="/mainLayout/Report/CustProdSalesTrend" element={<CustProdSalesTrend />} />
                 <Route path="/mainLayout/Report/CorporatePerformance" element={<CorporatePerformance />} />
                 <Route path="/mainLayout/Report/DispensaryReport" element={<DispensaryReport />} />
-                <Route path="/mainLayout/Report/GlanceReport" element={<GlanceReport />} />
+                <Route path="/mainLayout/Report/GlanceReport/Sales" element={<GlanceReport repoType="Sales" />} />
+                <Route path="/mainLayout/Report/GlanceReport/Target" element={<GlanceReport repoType="Target" />} />
               <Route path="/mainLayout/SalesPortal" element={<SalesPortalTable />} />
             </Route>
           </Routes>
