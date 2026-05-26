@@ -49,12 +49,14 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
   },
   "devDependencies": {
+    "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
     "resolve-url-loader": "^3.1.5",

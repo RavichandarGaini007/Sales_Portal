@@ -26,8 +26,8 @@ function MainLayout() {
       <RequestProvider>
         <Navbar />
         <div className="main-content-wrapper">
-          {data?.data[0]?.modelUrl !== '' && data?.data[0]?.modelUrl !== null && showPopup && (
-            <CompanyAnnoucement show={true} url={data?.data[0]?.modelUrl} />
+          {data?.data?.[0]?.modelUrl !== '' && data?.data?.[0]?.modelUrl !== null && showPopup && (
+            <CompanyAnnoucement show={true} url={data?.data?.[0]?.modelUrl} />
           )}
           <Outlet />
         </div>
