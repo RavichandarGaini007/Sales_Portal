@@ -113,7 +113,7 @@ const SalesDivs = ({ tableData }) => {
   };
 
   const barCount = labels.length;
-  const chartHeight = barCount > 5 ? barCount * 32 : 270; // 32px per bar for spacing
+  const chartHeight = Math.max(270, barCount * 55);//barCount > 5 ? barCount * 55 : 270; // 32px per bar for spacing
   // Dynamically set minWidth based on label length and bar count for better horizontal scroll
   // Force minWidth to always be larger than the container to ensure horizontal scrollbar
   const chartMinWidth = Math.max(600, ...customLabels.map(l => l.length * 12) + barCount * 100);
@@ -140,8 +140,11 @@ const SalesDivs = ({ tableData }) => {
                   clip: false, // allow label to overflow chart area
                   offset: 2, // more space after bar
                   display: true,
-                  formatter: function (value, context) {
-                    return customLabels[context.dataIndex];
+                  // formatter: function (value, context) {
+                  //   return customLabels[context.dataIndex];
+                  // },
+                  display: function (context) {
+                    return context.datasetIndex === 1; // Sale only
                   },
                 },
               },

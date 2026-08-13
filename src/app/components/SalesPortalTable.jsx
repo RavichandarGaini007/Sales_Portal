@@ -516,8 +516,8 @@ const SalesPortalTable = () => {
             </Row>
             <Row className="">
               {/* <h3 className="text-center mb-3">Performance Overview</h3> */}
-              <Col lg="12" md="12" sm="12">
-                <Card className="card-stats" style={{ height: '400px' }}>
+              <Col lg="12" md="12" sm="12" className="mb-4">
+                <Card className="card-stats" style={{ height: '450px' }}>
                   {isLoading ? (
                     <BouncingLoader />
                   ) : (

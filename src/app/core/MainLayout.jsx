@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import CompanyAnnoucement from '../components/CompanyAnnoucement';
 import { RequestProvider } from '../common/RequestContext';
+import ChatBot from '../chatbot/ChatBot';
 
 function MainLayout() {
   const [showPopup, setShowPopup] = React.useState(false);
@@ -31,6 +32,7 @@ function MainLayout() {
           )}
           <Outlet />
         </div>
+        {/* <ChatBot /> */}
       </RequestProvider>
     </>
   );

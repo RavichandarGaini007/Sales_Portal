@@ -325,6 +325,10 @@ const DispensaryReport = () => {
         return Object.keys(data[0]).map((key) => ({ label: formatLabel(key), key }));
     }, [data]);
 
+    if (loading) {
+        return <BouncingLoader></BouncingLoader>;
+    }
+
     return (
         <section className="cust-sale-report">
             <div className="cust-sale-card">
@@ -357,11 +361,7 @@ const DispensaryReport = () => {
                 {error && <div className="cust-sale-alert">{error}</div>}
 
                 <div className="cust-sale-table-wrap">
-                    {loading ? (
-                        <div className="cust-sale-loader">
-                            <BouncingLoader />
-                        </div>
-                    ) : data.length > 0 ? (
+                    {data.length > 0 ? (
                         <ReportDataTable data={data} columnHeaders={columns} />
                     ) : (
                         <div className="cust-sale-empty">No data available. Run report to see results.</div>

@@ -141,6 +141,7 @@ export const apiUrls = {
   corpPerformanceReport: API_REQUEST + 'corpPerformanceReport',
   glanceReport: API_REQUEST + 'GlanceReport',
   dispensaryReport: API_REQUEST + 'DispensaryReport',
+  GetChatBotReq: API_REQUEST + 'GetChatBotReq',
 };
 
 export const popState = {
