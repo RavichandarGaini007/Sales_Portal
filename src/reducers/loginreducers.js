@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loginUser } from "../../src/actions/loginactions";
+import { clearAccessToken, clearEnetsale } from "../app/lib/authToken";
 
 const initialState = {
   data: [],
@@ -7,16 +8,21 @@ const initialState = {
   errorMessage: "",
   isAuthorized: false
 };
+
 export const loginSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
     logout: (state) => {
-      //localStorage.removeItem('token') // deletes token from storage
-      state.isLoading = false
-      // state.data = []
-      state.errorMessage = ""
-      state.isAuthorized = false
+      // ✅ CLEAR TOKENS FROM STORAGE
+      clearAccessToken();
+      clearEnetsale();
+      
+      // ✅ RESET REDUX STATE
+      state.isLoading = false;
+      state.data = [];
+      state.errorMessage = "";
+      state.isAuthorized = false;
     },
   },
   extraReducers: (builder) => {
@@ -37,6 +43,7 @@ export const loginSlice = createSlice({
       });
   },
 });
-export const { logout } = loginSlice.actions
+
+export const { logout } = loginSlice.actions;
 
 export default loginSlice.reducer;

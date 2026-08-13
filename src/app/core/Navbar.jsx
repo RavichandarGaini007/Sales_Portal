@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-//import '@mdi/font/css/materialdesignicons.min.css';
 import { Link } from 'react-router-dom';
 import '../../assets/vendors/mdi/css/materialdesignicons.min.css';
 import '../../assets/vendors/flag-icon-css/css/flag-icon.min.css';
@@ -8,7 +6,7 @@ import '../../assets/vendors/css/vendor.bundle.base.css';
 import { useSelector } from 'react-redux';
 import Multiselect_dropdown from '../common/Multiselect_dropdown';
 import { Button } from 'reactstrap';
-import { apiUrls, API_REQUEST } from '../lib/fetchApi';
+import { apiUrls, fetchApi, fetchApiGet } from '../lib/fetchApi';
 import { useRequest } from '../common/RequestContext';
 import { MdSearch } from 'react-icons/md';
 import { clearAccessToken } from '../lib/authToken';
@@ -75,24 +73,29 @@ const Navbar = () => {
   useEffect(() => {
     // Fetch data from API
     getUserMenus();
-    axios
-      .get(apiUrls.SalesDiv + '?strEmpCode=' + data?.data[0]?.userid)
-      .then((response) => {
-        const resdata = response.data.data;
+    (async () => {
+      try {
+        const empCode = data?.data?.[0]?.userid;
+        if (!empCode) {
+          return;
+        }
+
+        const response = await fetchApiGet(apiUrls.SalesDiv + '?strEmpCode=' + empCode);
+        const resdata = response.data;
         if (
           data?.data &&
           Array.isArray(data.data) &&
           data.data.length > 0 &&
-          data?.data[0]?.enetsale === 'ALL'
+          data?.data?.[0]?.enetsale === 'ALL'
         ) {
           setAllDivs([...resdata, { div: 'ALL', name: 'ALL' }]);
         } else {
           setAllDivs(resdata);
         }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+      } catch (error) {
+        console.error('Error fetching divisions:', error);
+      }
+    })();
     genRequest();
   }, []);
 
@@ -129,13 +132,15 @@ const Navbar = () => {
   };
 
   const getUserMenus = async (e) => {
-    let empCode = '41406'; //// data?.data[0]?.userid
-    let role = 'Admin'; ///// data?.data[0]?.role
-    const response = await axios.post(
-      apiUrls.DashboardMenus + `?empCode=${empCode}&role=${role}`
-    );
-    const data = await response.data.data;
-    setMenuItems(data);
+    try {
+      let empCode = '41406'; //// data?.data[0]?.userid
+      let role = 'Admin'; ///// data?.data[0]?.role
+      const response = await fetchApi(apiUrls.DashboardMenus + `?empCode=${empCode}&role=${role}`, {});
+      const menuData = response.data;
+      setMenuItems(menuData);
+    } catch (error) {
+      console.error('Error fetching menus:', error);
+    }
   };
 
   const handleSearch = () => {
@@ -143,12 +148,11 @@ const Navbar = () => {
   };
 
   const handleSignout = async (e) => {
-    localStorage.removeItem('token');
     e.preventDefault();
     clearAccessToken();
     localStorage.removeItem("dashboardPopupSeen");
 
-    const response = await fetch(API_REQUEST + 'logout', {
+    await fetch(API_REQUEST + 'logout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -183,6 +187,7 @@ const Navbar = () => {
       setYear(yr);
     }
     let divValue;
+    const userEnetsale = data?.data?.[0]?.enetsale ?? '';
     if ((divParam && Array(selected.map((items) => items.value)).join(',') === divParam) || (divParam && selected.length === 0)) {
       divValue = divParam;
 
@@ -193,14 +198,15 @@ const Navbar = () => {
       // setSelected(selectedDivs);
     } else {
       divValue =
-        selected.length === divisions.length &&
-          data?.data[0]?.enetsale === 'ALL'
-          ? data?.data[0]?.enetsale
-          : selected.length > 0 ? Array(selected.map((items) => items.value)).join(',') : data?.data[0]?.enetsale.replaceAll("'", '');
+        selected.length === divisions.length && userEnetsale === 'ALL'
+          ? userEnetsale
+          : selected.length > 0
+            ? Array(selected.map((items) => items.value)).join(',')
+            : userEnetsale.replaceAll("'", '');
     }
     const comReq = {
       tbl_name: 'FTP_' + mnth + '_' + yr,
-      empcode: data?.data[0]?.userid,
+      empcode: data?.data?.[0]?.userid,
       div: divValue,
       month: mnth.toString(),
       year: yr.toString(),
@@ -315,11 +321,11 @@ const Navbar = () => {
                     aria-expanded="false"
                   >
                     <div className="nav-profile-img">
-                      <img src={data.data[0].userprofile} alt="profile card" />
+                      <img src={data?.data?.[0]?.userprofile || ''} alt="profile card" />
                     </div>
                     <div className="nav-profile-text">
                       <p className="text-black font-weight-semibold m-0">
-                        {data?.data[0]?.name}
+                        {data?.data?.[0]?.name}
                       </p>
                     </div>
                   </a>
@@ -368,7 +374,7 @@ const Navbar = () => {
               {menuItems.map((item, index) => (
                 <li className="nav-item" key={index}>
                   {item.url.startsWith("http") ? (
-                    <a className="nav-link" href={item.url.replace("stremailencrypt", data.emailKeyEncrypted).replace("struserencrypt", data.userKeyEncrypted).replace("stringemailencryption", data.emailEncryptionString)} target="_blank" rel="noopener noreferrer">
+                    <a className="nav-link" href={item.url.replace("stremailencrypt", data?.emailKeyEncrypted || '').replace("struserencrypt", data?.userKeyEncrypted || '').replace("stringemailencryption", data?.emailEncryptionString || '')} target="_blank" rel="noopener noreferrer">
                       <span>{item.name}</span>
                     </a>
                   ) : (
@@ -396,9 +402,9 @@ const Navbar = () => {
                                     <a
                                       className="nav-link"
                                       href={submenu.url
-                                        .replace("stremailencrypt", data.emailKeyEncrypted)
-                                        .replace("struserencrypt", data.userKeyEncrypted)
-                                        .replace("stringemailencryption", data.emailEncryptionString)}
+                                        .replace("stremailencrypt", data?.emailKeyEncrypted || '')
+                                        .replace("struserencrypt", data?.userKeyEncrypted || '')
+                                        .replace("stringemailencryption", data?.emailEncryptionString || '')}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >

@@ -6,7 +6,8 @@ import rootReducerWithLogout from './reducers/rootReducer';
 
 const persistConfig = {
   key: 'root',
-  storage, // Saves state to localStorage
+  storage, // Saves non-auth app state to localStorage
+  blacklist: ['app'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducerWithLogout);

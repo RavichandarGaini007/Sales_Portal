@@ -8,7 +8,9 @@ let enetsale = typeof window !== 'undefined'
   : null;
 
 export const setAccessToken = (token) => {
-  accessToken = token;
+  // Keep access tokens in memory only for security.
+  // The refresh token should be stored in an httpOnly cookie.
+  accessToken = token || null;
 };
 
 export const setEnetsale = (value) => {
@@ -22,16 +24,7 @@ export const setEnetsale = (value) => {
   }
 };
 
-// export const setKeepSignIn = (value) => {
-//   keepSignIn = value;
-// };
-// export const setUserId = (id) => {
-//   userId = id;
-//}
-
-//export const getKeepSignIn = () => keepSignIn;
 export const getAccessToken = () => accessToken;
-//export const getUserId = () => userId;
 
 export const getEnetsale = () => {
   if (enetsale) return enetsale;

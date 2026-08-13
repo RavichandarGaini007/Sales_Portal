@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Slider from 'react-slick';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import '../css/LoginPage.css'; // Custom styles
-import pharma1 from './LoginImages/pharma1.jpg'; // Replace with your company logo
-import pharma2 from './LoginImages/pharma2.jpg'; // Replace with your company logo
+import '../css/LoginPage.css';
+import pharma1 from './LoginImages/pharma1.jpg';
+import pharma2 from './LoginImages/pharma2.jpg';
 import pharma3 from './LoginImages/pharma3.jpg';
 import login_validation from './login_validation';
 import { useFormik } from 'formik';
-import axios from 'axios';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -28,147 +27,140 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data, isAuthorized, isLoading } = useSelector((state) => {
-    return state.app;
-  });
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const hasParam = params.get('para') !== null;
 
-  const [loading, setLoading] = useState(false); // To handle loading state
-  const [errorMessage, setErrorMessage] = useState(''); // To display API errors
+  const [loading, setLoading] = useState(hasParam);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const params = new URLSearchParams(location.search);
-      const para = params.get('para');
-      const para_id = params.get('para_id');
-      const para_ts = params.get('para_ts');
+    const para = params.get('para');
+    const para_id = params.get('para_id');
+    const para_ts = params.get('para_ts');
 
-      if (para && para_id) {
-        autoLogin(para, para_id, para_ts);
-      }
-      else {
-        setLoading(false);
-      }
-    })();
+    if (para && para_id) {
+      autoLogin(para, para_id, para_ts);
+    } else {
+      tryRefreshLogin();
+    }
   }, [location.search]);
+
+  const decryptEmail = async (encryptedEmail, key) => {
+    try {
+      const response = await fetch(
+        `${API_REQUEST}GetDecryptAndEncodeVal?value=${encodeURIComponent(encryptedEmail)}&key=${encodeURIComponent(key)}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to decrypt email: ' + response.statusText);
+      }
+
+      const data = await response.json();
+      return decodeURIComponent(data.decryptEmail || '');
+    } catch (error) {
+      setErrorMessage('Auto login validation failed.');
+      throw error;
+    }
+  };
 
   const autoLogin = async (para, para_id, para_ts) => {
     try {
-      //setLoading(true);
       setErrorMessage('');
+      setLoading(true);
 
       const decryptedTs = await decryptEmail(para_ts, para_id);
-
       const isTimestampValid = useTimestampValidation(decryptedTs);
 
-      if (isTimestampValid) {
-        //// call webservice to decrypt
-        const decryptedEmail = await decryptEmail(para, para_id);
-
-        // Option 1: Using your redux action
-        const response = await dispatch(loginUser({ emailid: decryptedEmail, password: 'demand' }))
-          .unwrap();
-
-        if (response.code === 1) {
-          redirectUser(response);
-        } else {
-          setErrorMessage('Auto-login failed: ' + response.message);
-        }
+      if (!isTimestampValid) {
+        setErrorMessage('Invalid or expired auto-login link.');
+        setLoading(false);
+        return;
       }
-      else {
-        setErrorMessage('Invalid Url: ' + response.message);
+
+      const decryptedEmail = await decryptEmail(para, para_id);
+
+      const response = await dispatch(loginUser({
+        emailid: decryptedEmail,
+        password: 'demand',
+        keepSignIn: true,
+      })).unwrap();
+
+      if (response.code === 1) {
+        redirectUser(response);
+      } else {
+        setErrorMessage(response.message || 'Auto-login failed');
       }
     } catch (error) {
-      console.error('Auto login error:', error);
-      setErrorMessage('Auto login failed. Please try manual login.');
+      setErrorMessage('Auto-login failed. Please sign in manually.');
     } finally {
       setLoading(false);
     }
   };
 
-  const decryptEmail = async (encryptedEmail, key) => {
+  const tryRefreshLogin = async () => {
     try {
-      const response = await fetch(
-        API_REQUEST + 'GetDecryptAndEncodeVal?value=' + encryptedEmail + '&key=' + key,
-        {
-          method: 'GET',
-          credentials: 'include'
-        }
-      );
+      setLoading(true);
+      const response = await fetch(`${API_REQUEST}refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
 
-      if (response.ok) {
-        const data = await response.json();
-        return decodeURIComponent(data.decryptEmail); // Assuming the API returns { decryptedValue: "email" }
+      if (!response.ok) {
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      if (data?.token) {
+        setAccessToken(data.token);
+        navigate('/mainLayout/SalesPortal', { replace: true });
       } else {
-        throw new Error('Failed to decrypt email: ' + response.statusText);
+        setLoading(false);
       }
     } catch (error) {
-      console.error('Error decrypting email:', error);
-      throw error; // Re-throw to handle in caller
+      setLoading(false);
+      setErrorMessage('Session renewal failed. Please log in.');
     }
   };
 
-  useEffect(() => {
-    const tryAutoLogin = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          API_REQUEST + 'refresh',
-          {
-            method: 'POST',
-            credentials: 'include'
-          }
-        );
+  const redirectUser = (response) => {
+    const isAll = response.data?.[0]?.enetsale === 'ALL';
+    const destination = isAll ? '/mainLayout/SalesPortal' : '/mainLayout/dashboard';
+    navigate(destination, { replace: true });
+  };
 
-        if (res.ok) {
-          const data = await res.json();
-          setAccessToken(data.token);
-          //setKeepSignIn(page.keepSignIn);
+  const handleBlurEmail = async (e) => {
+    const email = e.target.value;
+    if (!email) return;
 
-          navigate('/mainLayout/SalesPortal', { replace: true });
-          return;
-        } else {
-          setLoading(false);
+    try {
+      const response = await fetch(
+        `${API_REQUEST.replace('api/Sales/', 'api/')}User/userEmailId?user_id=${encodeURIComponent(email)}`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
-      } catch (error) {
-        console.error('Auto login error:', error);
-        setLoading(false);
+      );
+
+      if (!response.ok) return;
+      const data = await response.json();
+
+      if (data.data?.[0]?.emailid) {
+        setFieldValue('emailid', data.data[0].emailid);
       }
-    };
-
-    tryAutoLogin();
-  }, [navigate]);
-  // // Check for token in localStorage and validate expiry
-  // React.useEffect(() => {
-  //   const token = localStorage.getItem('token');
-  //   if (token) {
-  //     try {
-  //       // Decode JWT (assume JWT structure: header.payload.signature)
-  //       const payload = JSON.parse(atob(token.split('.')[1]));
-  //       // Check for exp (expiry) in seconds
-  //       if (payload.exp && Date.now() < payload.exp * 1000) {
-  //         // Token is valid, redirect user
-  //         // You can add more logic here if needed
-  //         navigate('/mainLayout/SalesPortal');
-  //       } else {
-  //         // Token expired, remove it
-  //         //localStorage.removeItem('token');
-  //       }
-  //     } catch (e) {
-  //       // Invalid token, remove it
-  //       //localStorage.removeItem('token');
-  //     }
-  //   }
-  // }, [navigate]);
-
-  const sliderSettings = {
-    dots: false,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: false,
+    } catch {
+      // Ignore lookup failures in UI
+    }
   };
 
   const {
@@ -180,79 +172,50 @@ const LoginPage = () => {
     touched,
     handleBlur,
   } = useFormik({
-    initialValues: initialValues,
+    initialValues,
     validationSchema: login_validation,
-    onSubmit: async (e) => {
+    onSubmit: async (formValues) => {
       try {
-        setLoading(true); // Show loading state
-        setErrorMessage(''); // Clear any previous errors
-        dispatch(loginUser(e))
-          .unwrap()
-          .then((f) => {
-            if (f.code === 1) {
-              redirectUser(f);
-            } else {
-              setErrorMessage(f.message || 'Login failed');
-            }
-            setLoading(false);
-          })
-          .catch((error) => {
-            console.error('Error during login:', error);
-            setErrorMessage(
-              error?.message || 'Failed to login. Please try again.'
-            );
-            setLoading(false);
-          });
+        setLoading(true);
+        setErrorMessage('');
+
+        const response = await dispatch(loginUser(formValues)).unwrap();
+        if (response.code === 1) {
+          redirectUser(response);
+        } else {
+          setErrorMessage(response.message || 'Login failed');
+        }
       } catch (error) {
-        console.error('Error during login:', error);
-        setErrorMessage(
-          error.response?.data?.message || 'Failed to login. Please try again.'
-        );
+        setErrorMessage(error?.message || 'Failed to login. Please try again.');
+      } finally {
         setLoading(false);
       }
     },
   });
 
-  const redirectUser = (response) => {
-    if (response.data?.[0]?.enetsale === 'ALL') {
-      navigate('/mainLayout/SalesPortal');
-    } else {
-      navigate('/mainLayout/dashboard');
-    }
-  };
-
-  const handleBlurEmail = async (e) => {
-    const email = e.target.value;
-    try {
-      const response = await axios.post(
-        `https://alkemcrm.com/salesapi/api/User/userEmailId?user_id=${email}`
-      );
-      const data = await response.data;
-
-      if (data.data[0].emailid) setFieldValue('emailid', data.data[0].emailid);
-      else setFieldValue('emailid', 'undefine');
-    } catch (error) {
-      console.error('Error checking email:', error);
-    }
+  const sliderSettings = {
+    dots: false,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    arrows: false,
   };
 
   if (loading) {
-    return (
-      <BouncingLoader />
-    );
+    return <BouncingLoader />;
   }
 
   return (
     <Container fluid className="login-page vh-100 d-flex align-items-center">
       <Row className="w-100 clsportal">
-        {/* Left Section */}
         <Col
           md={6}
           className="bg-light p-5 d-flex flex-column align-items-center justify-content-center"
         >
           <div className="text-center mb-4">
             <img
-              //src={`${process.env.PUBLIC_URL}/logo.png`}
               src={process.env.PUBLIC_URL + '/logo.png'}
               alt="Company Logo"
               className="mb-3"
@@ -260,7 +223,13 @@ const LoginPage = () => {
             />
             <h2>Sales Portal Login</h2>
           </div>
+
           <Form className="w-75" onSubmit={handleSubmit}>
+            {errorMessage && (
+              <div className="alert alert-danger" role="alert">
+                {errorMessage}
+              </div>
+            )}
             <Form.Group className="mb-3" controlId="formUsername">
               <Form.Label>Username</Form.Label>
               <Form.Control
@@ -275,10 +244,10 @@ const LoginPage = () => {
                 }}
               />
               {touched.emailid && errors.emailid ? (
-                // toast.error(errors.emailid)
                 <p className="form-error">{errors.emailid}</p>
               ) : null}
             </Form.Group>
+
             <Form.Group className="mb-3" controlId="formPassword">
               <Form.Label>Password</Form.Label>
               <Form.Control
@@ -293,6 +262,7 @@ const LoginPage = () => {
                 <p className="form-error">{errors.password}</p>
               ) : null}
             </Form.Group>
+
             <Form.Group className="mb-3" controlId="formCheckbox">
               <Form.Check
                 type="checkbox"
@@ -302,18 +272,18 @@ const LoginPage = () => {
                 checked={values.keepSignIn}
               />
             </Form.Group>
+
             <Button variant="primary" type="submit" className="w-100 mb-3">
               Login
             </Button>
             <div className="text-center">
-              <Button className="w-100 mb-2 btn-onelogin flex-grow">
+              <Button className="w-100 mb-2 btn-onelogin flex-grow" type="button">
                 Login with onelogin
               </Button>
             </div>
           </Form>
         </Col>
 
-        {/* Right Section */}
         <Col md={6} className="d-none d-md-flex p-0">
           <Slider {...sliderSettings} className="w-100">
             <div>

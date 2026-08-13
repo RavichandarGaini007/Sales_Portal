@@ -3,43 +3,63 @@ import {
   getAccessToken,
   setAccessToken,
   clearAccessToken
-  // getKeepSignIn,
-  // getUserId
 } from './authToken';
 
-//export const API_REQUEST = "https://192.168.120.64/React_Login_api/api/Sales/";
-export const API_REQUEST = "https://alkemcrm.com/salesapi/api/Sales/";
-//export const API_REQUEST = "https://localhost:5001/api/Sales/";
+// ✅ USE ENVIRONMENT VARIABLE
+export const API_REQUEST = process.env.REACT_APP_API_URL || "https://alkemcrm.com/salesapi/api/Sales/";
 
-
+// 🔁 PREVENT INFINITE TOKEN REFRESH LOOPS
 let isRefreshing = false;
 let refreshPromise = null;
+let refreshAttempts = 0;
+const MAX_REFRESH_ATTEMPTS = 3;
 
-const refreshAccessToken = async () => {
+export const refreshAccessToken = async () => {
   try {
+    refreshAttempts++;
+    
+    // ✅ SAFETY CHECK: Don't retry more than MAX attempts
+    if (refreshAttempts > MAX_REFRESH_ATTEMPTS) {
+      console.warn('Max token refresh attempts reached');
+      return false;
+    }
+
     const response = await fetch(`${API_REQUEST}refresh`, {
       method: 'POST',
       credentials: 'include' // ✅ sends refresh cookie
     });
 
-    if (!response.ok) return false;
+    if (!response.ok) {
+      console.warn('Token refresh failed with status:', response.status);
+      return false;
+    }
 
     const data = await response.json();
-    if (!data.accessToken) return false;
+    const refreshedToken = data.accessToken || data.token;
+    if (!refreshedToken) {
+      console.warn('No access token in refresh response');
+      return false;
+    }
 
-    setAccessToken(data.accessToken);
+    setAccessToken(refreshedToken);
+    refreshAttempts = 0; // Reset on success
     return true;
   } catch (err) {
-    console.error('Refresh token failed', err);
+    console.error('Refresh token failed:', err);
     return false;
   }
 };
 
 
 export const fetchApi = async (url, payload = {}, config = {}) => {
-  const token = getAccessToken();
+  // ✅ PREVENT INFINITE RETRIES
+  const retryCount = config._retryCount || 0;
+  const MAX_RETRIES = 1; // Only retry once
 
-  const response = await fetch(url, {
+  const token = getAccessToken();
+  
+  // ✅ SUPPORT ABORT SIGNAL FOR CANCELLATION
+  const fetchConfig = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -47,16 +67,39 @@ export const fetchApi = async (url, payload = {}, config = {}) => {
       ...(config.headers || {})
     },
     body: JSON.stringify(payload),
-    credentials: 'include',
-    ...config
-  });
+    credentials: 'include'
+  };
+
+  // Add abort signal if provided (for cancelling requests)
+  if (config.signal) {
+    fetchConfig.signal = config.signal;
+  }
+
+  let response;
+  try {
+    response = await fetch(url, fetchConfig);
+  } catch (error) {
+    // Handle abort errors gracefully
+    if (error.name === 'AbortError') {
+      console.warn('Request was cancelled');
+      throw error;
+    }
+    throw error;
+  }
 
   // ✅ SUCCESS
   if (response.status !== 401) {
     return response.json();
   }
 
-  // 🔁 ACCESS TOKEN EXPIRED
+  // ❌ ALREADY RETRIED
+  if (retryCount >= MAX_RETRIES) {
+    clearAccessToken();
+    window.location.href = '/sales_portal/login';
+    throw new Error('Authentication failed: Session expired');
+  }
+
+  // 🔁 ACCESS TOKEN EXPIRED - TRY REFRESH
   if (!isRefreshing) {
     isRefreshing = true;
     refreshPromise = refreshAccessToken();
@@ -68,42 +111,70 @@ export const fetchApi = async (url, payload = {}, config = {}) => {
   if (!refreshed) {
     clearAccessToken();
     window.location.href = '/sales_portal/login';
-    //throw new Error('Session expired');
+    throw new Error('Session expired');
   }
 
-  // 🔄 RETRY ORIGINAL REQUEST
-  return fetchApi(url, payload, config);
+  // 🔄 RETRY ORIGINAL REQUEST (ONCE)
+  return fetchApi(url, payload, { ...config, _retryCount: retryCount + 1 });
 };
 
 export const fetchApiGet = async (url, config = {}) => {
-  const token = getAccessToken();
+  // ✅ PREVENT INFINITE RETRIES
+  const retryCount = config._retryCount || 0;
+  const MAX_RETRIES = 1;
 
-  const response = await fetch(url, {
+  const token = getAccessToken();
+  
+  // ✅ SUPPORT ABORT SIGNAL FOR CANCELLATION
+  const fetchConfig = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...(config.headers || {})
     },
-    credentials: 'include',
-    ...config
-  });
+    credentials: 'include'
+  };
+
+  // Add abort signal if provided (for cancelling requests)
+  if (config.signal) {
+    fetchConfig.signal = config.signal;
+  }
+
+  let response;
+  try {
+    response = await fetch(url, fetchConfig);
+  } catch (error) {
+    // Handle abort errors gracefully
+    if (error.name === 'AbortError') {
+      console.warn('Request was cancelled');
+      throw error;
+    }
+    throw error;
+  }
 
   if (response.status !== 401) {
     return response.json();
   }
 
-  // 🔁 ACCESS TOKEN EXPIRED
+  // ❌ ALREADY RETRIED
+  if (retryCount >= MAX_RETRIES) {
+    clearAccessToken();
+    window.location.href = '/sales_portal/login';
+    throw new Error('Authentication failed: Session expired');
+  }
+
+  // 🔁 ACCESS TOKEN EXPIRED - TRY REFRESH
   const refreshed = await refreshAccessToken();
 
   if (!refreshed) {
     clearAccessToken();
     window.location.href = '/sales_portal/login';
-    // throw new Error('Session expired');
+    throw new Error('Session expired');
   }
 
-  // 🔄 RETRY ORIGINAL REQUEST
-  return fetchApiGet(url, config);
+  // 🔄 RETRY ORIGINAL REQUEST (ONCE)
+  return fetchApiGet(url, { ...config, _retryCount: retryCount + 1 });
 };
 
 
